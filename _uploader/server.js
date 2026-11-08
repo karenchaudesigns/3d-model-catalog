@@ -489,6 +489,330 @@ app.patch('/api/models/:slug/visibility', (req, res) => {
   }
 });
 
+/**
+ * Decode common HTML entities into plain characters
+ */
+function decodeHtmlEntities(str) {
+  return String(str || '')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;|&apos;/gi, "'")
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&ldquo;|&rdquo;/gi, '"')
+    .replace(/&lsquo;|&rsquo;/gi, "'")
+    .replace(/&ndash;/gi, '–')
+    .replace(/&mdash;/gi, '—')
+    .replace(/&#(\d+);/g, (_, dec) => String.fromCharCode(parseInt(dec, 10)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
+}
+
+/**
+ * Convert Printables HTML description into clean Jekyll-ready Markdown
+ */
+function htmlToMarkdown(html) {
+  if (!html || typeof html !== 'string') return '';
+
+  let md = html
+    .replace(/\r\n/g, '\n')
+    // Remove script/style tags if any
+    .replace(/<(script|style)[^>]*>[\s\S]*?<\/\1>/gi, '')
+    // Headings
+    .replace(/<h1[^>]*>([\s\S]*?)<\/h1>/gi, '\n\n# $1\n\n')
+    .replace(/<h2[^>]*>([\s\S]*?)<\/h2>/gi, '\n\n## $1\n\n')
+    .replace(/<h3[^>]*>([\s\S]*?)<\/h3>/gi, '\n\n### $1\n\n')
+    .replace(/<h4[^>]*>([\s\S]*?)<\/h4>/gi, '\n\n#### $1\n\n')
+    // Bold & Italic & Code
+    .replace(/<(strong|b)(?:\s[^>]*)?>([\s\S]*?)<\/\1>/gi, '**$2**')
+    .replace(/<(em|i)(?:\s[^>]*)?>([\s\S]*?)<\/\1>/gi, '*$2*')
+    .replace(/<code[^>]*>([\s\S]*?)<\/code>/gi, '`$1`')
+    // Links
+    .replace(/<a[^>]+href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi, (_, href, text) => {
+      const cleanText = text.replace(/<[^>]+>/g, '').trim();
+      return cleanText ? `[${cleanText}](${href})` : href;
+    })
+    // List items
+    .replace(/<li[^>]*>([\s\S]*?)<\/li>/gi, (_, item) => {
+      const cleanItem = item
+        .replace(/<\/?p[^>]*>/gi, ' ')
+        .replace(/<br\s*\/?>/gi, ' ')
+        .trim();
+      return `\n- ${cleanItem}`;
+    })
+    .replace(/<\/?(ul|ol)[^>]*>/gi, '\n\n')
+    // Paragraphs, line breaks, blockquotes, horizontal rules
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/p>/gi, '\n\n')
+    .replace(/<p[^>]*>/gi, '')
+    .replace(/<hr\s*\/?>/gi, '\n\n---\n\n')
+    // Strip remaining HTML tags
+    .replace(/<[^>]+>/g, '');
+
+  md = decodeHtmlEntities(md);
+
+  // Clean up excessive blank lines and trailing spaces
+  return md
+    .split('\n')
+    .map((line) => line.replace(/[ \t]+$/g, ''))
+    .join('\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+/**
+ * Helper: Execute a GraphQL query against https://api.printables.com/graphql/
+ */
+async function queryPrintablesGraphQL(query, variables) {
+  const response = await fetch('https://api.printables.com/graphql/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      Origin: 'https://www.printables.com',
+      Referer: 'https://www.printables.com/',
+      'User-Agent':
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+    },
+    body: JSON.stringify({ query, variables })
+  });
+
+  if (!response.ok) {
+    throw new Error(`Printables GraphQL HTTP ${response.status}`);
+  }
+  return response.json();
+}
+
+/**
+ * POST /api/import/printables — Fetch title, description, tags, Youtube ID, and images from a Printables URL
+ */
+app.post('/api/import/printables', async (req, res) => {
+  try {
+    const rawUrl = String(req.body.url || '').trim();
+    if (!rawUrl) {
+      return res.status(400).json({ error: 'Please provide a Printables model URL.' });
+    }
+
+    const idMatch = rawUrl.match(/printables\.com\/(?:[a-z]{2}\/)?model\/(\d+)/i);
+    if (!idMatch) {
+      return res.status(400).json({
+        error: 'Could not find a numeric model ID in the URL (expected e.g. https://www.printables.com/model/123456-...).'
+      });
+    }
+
+    const modelId = idMatch[1];
+    let title = '';
+    let summary = '';
+    let descriptionHtml = '';
+    let tags = [];
+    let imageUrls = [];
+    let categoryPath = [];
+
+    // 1. Primary Method: Printables GraphQL API
+    const fullQuery = `
+      query GetPrintModel($id: ID!) {
+        print(id: $id) {
+          id
+          name
+          slug
+          summary
+          description
+          tags {
+            name
+          }
+          category {
+            path {
+              name
+            }
+          }
+          image {
+            filePath
+          }
+          images {
+            filePath
+          }
+        }
+      }
+    `;
+
+    const minimalQuery = `
+      query GetPrintModelMinimal($id: ID!) {
+        print(id: $id) {
+          id
+          name
+          slug
+          summary
+          description
+          tags {
+            name
+          }
+        }
+      }
+    `;
+
+    let gqlPrint = null;
+    try {
+      const gqlRes = await queryPrintablesGraphQL(fullQuery, { id: modelId });
+      if (gqlRes && gqlRes.data && gqlRes.data.print) {
+        gqlPrint = gqlRes.data.print;
+      } else {
+        const minRes = await queryPrintablesGraphQL(minimalQuery, { id: modelId });
+        if (minRes && minRes.data && minRes.data.print) {
+          gqlPrint = minRes.data.print;
+        }
+      }
+    } catch (gqlErr) {
+      console.warn('Printables GraphQL warning:', gqlErr.message);
+    }
+
+    if (gqlPrint) {
+      title = gqlPrint.name || '';
+      summary = gqlPrint.summary || '';
+      descriptionHtml = gqlPrint.description || '';
+
+      if (Array.isArray(gqlPrint.tags)) {
+        tags = gqlPrint.tags.map((t) => (t && t.name ? String(t.name).trim() : '')).filter(Boolean);
+      }
+
+      if (gqlPrint.category && Array.isArray(gqlPrint.category.path)) {
+        categoryPath = gqlPrint.category.path.map((c) => c && c.name).filter(Boolean);
+      }
+
+      const rawPaths = [];
+      if (gqlPrint.image && gqlPrint.image.filePath) {
+        rawPaths.push(gqlPrint.image.filePath);
+      }
+      if (Array.isArray(gqlPrint.images)) {
+        gqlPrint.images.forEach((img) => {
+          if (img && img.filePath && !rawPaths.includes(img.filePath)) {
+            rawPaths.push(img.filePath);
+          }
+        });
+      }
+      imageUrls = rawPaths.map((fp) => {
+        const cleanFp = String(fp).replace(/^\/+/, '');
+        return cleanFp.startsWith('http') ? cleanFp : `https://media.printables.com/${cleanFp}`;
+      });
+    }
+
+    // 2. Fallback / Supplement: Fetch public Printables HTML page if title or description is still missing
+    if (!title || !descriptionHtml) {
+      try {
+        const pageRes = await fetch(rawUrl, {
+          headers: {
+            'User-Agent':
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+            Accept: 'text/html,application/xhtml+xml'
+          }
+        });
+        if (pageRes.ok) {
+          const html = await pageRes.text();
+
+          if (!title) {
+            const ogTitle = html.match(/<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']/i);
+            if (ogTitle) {
+              title = decodeHtmlEntities(ogTitle[1]).replace(/\s+by\s+[^|]+(\|\s*Download free STL model)?\s*\|\s*Printables\.com$/i, '').trim();
+            }
+          }
+
+          if (!descriptionHtml && !summary) {
+            const ogDesc = html.match(/<meta[^>]+property=["']og:description["'][^>]+content=["']([^"']+)["']/i);
+            if (ogDesc) {
+              summary = decodeHtmlEntities(ogDesc[1]).trim();
+            }
+          }
+
+          if (imageUrls.length === 0) {
+            const ogImg = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i);
+            if (ogImg && ogImg[1]) {
+              imageUrls.push(ogImg[1]);
+            }
+          }
+        }
+      } catch (htmlErr) {
+        console.warn('Printables HTML fallback warning:', htmlErr.message);
+      }
+    }
+
+    if (!title && !descriptionHtml && !summary) {
+      return res.status(502).json({
+        error: 'Could not retrieve model details from Printables. Check that the model URL is public and reachable.'
+      });
+    }
+
+    const descriptionMarkdown = htmlToMarkdown(descriptionHtml || summary);
+
+    // Check if there is a YouTube link inside the description HTML/Markdown
+    const ytMatch = (descriptionHtml + ' ' + descriptionMarkdown).match(
+      /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/
+    );
+    const youtubeId = ytMatch ? ytMatch[1] : '';
+
+    // Guess best matching catalog category if possible
+    const combinedText = `${title} ${tags.join(' ')} ${categoryPath.join(' ')}`.toLowerCase();
+    let suggestedCategory = null;
+    if (/(christmas|halloween|autumn|fall|pumpkin|easter|valentine|holiday|seasonal|ornament|winter|thanksgiving)/.test(combinedText)) {
+      suggestedCategory = 'seasonal';
+    } else if (/(organizer|holder|mount|stand|bracket|clip|adapter|tool|tray|sorter|box|hook|storage|functional)/.test(combinedText)) {
+      suggestedCategory = 'useful-prints';
+    } else if (/(fidget|articulated|flexi|toy|game|puzzle)/.test(combinedText)) {
+      suggestedCategory = 'fan-favorites';
+    } else if (/(decor|vase|coaster|planter|gift|statue|art|sign|duck|figurine|cute)/.test(combinedText)) {
+      suggestedCategory = 'gifts-decor';
+    }
+
+    return res.json({
+      success: true,
+      modelId,
+      url: rawUrl,
+      title: decodeHtmlEntities(title).trim(),
+      shortname: toShortname(title),
+      description: descriptionMarkdown,
+      summary: decodeHtmlEntities(summary).trim(),
+      tags,
+      youtubeId,
+      suggestedCategory,
+      imageUrls: imageUrls.slice(0, 8)
+    });
+  } catch (err) {
+    console.error('Printables import error:', err);
+    return res.status(500).json({ error: `Failed to import from Printables: ${err.message}` });
+  }
+});
+
+/**
+ * GET /api/proxy-image — Safely proxy Printables media images so the browser Canvas can convert them to WebP
+ */
+app.get('/api/proxy-image', async (req, res) => {
+  try {
+    const rawUrl = String(req.query.url || '').trim();
+    if (!rawUrl) {
+      return res.status(400).send('Missing url parameter');
+    }
+    const parsed = new URL(rawUrl);
+    if (!parsed.hostname.endsWith('printables.com')) {
+      return res.status(403).send('Only printables.com media URLs are allowed');
+    }
+
+    const imgRes = await fetch(rawUrl, {
+      headers: {
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+      }
+    });
+    if (!imgRes.ok) {
+      return res.status(imgRes.status).send('Failed to fetch remote image');
+    }
+    const contentType = imgRes.headers.get('content-type') || 'image/jpeg';
+    const arrayBuffer = await imgRes.arrayBuffer();
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+    return res.send(Buffer.from(arrayBuffer));
+  } catch (err) {
+    return res.status(500).send(err.message);
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`3D Model Catalog Admin Uploader running at http://localhost:${PORT}`);
 });

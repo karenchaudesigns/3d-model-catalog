@@ -1335,9 +1335,17 @@
                     <span class="btn-platform-dot" aria-hidden="true"></span>
                     <span>Download on Printables</span>
                   </span>
-                  <span aria-hidden="true">&rarr;</span>
+                  <button
+                    type="button"
+                    id="btn-autofill-printables"
+                    title="Fetch Model Title, Description, Tags, and Photos from this Printables URL"
+                    style="appearance:none;border:1px solid rgba(255,255,255,0.55);background:rgba(0,0,0,0.22);color:#fff;font-family:var(--font-sans);font-size:0.71rem;font-weight:700;padding:0.18rem 0.52rem;border-radius:999px;cursor:pointer;"
+                  >
+                    &#10024; Auto-Fill Page
+                  </button>
                 </div>
-                <input type="url" id="dl-printables" placeholder="https://www.printables.com/model/...">
+                <input type="url" id="dl-printables" placeholder="Paste Printables URL to auto-fill title, description &amp; tags...">
+                <div id="printables-import-status" style="display:none;font-size:0.71rem;line-height:1.35;color:#fff;background:rgba(0,0,0,0.24);padding:0.28rem 0.48rem;border-radius:4px;"></div>
               </div>
 
               <div class="btn-download-editor btn-thangs" id="card-dl-thangs">
@@ -1939,6 +1947,114 @@
         updateMarkdownPreview();
       });
 
+      var btnAutofillPrintables = document.getElementById('btn-autofill-printables');
+      var printablesImportStatus = document.getElementById('printables-import-status');
+
+      function importFromPrintables(rawUrl) {
+        var urlToFetch = String(rawUrl || dlPrintables.value || '').trim();
+        if (!urlToFetch) {
+          printablesImportStatus.style.display = 'block';
+          printablesImportStatus.textContent = 'Paste a Printables model URL above first.';
+          dlPrintables.focus();
+          return;
+        }
+
+        dlPrintables.value = urlToFetch;
+        syncDownloadButtonHighlights();
+
+        btnAutofillPrintables.disabled = true;
+        btnAutofillPrintables.textContent = 'Fetching...';
+        printablesImportStatus.style.display = 'block';
+        printablesImportStatus.textContent = 'Fetching title, description, tags & photos from Printables...';
+
+        fetch('/api/import/printables', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: urlToFetch })
+        })
+          .then(function (r) {
+            return r.json().then(function (b) {
+              return { ok: r.ok, body: b };
+            });
+          })
+          .then(function (res) {
+            btnAutofillPrintables.disabled = false;
+            btnAutofillPrintables.innerHTML = '&#10024; Auto-Fill Page';
+
+            if (!res.ok || res.body.error) {
+              printablesImportStatus.textContent = '⚠ ' + (res.body.error || 'Could not fetch from Printables.');
+              return;
+            }
+
+            var d = res.body;
+            var populatedParts = [];
+
+            if (d.title) {
+              nameInput.value = d.title;
+              if (!shortnameManuallyEdited && !editingSlug) {
+                shortnameInput.value = d.shortname || slugifyShortname(d.title);
+              }
+              populatedParts.push('Title');
+            }
+
+            if (d.description) {
+              descInput.value = d.description;
+              populatedParts.push('Description');
+            }
+
+            if (Array.isArray(d.tags) && d.tags.length > 0) {
+              tagsInput.value = d.tags.join(', ');
+              renderTagPills();
+              populatedParts.push(d.tags.length + ' Tags');
+            }
+
+            if (d.suggestedCategory && !editingSlug) {
+              categorySelect.value = d.suggestedCategory;
+              populatedParts.push('Category');
+            }
+
+            if (d.youtubeId && !youtubeInput.value.trim()) {
+              youtubeInput.value = d.youtubeId;
+              syncYoutubePreview();
+              populatedParts.push('YouTube Video');
+            }
+
+            // If no images are currently in the showcase stage and Printables returned images, load them via proxy
+            if (sourceImages.length === 0 && Array.isArray(d.imageUrls) && d.imageUrls.length > 0) {
+              d.imageUrls.slice(0, 5).forEach(function (remoteImgUrl) {
+                var proxiedUrl = '/api/proxy-image?url=' + encodeURIComponent(remoteImgUrl);
+                addImageFromUrl(proxiedUrl);
+              });
+              populatedParts.push(Math.min(5, d.imageUrls.length) + ' Photos');
+            }
+
+            syncBreadcrumbs();
+            rebuildWebPAssets();
+            updateMarkdownPreview();
+
+            printablesImportStatus.textContent =
+              '✓ Auto-populated: ' + (populatedParts.join(', ') || 'Model metadata') + '!';
+          })
+          .catch(function (err) {
+            btnAutofillPrintables.disabled = false;
+            btnAutofillPrintables.innerHTML = '&#10024; Auto-Fill Page';
+            printablesImportStatus.textContent = '⚠ Network error: ' + err.message;
+          });
+      }
+
+      btnAutofillPrintables.addEventListener('click', function () {
+        importFromPrintables(dlPrintables.value);
+      });
+
+      dlPrintables.addEventListener('paste', function (e) {
+        var clip = (e.clipboardData || window.clipboardData).getData('text');
+        if (clip && /printables\.com\/(?:[a-z]{2}\/)?model\/\d+/i.test(clip.trim())) {
+          setTimeout(function () {
+            importFromPrintables(dlPrintables.value);
+          }, 50);
+        }
+      });
+
       [hiddenCheckbox, descInput, settingsInput, youtubeInput, dlMakerworld, dlPrintables, dlThangs, dlCults3d].forEach(
         function (el) {
           el.addEventListener('input', function () {
@@ -2062,6 +2178,8 @@
         editBanner.classList.remove('is-visible');
         statusBox.className = 'status-box';
         statusBox.innerHTML = '';
+        printablesImportStatus.style.display = 'none';
+        printablesImportStatus.textContent = '';
 
         if (hideSuccessCard !== false) {
           postUploadCard.classList.remove('is-visible');
@@ -2095,6 +2213,8 @@
             postUploadCard.classList.remove('is-visible');
             statusBox.className = 'status-box';
             statusBox.innerHTML = '';
+            printablesImportStatus.style.display = 'none';
+            printablesImportStatus.textContent = '';
 
             nameInput.value = m.title || '';
             shortnameInput.value = m.shortname || m.slug || '';
