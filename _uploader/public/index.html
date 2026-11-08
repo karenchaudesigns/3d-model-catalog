@@ -809,15 +809,9 @@
     }
 
     .model-description-grid {
-      display: grid;
-      grid-template-columns: 1fr;
+      display: flex;
+      flex-direction: column;
       gap: 1.25rem;
-    }
-
-    @media (min-width: 860px) {
-      .model-description-grid {
-        grid-template-columns: 1.25fr 1fr;
-      }
     }
 
     .model-description-editor {
@@ -847,7 +841,6 @@
 
     .prose-textarea {
       width: 100%;
-      flex: 1;
       font-family: var(--font-sans);
       font-size: 0.92rem;
       color: var(--text-primary);
@@ -856,8 +849,10 @@
       border-radius: var(--radius-sm);
       padding: 0.75rem 0.85rem;
       line-height: 1.6;
-      resize: vertical;
-      min-height: 180px;
+      resize: none;
+      overflow-y: hidden;
+      min-height: 120px;
+      field-sizing: content;
     }
 
     .prose-textarea:focus {
@@ -2034,6 +2029,19 @@
         updateMarkdownPreview();
       });
 
+      function autoExpandTextarea(el) {
+        if (!el) return;
+        el.style.height = 'auto';
+        el.style.height = Math.max(120, el.scrollHeight + 2) + 'px';
+      }
+
+      function autoExpandAllProse() {
+        autoExpandTextarea(descInput);
+        autoExpandTextarea(settingsInput);
+      }
+
+      window.addEventListener('resize', autoExpandAllProse);
+
       btnFillSettings.addEventListener('click', function () {
         var template =
           '- **Material:** PLA / Matte PLA\n' +
@@ -2044,6 +2052,7 @@
         settingsInput.value = settingsInput.value
           ? settingsInput.value.trim() + '\n' + template
           : template;
+        autoExpandAllProse();
         updateMarkdownPreview();
       });
 
@@ -2099,6 +2108,7 @@
 
             if (d.description) {
               descInput.value = d.description;
+              autoExpandAllProse();
               populatedParts.push('Description');
             }
 
@@ -2158,11 +2168,17 @@
       [hiddenCheckbox, descInput, settingsInput, youtubeInput, dlMakerworld, dlPrintables, dlThangs, dlCults3d].forEach(
         function (el) {
           el.addEventListener('input', function () {
+            if (el === descInput || el === settingsInput) {
+              autoExpandTextarea(el);
+            }
             syncDownloadButtonHighlights();
             syncYoutubePreview();
             updateMarkdownPreview();
           });
           el.addEventListener('change', function () {
+            if (el === descInput || el === settingsInput) {
+              autoExpandTextarea(el);
+            }
             syncDownloadButtonHighlights();
             syncYoutubePreview();
             updateMarkdownPreview();
@@ -2273,6 +2289,7 @@
         dlPrintables.value = '';
         dlThangs.value = '';
         dlCults3d.value = '';
+        autoExpandAllProse();
 
         sourceImages = [];
         editBanner.classList.remove('is-visible');
@@ -2322,6 +2339,7 @@
             hiddenCheckbox.checked = Boolean(m.hidden);
             descInput.value = m.description || '';
             settingsInput.value = m.printSettings || '';
+            autoExpandAllProse();
             tagsInput.value = Array.isArray(m.tags) ? m.tags.join(', ') : '';
             youtubeInput.value = m.youtube_id || '';
             dlMakerworld.value = (m.downloads && m.downloads.makerworld) || '';
@@ -2621,6 +2639,7 @@
       renderTagPills();
       syncBreadcrumbs();
       syncDownloadButtonHighlights();
+      autoExpandAllProse();
       renderSourceCards();
       fetchExistingModels(function () {
         var params = new URLSearchParams(window.location.search);
