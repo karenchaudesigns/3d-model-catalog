@@ -34,9 +34,10 @@ downloads:
   printables: "https://www.printables.com/model/546290-cute-personalized-unicorn-heart-monogram-charm-let"
   thangs: ""
   cults3d: ""
-youtube_id: "trD0dy0kwxw"
+youtube_shorts: []
 youtube_videos:
   - "trD0dy0kwxw"
+youtube_id: "trD0dy0kwxw"
 ---
 *Fun accessory for anyone who loves unicorns! *
 
