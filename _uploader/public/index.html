@@ -1262,6 +1262,415 @@
       flex: 1;
     }
 
+    /* ==========================================================================
+       Existing Catalog Models — View Switcher & Download Links Table View
+       ========================================================================== */
+    .catalog-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+
+    .library-view-switcher {
+      display: inline-flex;
+      align-items: center;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: 999px;
+      padding: 0.2rem;
+      gap: 0.15rem;
+    }
+
+    .view-switch-btn {
+      appearance: none;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-family: var(--font-sans);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.35rem 0.85rem;
+      border-radius: 999px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.38rem;
+      transition: all 0.15s ease;
+    }
+
+    .view-switch-btn:hover {
+      color: var(--text-primary);
+    }
+
+    .view-switch-btn.is-active {
+      background: var(--bg-surface);
+      color: var(--accent-terracotta);
+      box-shadow: 0 1px 4px hsla(24, 20%, 14%, 0.1);
+    }
+
+    .links-table-container {
+      display: none;
+      flex-direction: column;
+      gap: 0.9rem;
+    }
+
+    .links-table-container.is-visible {
+      display: flex;
+    }
+
+    .model-thumbnail-grid.is-hidden {
+      display: none;
+    }
+
+    .links-table-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 0.75rem 1rem;
+      box-shadow: var(--shadow-card);
+    }
+
+    .links-toolbar-left,
+    .links-toolbar-right {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .filter-pill-btn {
+      appearance: none;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-primary);
+      color: var(--text-secondary);
+      font-family: var(--font-sans);
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.32rem 0.72rem;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .filter-pill-btn:hover {
+      border-color: var(--border-strong);
+      color: var(--text-primary);
+    }
+
+    .filter-pill-btn.is-active {
+      background: var(--accent-soft);
+      color: var(--accent-terracotta);
+      border-color: hsla(16, 62%, 46%, 0.35);
+    }
+
+    .links-search-input {
+      font-family: var(--font-sans);
+      font-size: 0.8rem;
+      padding: 0.34rem 0.7rem;
+      border: 1px solid var(--border-subtle);
+      border-radius: 999px;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-width: 190px;
+    }
+
+    .links-search-input:focus {
+      outline: none;
+      border-color: var(--accent-terracotta);
+      background: #fff;
+    }
+
+    .links-table-status {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      padding: 0.2rem 0.5rem;
+    }
+
+    .links-table-status.is-success {
+      color: var(--success);
+    }
+
+    .links-table-status.is-error {
+      color: var(--danger);
+    }
+
+    .links-table-scroll {
+      width: 100%;
+      overflow-x: auto;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-card);
+    }
+
+    .models-links-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.82rem;
+    }
+
+    .models-links-table th {
+      background: var(--bg-subtle);
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 0.72rem 0.75rem;
+      border-bottom: 1px solid var(--border-subtle);
+      white-space: nowrap;
+    }
+
+    .th-platform-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .platform-color-dot {
+      width: 0.55rem;
+      height: 0.55rem;
+      border-radius: 50%;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    .dot-makerworld { background-color: var(--color-makerworld); }
+    .dot-printables { background-color: var(--color-printables); }
+    .dot-thangs { background-color: var(--color-thangs); }
+    .dot-cults3d { background-color: var(--color-cults3d); }
+
+    .models-links-table td {
+      padding: 0.65rem 0.75rem;
+      border-bottom: 1px solid var(--border-subtle);
+      vertical-align: middle;
+    }
+
+    .models-links-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .models-links-table tbody tr:hover {
+      background-color: hsla(36, 33%, 97%, 0.65);
+    }
+
+    .models-links-table tbody tr.is-row-dirty {
+      background-color: hsla(16, 55%, 94%, 0.45);
+    }
+
+    .models-links-table tbody tr.is-row-editing {
+      background-color: var(--edit-blue-soft);
+    }
+
+    .table-model-cell {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      min-width: 215px;
+      max-width: 275px;
+    }
+
+    .table-model-thumb {
+      width: 3rem;
+      height: 3rem;
+      border-radius: 8px;
+      object-fit: cover;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+
+    .table-model-thumb:hover {
+      transform: scale(1.05);
+      border-color: var(--accent-terracotta);
+    }
+
+    .table-model-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 0.12rem;
+      min-width: 0;
+    }
+
+    .table-model-title-btn {
+      appearance: none;
+      border: none;
+      background: transparent;
+      padding: 0;
+      text-align: left;
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      cursor: pointer;
+      line-height: 1.28;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .table-model-title-btn:hover {
+      color: var(--accent-terracotta);
+      text-decoration: underline;
+    }
+
+    .table-model-subrow {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      color: var(--text-muted);
+    }
+
+    .link-count-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.05rem 0.38rem;
+      border-radius: 999px;
+      font-weight: 600;
+      background: var(--bg-subtle);
+      color: var(--text-secondary);
+    }
+
+    .link-count-pill.is-complete {
+      background: var(--success-bg);
+      color: var(--success);
+    }
+
+    .table-link-cell {
+      min-width: 195px;
+    }
+
+    .table-link-input-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-subtle);
+      border-left-width: 3px;
+      border-radius: 6px;
+      padding: 0.15rem 0.3rem 0.15rem 0.45rem;
+      transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .table-link-input-wrap:focus-within {
+      background: #fff;
+      border-color: var(--accent-terracotta);
+      box-shadow: 0 0 0 2px var(--accent-soft);
+    }
+
+    .table-link-input-wrap.has-link.platform-makerworld {
+      border-left-color: var(--color-makerworld);
+      background: #fff;
+    }
+    .table-link-input-wrap.has-link.platform-printables {
+      border-left-color: var(--color-printables);
+      background: #fff;
+    }
+    .table-link-input-wrap.has-link.platform-thangs {
+      border-left-color: var(--color-thangs);
+      background: #fff;
+    }
+    .table-link-input-wrap.has-link.platform-cults3d {
+      border-left-color: var(--color-cults3d);
+      background: #fff;
+    }
+
+    .table-link-input {
+      width: 100%;
+      border: none;
+      background: transparent;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-primary);
+      padding: 0.26rem 0;
+      outline: none;
+      min-width: 0;
+    }
+
+    .table-link-input::placeholder {
+      color: hsl(24, 8%, 68%);
+    }
+
+    .table-link-open {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.45rem;
+      height: 1.45rem;
+      border-radius: 4px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.76rem;
+      flex-shrink: 0;
+      transition: background-color 0.14s ease, color 0.14s ease;
+    }
+
+    .table-link-open:hover {
+      background: var(--bg-subtle);
+      color: var(--accent-terracotta);
+    }
+
+    .table-link-open.is-empty {
+      opacity: 0.25;
+      pointer-events: none;
+    }
+
+    .table-actions-cell {
+      white-space: nowrap;
+      text-align: right;
+    }
+
+    .table-row-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .btn-row-save {
+      appearance: none;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+      color: var(--text-secondary);
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.32rem 0.65rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-row-save.is-dirty {
+      background: var(--accent-terracotta);
+      border-color: var(--accent-terracotta);
+      color: #fff;
+    }
+
+    .btn-row-save.is-dirty:hover {
+      background: var(--accent-terracotta-hover);
+    }
+
+    .btn-row-save.is-saved {
+      background: var(--success-bg);
+      border-color: var(--success);
+      color: var(--success);
+    }
+
     /* Live Markdown Inspector Drawer */
     .markdown-drawer {
       background: var(--bg-surface);
@@ -1307,6 +1716,7 @@
       <nav class="site-nav" aria-label="Editor navigation">
         <button type="button" class="nav-btn is-active" id="btn-nav-new">+ Upload New Model</button>
         <button type="button" class="nav-btn" id="btn-nav-library">Existing Catalog Models (<span id="nav-model-count">0</span>)</button>
+        <button type="button" class="nav-btn" id="btn-nav-table">Download Links Table</button>
       </nav>
     </div>
   </header>
@@ -1609,11 +2019,94 @@
       <div class="section-header">
         <div>
           <h2 class="section-title">Existing Catalog Models (<code>_models/</code>)</h2>
-          <p class="section-subtitle">Click <strong>Edit Model</strong> to load any model into the page layout above, or click <strong>Hide / Unhide</strong> to toggle catalog visibility:</p>
+          <p class="section-subtitle" id="catalog-library-subtitle">Click <strong>Edit Model</strong> to load any model into the page layout above, or switch to <strong>Table / Links View</strong> to quickly edit download links across all models:</p>
         </div>
-        <button type="button" class="btn-ghost" id="btn-new-from-library">+ Upload New Model</button>
+        <div class="catalog-header-actions">
+          <div class="library-view-switcher" role="tablist" aria-label="Catalog view mode">
+            <button type="button" class="view-switch-btn is-active" id="btn-view-grid" role="tab" aria-selected="true">
+              <span aria-hidden="true">&#9638;</span>
+              <span>Grid View</span>
+            </button>
+            <button type="button" class="view-switch-btn" id="btn-view-table" role="tab" aria-selected="false">
+              <span aria-hidden="true">&#9776;</span>
+              <span>Table / Links View</span>
+            </button>
+          </div>
+          <button type="button" class="btn-ghost" id="btn-new-from-library">+ Upload New Model</button>
+        </div>
       </div>
+
+      <!-- View 1: Thumbnail Card Grid -->
       <div class="model-thumbnail-grid" id="existing-models-list"></div>
+
+      <!-- View 2: Download Links Table / List View -->
+      <div class="links-table-container" id="existing-models-table-view">
+        <div class="links-table-toolbar">
+          <div class="links-toolbar-left">
+            <button type="button" class="filter-pill-btn is-active" data-links-filter="all" id="filter-links-all">
+              All Models (<span id="count-links-all">0</span>)
+            </button>
+            <button type="button" class="filter-pill-btn" data-links-filter="missing" id="filter-links-missing">
+              Missing Links (<span id="count-links-missing">0</span>)
+            </button>
+            <button type="button" class="filter-pill-btn" data-links-filter="complete" id="filter-links-complete">
+              All 4 Linked (<span id="count-links-complete">0</span>)
+            </button>
+            <input
+              type="search"
+              class="links-search-input"
+              id="links-table-search"
+              placeholder="Filter models by name or slug..."
+              aria-label="Filter models by name or slug"
+            >
+          </div>
+          <div class="links-toolbar-right">
+            <span class="links-table-status" id="links-table-status" aria-live="polite"></span>
+            <button type="button" class="btn-ghost" id="btn-discard-table-links" style="display:none;">
+              Reset Unsaved
+            </button>
+            <button type="button" class="btn-primary" id="btn-save-all-links" disabled style="padding:0.48rem 0.95rem;font-size:0.82rem;">
+              Save All Changes (<span id="dirty-links-count">0</span>)
+            </button>
+          </div>
+        </div>
+
+        <div class="links-table-scroll">
+          <table class="models-links-table" aria-label="Models and platform download links">
+            <thead>
+              <tr>
+                <th scope="col">Model</th>
+                <th scope="col">
+                  <span class="th-platform-label">
+                    <span class="platform-color-dot dot-makerworld" aria-hidden="true"></span>
+                    <span>MakerWorld</span>
+                  </span>
+                </th>
+                <th scope="col">
+                  <span class="th-platform-label">
+                    <span class="platform-color-dot dot-printables" aria-hidden="true"></span>
+                    <span>Printables</span>
+                  </span>
+                </th>
+                <th scope="col">
+                  <span class="th-platform-label">
+                    <span class="platform-color-dot dot-thangs" aria-hidden="true"></span>
+                    <span>Thangs</span>
+                  </span>
+                </th>
+                <th scope="col">
+                  <span class="th-platform-label">
+                    <span class="platform-color-dot dot-cults3d" aria-hidden="true"></span>
+                    <span>Cults3D</span>
+                  </span>
+                </th>
+                <th scope="col" style="text-align:right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="existing-models-table-body"></tbody>
+          </table>
+        </div>
+      </div>
     </section>
 
     <!-- Collapsible Live Jekyll Markdown Inspector -->
@@ -1677,6 +2170,21 @@
       var resetBtn = document.getElementById('btn-reset-form');
       var statusBox = document.getElementById('status-box');
       var existingModelsList = document.getElementById('existing-models-list');
+      var existingModelsTableView = document.getElementById('existing-models-table-view');
+      var existingModelsTableBody = document.getElementById('existing-models-table-body');
+      var btnViewGrid = document.getElementById('btn-view-grid');
+      var btnViewTable = document.getElementById('btn-view-table');
+      var filterLinksAll = document.getElementById('filter-links-all');
+      var filterLinksMissing = document.getElementById('filter-links-missing');
+      var filterLinksComplete = document.getElementById('filter-links-complete');
+      var countLinksAll = document.getElementById('count-links-all');
+      var countLinksMissing = document.getElementById('count-links-missing');
+      var countLinksComplete = document.getElementById('count-links-complete');
+      var linksTableSearch = document.getElementById('links-table-search');
+      var linksTableStatus = document.getElementById('links-table-status');
+      var btnDiscardTableLinks = document.getElementById('btn-discard-table-links');
+      var btnSaveAllLinks = document.getElementById('btn-save-all-links');
+      var dirtyLinksCountEl = document.getElementById('dirty-links-count');
       var navModelCount = document.getElementById('nav-model-count');
 
       var postUploadCard = document.getElementById('post-upload-card');
@@ -1694,6 +2202,7 @@
       var btnCancelEdit = document.getElementById('btn-cancel-edit');
       var btnNavNew = document.getElementById('btn-nav-new');
       var btnNavLibrary = document.getElementById('btn-nav-library');
+      var btnNavTable = document.getElementById('btn-nav-table');
       var btnNewFromLibrary = document.getElementById('btn-new-from-library');
       var brandResetLink = document.getElementById('brand-reset-link');
 
@@ -1702,6 +2211,10 @@
       var editingModelData = null;
       var lastSavedSlug = null;
       var catalogModelsCache = [];
+      var libraryViewMode = 'grid'; // 'grid' or 'table'
+      var linksFilterMode = 'all'; // 'all', 'missing', or 'complete'
+      var tableLinkDrafts = {}; // { [slug]: { makerworld, printables, thangs, cults3d } }
+      var recentlySavedSlugs = {}; // { [slug]: true }
 
       // Array of { id, imgElement, originalUrl }
       var sourceImages = [];
@@ -2754,8 +3267,202 @@
           });
       }
 
+      function getModelSavedDownloads(m) {
+        var dl = (m && m.downloads) || {};
+        return {
+          makerworld: String(dl.makerworld || '').trim(),
+          printables: String(dl.printables || '').trim(),
+          thangs: String(dl.thangs || '').trim(),
+          cults3d: String(dl.cults3d || '').trim()
+        };
+      }
+
+      function getModelCurrentDownloads(m) {
+        var saved = getModelSavedDownloads(m);
+        var draft = m && tableLinkDrafts[m.slug];
+        if (!draft) return saved;
+        return {
+          makerworld: draft.makerworld !== undefined ? String(draft.makerworld).trim() : saved.makerworld,
+          printables: draft.printables !== undefined ? String(draft.printables).trim() : saved.printables,
+          thangs: draft.thangs !== undefined ? String(draft.thangs).trim() : saved.thangs,
+          cults3d: draft.cults3d !== undefined ? String(draft.cults3d).trim() : saved.cults3d
+        };
+      }
+
+      function countFilledLinks(dlObj) {
+        var c = 0;
+        if (dlObj.makerworld) c++;
+        if (dlObj.printables) c++;
+        if (dlObj.thangs) c++;
+        if (dlObj.cults3d) c++;
+        return c;
+      }
+
+      function isModelDownloadsDirty(m) {
+        if (!m || !tableLinkDrafts[m.slug]) return false;
+        var saved = getModelSavedDownloads(m);
+        var cur = getModelCurrentDownloads(m);
+        return (
+          saved.makerworld !== cur.makerworld ||
+          saved.printables !== cur.printables ||
+          saved.thangs !== cur.thangs ||
+          saved.cults3d !== cur.cults3d
+        );
+      }
+
+      function getDirtyModelSlugs() {
+        return catalogModelsCache
+          .filter(function (m) { return isModelDownloadsDirty(m); })
+          .map(function (m) { return m.slug; });
+      }
+
+      function setLibraryViewMode(mode) {
+        libraryViewMode = mode === 'table' ? 'table' : 'grid';
+        var isTable = libraryViewMode === 'table';
+
+        btnViewGrid.classList.toggle('is-active', !isTable);
+        btnViewGrid.setAttribute('aria-selected', isTable ? 'false' : 'true');
+        btnViewTable.classList.toggle('is-active', isTable);
+        btnViewTable.setAttribute('aria-selected', isTable ? 'true' : 'false');
+
+        existingModelsList.classList.toggle('is-hidden', isTable);
+        existingModelsTableView.classList.toggle('is-visible', isTable);
+
+        btnNavLibrary.classList.toggle('is-active', !isTable && document.activeElement === btnNavLibrary);
+        btnNavTable.classList.toggle('is-active', isTable);
+        if (isTable) {
+          btnNavNew.classList.remove('is-active');
+        }
+      }
+
+      function syncTableToolbarCounts() {
+        var total = catalogModelsCache.length;
+        var missingCount = 0;
+        var completeCount = 0;
+
+        catalogModelsCache.forEach(function (m) {
+          var filled = countFilledLinks(getModelCurrentDownloads(m));
+          if (filled === 4) {
+            completeCount++;
+          } else {
+            missingCount++;
+          }
+        });
+
+        countLinksAll.textContent = total;
+        countLinksMissing.textContent = missingCount;
+        countLinksComplete.textContent = completeCount;
+
+        var dirtySlugs = getDirtyModelSlugs();
+        dirtyLinksCountEl.textContent = dirtySlugs.length;
+        btnSaveAllLinks.disabled = dirtySlugs.length === 0;
+        btnDiscardTableLinks.style.display = dirtySlugs.length > 0 ? 'inline-block' : 'none';
+      }
+
+      function renderPlatformCellHtml(slug, platformKey, urlValue, placeholder) {
+        var safeVal = escapeHtmlText(urlValue || '');
+        var hasLink = Boolean(urlValue && urlValue.trim());
+        var hrefVal = hasLink ? safeVal : '#';
+        return (
+          '<td class="table-link-cell">' +
+          '<div class="table-link-input-wrap platform-' + platformKey + (hasLink ? ' has-link' : '') + '">' +
+          '<input type="url" class="table-link-input" data-slug="' + escapeHtmlText(slug) + '" data-platform="' + platformKey + '" value="' + safeVal + '" placeholder="' + escapeHtmlText(placeholder) + '" aria-label="' + platformKey + ' link for ' + escapeHtmlText(slug) + '">' +
+          '<a class="table-link-open' + (hasLink ? '' : ' is-empty') + '" href="' + hrefVal + '" target="_blank" rel="noopener noreferrer" title="Open ' + platformKey + ' link in new tab">&#8599;</a>' +
+          '</div>' +
+          '</td>'
+        );
+      }
+
+      function renderExistingModelsTable() {
+        syncTableToolbarCounts();
+
+        if (!catalogModelsCache.length) {
+          existingModelsTableBody.innerHTML =
+            '<tr><td colspan="6" style="padding:1.5rem;text-align:center;color:var(--text-muted);">No models found in <code>_models/</code>.</td></tr>';
+          return;
+        }
+
+        var searchQuery = String(linksTableSearch.value || '').trim().toLowerCase();
+        var filteredModels = catalogModelsCache.filter(function (m) {
+          var dl = getModelCurrentDownloads(m);
+          var filled = countFilledLinks(dl);
+          if (linksFilterMode === 'missing' && filled === 4) return false;
+          if (linksFilterMode === 'complete' && filled < 4) return false;
+          if (searchQuery) {
+            var hay = ((m.title || '') + ' ' + (m.slug || '') + ' ' + (m.category || '')).toLowerCase();
+            if (hay.indexOf(searchQuery) === -1) return false;
+          }
+          return true;
+        });
+
+        if (!filteredModels.length) {
+          existingModelsTableBody.innerHTML =
+            '<tr><td colspan="6" style="padding:1.5rem;text-align:center;color:var(--text-muted);">No models match the current filter.</td></tr>';
+          return;
+        }
+
+        existingModelsTableBody.innerHTML = filteredModels
+          .map(function (m) {
+            var isCurrentEdit = editingSlug === m.slug;
+            var isDirty = isModelDownloadsDirty(m);
+            var isRecentlySaved = Boolean(recentlySavedSlugs[m.slug]) && !isDirty;
+            var dl = getModelCurrentDownloads(m);
+            var filledCount = countFilledLinks(dl);
+            var thumbUrl = m.thumbnail_image || m.cover_image || '';
+            var safeTitle = escapeHtmlText(m.title || m.slug);
+            var safeSlug = escapeHtmlText(m.slug);
+            var categoryLabel = escapeHtmlText(CATEGORY_LABELS[m.category] || m.category || 'Useful Prints');
+
+            var rowClasses = [];
+            if (isDirty) rowClasses.push('is-row-dirty');
+            if (isCurrentEdit) rowClasses.push('is-row-editing');
+
+            var hiddenPill = m.hidden
+              ? '<span style="background:var(--danger);color:#fff;padding:0.05rem 0.38rem;border-radius:999px;font-weight:600;">HIDDEN</span>'
+              : '';
+
+            var saveBtnLabel = isDirty ? 'Save' : isRecentlySaved ? 'Saved &#10003;' : 'Save';
+            var saveBtnClass = 'btn-row-save' + (isDirty ? ' is-dirty' : isRecentlySaved ? ' is-saved' : '');
+
+            return (
+              '<tr data-row-slug="' + safeSlug + '" class="' + rowClasses.join(' ') + '" style="' + (m.hidden ? 'opacity:0.78;' : '') + '">' +
+              '<td>' +
+              '<div class="table-model-cell">' +
+              (thumbUrl
+                ? '<img src="' + escapeHtmlText(thumbUrl) + '" alt="' + safeTitle + '" class="table-model-thumb" data-slug="' + safeSlug + '" title="Edit ' + safeTitle + '" loading="lazy">'
+                : '<div class="table-model-thumb" data-slug="' + safeSlug + '"></div>') +
+              '<div class="table-model-meta">' +
+              '<button type="button" class="table-model-title-btn" data-slug="' + safeSlug + '" title="Load ' + safeTitle + ' in page editor">' + safeTitle + '</button>' +
+              '<div class="table-model-subrow">' +
+              '<span style="color:var(--accent-terracotta);font-weight:600;">' + categoryLabel + '</span>' +
+              '<span>&middot;</span>' +
+              '<span class="link-count-pill' + (filledCount === 4 ? ' is-complete' : '') + '" data-role="row-link-count">' + filledCount + '/4 links</span>' +
+              hiddenPill +
+              '</div>' +
+              '</div>' +
+              '</div>' +
+              '</td>' +
+              renderPlatformCellHtml(m.slug, 'makerworld', dl.makerworld, 'https://makerworld.com/...') +
+              renderPlatformCellHtml(m.slug, 'printables', dl.printables, 'https://www.printables.com/...') +
+              renderPlatformCellHtml(m.slug, 'thangs', dl.thangs, 'https://thangs.com/...') +
+              renderPlatformCellHtml(m.slug, 'cults3d', dl.cults3d, 'https://cults3d.com/...') +
+              '<td class="table-actions-cell">' +
+              '<div class="table-row-actions">' +
+              '<button type="button" class="' + saveBtnClass + '" data-slug="' + safeSlug + '" title="Save download links for ' + safeTitle + '">' + saveBtnLabel + '</button>' +
+              '<button type="button" class="btn-ghost btn-edit-model" data-slug="' + safeSlug + '" style="padding:0.32rem 0.58rem;font-size:0.75rem;">' + (isCurrentEdit ? 'Editing&hellip;' : 'Edit') + '</button>' +
+              '<button type="button" class="btn-ghost btn-toggle-hidden" data-slug="' + safeSlug + '" data-hidden="' + (m.hidden ? 'true' : 'false') + '" style="padding:0.32rem 0.58rem;font-size:0.75rem;">' + (m.hidden ? 'Unhide' : 'Hide') + '</button>' +
+              '</div>' +
+              '</td>' +
+              '</tr>'
+            );
+          })
+          .join('');
+      }
+
       function renderExistingModelsList() {
         navModelCount.textContent = catalogModelsCache.length;
+        renderExistingModelsTable();
+
         if (!catalogModelsCache.length) {
           existingModelsList.innerHTML = '<p style="font-size:0.86rem;color:var(--text-muted);">No models found in <code>_models/</code>.</p>';
           return;
@@ -2794,6 +3501,264 @@
           })
           .join('');
       }
+
+      function syncEditorIfMatchingSlug(updatedModel) {
+        if (!updatedModel || editingSlug !== updatedModel.slug) return;
+        editingModelData = updatedModel;
+        var dl = updatedModel.downloads || {};
+        dlMakerworld.value = dl.makerworld || '';
+        dlPrintables.value = dl.printables || '';
+        dlThangs.value = dl.thangs || '';
+        dlCults3d.value = dl.cults3d || '';
+        syncDownloadButtonHighlights();
+        updateMarkdownPreview();
+      }
+
+      function saveSingleModelDownloads(slug, btnEl) {
+        var modelObj = catalogModelsCache.find(function (m) { return m.slug === slug; });
+        if (!modelObj) return;
+
+        var downloadsPayload = getModelCurrentDownloads(modelObj);
+        if (btnEl) {
+          btnEl.disabled = true;
+          btnEl.textContent = 'Saving...';
+        }
+        linksTableStatus.className = 'links-table-status';
+        linksTableStatus.textContent = 'Saving links for "' + (modelObj.title || slug) + '"...';
+
+        fetch('/api/models/' + encodeURIComponent(slug) + '/downloads', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            downloads: downloadsPayload,
+            autoDeploy: autoDeployCheckbox.checked
+          })
+        })
+          .then(function (r) {
+            return r.json().then(function (b) { return { ok: r.ok, body: b }; });
+          })
+          .then(function (res) {
+            if (!res.ok || res.body.error) {
+              if (btnEl) {
+                btnEl.disabled = false;
+                btnEl.textContent = 'Save';
+              }
+              linksTableStatus.className = 'links-table-status is-error';
+              linksTableStatus.textContent = '⚠ ' + (res.body.error || 'Failed to save links.');
+              return;
+            }
+
+            var updated = res.body.model;
+            if (updated) {
+              catalogModelsCache = catalogModelsCache.map(function (m) {
+                return m.slug === slug ? updated : m;
+              });
+              syncEditorIfMatchingSlug(updated);
+            }
+            delete tableLinkDrafts[slug];
+            recentlySavedSlugs[slug] = true;
+
+            linksTableStatus.className = 'links-table-status is-success';
+            linksTableStatus.textContent =
+              '✓ Saved "' + (modelObj.title || slug) + '"' + (res.body.deployed ? ' & pushed to GitHub!' : ' locally.');
+            renderExistingModelsTable();
+          })
+          .catch(function (err) {
+            if (btnEl) {
+              btnEl.disabled = false;
+              btnEl.textContent = 'Save';
+            }
+            linksTableStatus.className = 'links-table-status is-error';
+            linksTableStatus.textContent = '⚠ Network error: ' + err.message;
+          });
+      }
+
+      function saveAllDirtyDownloads() {
+        var dirtySlugs = getDirtyModelSlugs();
+        if (!dirtySlugs.length) return;
+
+        var updates = dirtySlugs.map(function (slug) {
+          var m = catalogModelsCache.find(function (item) { return item.slug === slug; });
+          return {
+            slug: slug,
+            downloads: getModelCurrentDownloads(m)
+          };
+        });
+
+        btnSaveAllLinks.disabled = true;
+        btnSaveAllLinks.textContent = 'Saving & Pushing...';
+        linksTableStatus.className = 'links-table-status';
+        linksTableStatus.textContent = 'Saving download links for ' + updates.length + ' model(s)...';
+
+        fetch('/api/models/bulk-downloads', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            updates: updates,
+            autoDeploy: autoDeployCheckbox.checked
+          })
+        })
+          .then(function (r) {
+            return r.json().then(function (b) { return { ok: r.ok, body: b }; });
+          })
+          .then(function (res) {
+            btnSaveAllLinks.innerHTML = 'Save All Changes (<span id="dirty-links-count">0</span>)';
+            dirtyLinksCountEl = document.getElementById('dirty-links-count');
+
+            if (!res.ok || res.body.error) {
+              syncTableToolbarCounts();
+              linksTableStatus.className = 'links-table-status is-error';
+              linksTableStatus.textContent = '⚠ ' + (res.body.error || 'Failed to save links.');
+              return;
+            }
+
+            var updatedMap = {};
+            (res.body.models || []).forEach(function (u) {
+              updatedMap[u.slug] = u;
+              delete tableLinkDrafts[u.slug];
+              recentlySavedSlugs[u.slug] = true;
+              syncEditorIfMatchingSlug(u);
+            });
+
+            catalogModelsCache = catalogModelsCache.map(function (m) {
+              return updatedMap[m.slug] ? updatedMap[m.slug] : m;
+            });
+
+            linksTableStatus.className = 'links-table-status is-success';
+            linksTableStatus.textContent =
+              '✓ Updated ' + res.body.updatedCount + ' model(s)' + (res.body.deployed ? ' & pushed to GitHub!' : ' locally.');
+            renderExistingModelsTable();
+          })
+          .catch(function (err) {
+            btnSaveAllLinks.innerHTML = 'Save All Changes (<span id="dirty-links-count">0</span>)';
+            dirtyLinksCountEl = document.getElementById('dirty-links-count');
+            syncTableToolbarCounts();
+            linksTableStatus.className = 'links-table-status is-error';
+            linksTableStatus.textContent = '⚠ Network error: ' + err.message;
+          });
+      }
+
+      existingModelsTableBody.addEventListener('input', function (e) {
+        var inputEl = e.target.closest('.table-link-input');
+        if (!inputEl) return;
+        var slug = inputEl.getAttribute('data-slug');
+        var platform = inputEl.getAttribute('data-platform');
+        if (!slug || !platform) return;
+
+        var modelObj = catalogModelsCache.find(function (m) { return m.slug === slug; });
+        if (!modelObj) return;
+
+        if (!tableLinkDrafts[slug]) {
+          tableLinkDrafts[slug] = getModelSavedDownloads(modelObj);
+        }
+        tableLinkDrafts[slug][platform] = inputEl.value.trim();
+        delete recentlySavedSlugs[slug];
+
+        var wrapEl = inputEl.closest('.table-link-input-wrap');
+        var openLinkEl = wrapEl ? wrapEl.querySelector('.table-link-open') : null;
+        var hasVal = Boolean(inputEl.value.trim());
+        if (wrapEl) {
+          wrapEl.classList.toggle('has-link', hasVal);
+        }
+        if (openLinkEl) {
+          openLinkEl.classList.toggle('is-empty', !hasVal);
+          openLinkEl.setAttribute('href', hasVal ? inputEl.value.trim() : '#');
+        }
+
+        var rowEl = inputEl.closest('tr');
+        var dirty = isModelDownloadsDirty(modelObj);
+        if (!dirty) {
+          delete tableLinkDrafts[slug];
+        }
+        if (rowEl) {
+          rowEl.classList.toggle('is-row-dirty', dirty);
+          var countPill = rowEl.querySelector('[data-role="row-link-count"]');
+          if (countPill) {
+            var filled = countFilledLinks(getModelCurrentDownloads(modelObj));
+            countPill.textContent = filled + '/4 links';
+            countPill.classList.toggle('is-complete', filled === 4);
+          }
+          var saveBtn = rowEl.querySelector('.btn-row-save');
+          if (saveBtn) {
+            saveBtn.className = 'btn-row-save' + (dirty ? ' is-dirty' : '');
+            saveBtn.textContent = 'Save';
+          }
+        }
+
+        syncTableToolbarCounts();
+      });
+
+      existingModelsTableBody.addEventListener('keydown', function (e) {
+        if (e.key !== 'Enter') return;
+        var inputEl = e.target.closest('.table-link-input');
+        if (!inputEl) return;
+        e.preventDefault();
+        var slug = inputEl.getAttribute('data-slug');
+        var rowEl = inputEl.closest('tr');
+        var saveBtn = rowEl ? rowEl.querySelector('.btn-row-save') : null;
+        if (slug) {
+          saveSingleModelDownloads(slug, saveBtn);
+        }
+      });
+
+      existingModelsTableBody.addEventListener('click', function (e) {
+        var saveBtn = e.target.closest('.btn-row-save');
+        if (saveBtn) {
+          var sSlug = saveBtn.getAttribute('data-slug');
+          if (sSlug) saveSingleModelDownloads(sSlug, saveBtn);
+          return;
+        }
+
+        var toggleBtn = e.target.closest('.btn-toggle-hidden');
+        if (toggleBtn) {
+          var tSlug = toggleBtn.getAttribute('data-slug');
+          var currentlyHidden = toggleBtn.getAttribute('data-hidden') === 'true';
+          toggleBtn.disabled = true;
+          toggleBtn.textContent = currentlyHidden ? 'Unhiding...' : 'Hiding...';
+          toggleModelVisibility(tSlug, !currentlyHidden);
+          return;
+        }
+
+        var editTrigger = e.target.closest('.btn-edit-model, .table-model-thumb, .table-model-title-btn');
+        if (editTrigger) {
+          var eSlug = editTrigger.getAttribute('data-slug');
+          if (eSlug) openEditModel(eSlug);
+        }
+      });
+
+      btnViewGrid.addEventListener('click', function () {
+        setLibraryViewMode('grid');
+      });
+
+      btnViewTable.addEventListener('click', function () {
+        setLibraryViewMode('table');
+        renderExistingModelsTable();
+      });
+
+      [filterLinksAll, filterLinksMissing, filterLinksComplete].forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          linksFilterMode = btn.getAttribute('data-links-filter') || 'all';
+          [filterLinksAll, filterLinksMissing, filterLinksComplete].forEach(function (b) {
+            b.classList.toggle('is-active', b === btn);
+          });
+          renderExistingModelsTable();
+        });
+      });
+
+      linksTableSearch.addEventListener('input', function () {
+        renderExistingModelsTable();
+      });
+
+      btnDiscardTableLinks.addEventListener('click', function () {
+        tableLinkDrafts = {};
+        linksTableStatus.className = 'links-table-status';
+        linksTableStatus.textContent = 'Unsaved link edits reset.';
+        renderExistingModelsTable();
+      });
+
+      btnSaveAllLinks.addEventListener('click', function () {
+        saveAllDirtyDownloads();
+      });
 
       existingModelsList.addEventListener('click', function (e) {
         var toggleBtn = e.target.closest('.btn-toggle-hidden');
@@ -2852,6 +3817,9 @@
       });
 
       btnNavNew.addEventListener('click', function () {
+        btnNavNew.classList.add('is-active');
+        btnNavLibrary.classList.remove('is-active');
+        btnNavTable.classList.remove('is-active');
         resetToNewModel(true);
         nameInput.focus();
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -2864,6 +3832,19 @@
       });
 
       btnNavLibrary.addEventListener('click', function () {
+        setLibraryViewMode('grid');
+        btnNavLibrary.classList.add('is-active');
+        btnNavNew.classList.remove('is-active');
+        btnNavTable.classList.remove('is-active');
+        document.getElementById('existing-models-section').scrollIntoView({ behavior: 'smooth' });
+      });
+
+      btnNavTable.addEventListener('click', function () {
+        setLibraryViewMode('table');
+        renderExistingModelsTable();
+        btnNavTable.classList.add('is-active');
+        btnNavNew.classList.remove('is-active');
+        btnNavLibrary.classList.remove('is-active');
         document.getElementById('existing-models-section').scrollIntoView({ behavior: 'smooth' });
       });
 
@@ -2979,6 +3960,10 @@
       fetchExistingModels(function () {
         var params = new URLSearchParams(window.location.search);
         var editParam = params.get('edit');
+        var viewParam = params.get('view');
+        if (viewParam === 'table' || window.location.hash === '#table') {
+          setLibraryViewMode('table');
+        }
         if (editParam) {
           openEditModel(editParam);
         }

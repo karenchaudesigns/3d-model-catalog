@@ -565,6 +565,181 @@ app.patch('/api/models/:slug/visibility', (req, res) => {
 });
 
 /**
+ * Helper: Update the downloads section of a single _models/<slug>.md file in-place
+ */
+function updateModelDownloadsOnDisk(rawSlug, downloadsInput = {}) {
+  const slug = String(rawSlug || '').replace(/\.md$/, '').trim();
+  if (!slug) {
+    throw new Error('Missing model slug.');
+  }
+  const filename = `${slug}.md`;
+  const fullPath = path.join(MODELS_DIR, filename);
+  if (!fs.existsSync(fullPath)) {
+    throw new Error(`Model "${slug}" not found in _models/.`);
+  }
+
+  const existing = parseModelMarkdown(filename);
+  const nextDownloads = {
+    makerworld:
+      downloadsInput.makerworld !== undefined
+        ? String(downloadsInput.makerworld || '').trim()
+        : existing.downloads.makerworld || '',
+    printables:
+      downloadsInput.printables !== undefined
+        ? String(downloadsInput.printables || '').trim()
+        : existing.downloads.printables || '',
+    thangs:
+      downloadsInput.thangs !== undefined
+        ? String(downloadsInput.thangs || '').trim()
+        : existing.downloads.thangs || '',
+    cults3d:
+      downloadsInput.cults3d !== undefined
+        ? String(downloadsInput.cults3d || '').trim()
+        : existing.downloads.cults3d || ''
+  };
+
+  const downloadsYamlBlock = [
+    'downloads:',
+    `  makerworld: ${yamlQuote(nextDownloads.makerworld)}`,
+    `  printables: ${yamlQuote(nextDownloads.printables)}`,
+    `  thangs: ${yamlQuote(nextDownloads.thangs)}`,
+    `  cults3d: ${yamlQuote(nextDownloads.cults3d)}`
+  ].join('\n');
+
+  const raw = fs.readFileSync(fullPath, 'utf8');
+  const fmMatch = raw.match(/^(---\r?\n)([\s\S]*?)(\r?\n---\r?\n?[\s\S]*)$/);
+  if (fmMatch) {
+    let fmBody = fmMatch[2];
+    const dlBlockRegex = /^downloads:\r?\n(?:[ \t]+[a-zA-Z0-9_]+:.*(?:\r?\n|$))*/m;
+    if (dlBlockRegex.test(fmBody)) {
+      fmBody = fmBody.replace(dlBlockRegex, `${downloadsYamlBlock}\n`);
+    } else {
+      fmBody = `${fmBody.replace(/\s+$/, '')}\n${downloadsYamlBlock}`;
+    }
+    const updatedRaw = `${fmMatch[1]}${fmBody.replace(/\r?\n$/, '')}${fmMatch[3]}`;
+    fs.writeFileSync(fullPath, updatedRaw, 'utf8');
+  } else {
+    throw new Error(`Model "${slug}" is missing valid YAML front matter.`);
+  }
+
+  return parseModelMarkdown(filename);
+}
+
+/**
+ * Helper: Commit and push changes to Git repository
+ */
+function commitAndPushChanges(commitMessage) {
+  const gitLog = [];
+  let deployed = false;
+  let gitError = null;
+
+  try {
+    execFileSync('git', ['add', '.'], { cwd: REPO_ROOT, encoding: 'utf8' });
+    gitLog.push('$ git add .');
+
+    const commitOut = execFileSync('git', ['commit', '-m', commitMessage], {
+      cwd: REPO_ROOT,
+      encoding: 'utf8'
+    });
+    gitLog.push(`$ git commit -m "${commitMessage}"\n${commitOut.trim()}`);
+
+    try {
+      const pushOut = execFileSync('git', ['push'], {
+        cwd: REPO_ROOT,
+        encoding: 'utf8',
+        stdio: ['pipe', 'pipe', 'pipe']
+      });
+      gitLog.push(`$ git push\n${(pushOut || 'Pushed to remote origin.').trim()}`);
+    } catch (pushErr) {
+      execFileSync('git', ['pull', '--rebase'], {
+        cwd: REPO_ROOT,
+        encoding: 'utf8',
+        stdio: ['pipe', 'pipe', 'pipe']
+      });
+      const retryPushOut = execFileSync('git', ['push'], {
+        cwd: REPO_ROOT,
+        encoding: 'utf8',
+        stdio: ['pipe', 'pipe', 'pipe']
+      });
+      gitLog.push(
+        `$ git pull --rebase && git push\n${(retryPushOut || 'Rebased and pushed to remote origin.').trim()}`
+      );
+    }
+    deployed = true;
+  } catch (gitErr) {
+    const stderr = gitErr.stderr ? gitErr.stderr.toString() : '';
+    const stdout = gitErr.stdout ? gitErr.stdout.toString() : '';
+    gitError = (stderr || stdout || gitErr.message).trim();
+    gitLog.push(`Git warning/error: ${gitError}`);
+  }
+
+  return { deployed, gitError, gitLog: gitLog.join('\n\n') };
+}
+
+/**
+ * PATCH /api/models/:slug/downloads — Update download links for a single model
+ */
+app.patch('/api/models/:slug/downloads', (req, res) => {
+  try {
+    const slug = String(req.params.slug || '').replace(/\.md$/, '');
+    const updatedModel = updateModelDownloadsOnDisk(slug, req.body.downloads || {});
+    const autoDeploy = req.body.autoDeploy !== false;
+
+    let deployResult = { deployed: false, gitError: null, gitLog: '' };
+    if (autoDeploy) {
+      deployResult = commitAndPushChanges(`Update download links for ${updatedModel.title}`);
+    }
+
+    return res.json({
+      success: true,
+      slug: updatedModel.slug,
+      model: updatedModel,
+      ...deployResult
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * POST /api/models/bulk-downloads — Update download links for multiple models at once
+ */
+app.post('/api/models/bulk-downloads', (req, res) => {
+  try {
+    const updates = Array.isArray(req.body.updates) ? req.body.updates : [];
+    if (updates.length === 0) {
+      return res.status(400).json({ error: 'No model updates provided.' });
+    }
+
+    const updatedModels = [];
+    for (const item of updates) {
+      if (!item || !item.slug) continue;
+      const updated = updateModelDownloadsOnDisk(item.slug, item.downloads || {});
+      updatedModels.push(updated);
+    }
+
+    const autoDeploy = req.body.autoDeploy !== false;
+    let deployResult = { deployed: false, gitError: null, gitLog: '' };
+    if (autoDeploy && updatedModels.length > 0) {
+      const msg =
+        updatedModels.length === 1
+          ? `Update download links for ${updatedModels[0].title}`
+          : `Update download links for ${updatedModels.length} models`;
+      deployResult = commitAndPushChanges(msg);
+    }
+
+    return res.json({
+      success: true,
+      updatedCount: updatedModels.length,
+      models: updatedModels,
+      ...deployResult
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+/**
  * Decode common HTML entities into plain characters
  */
 function decodeHtmlEntities(str) {
