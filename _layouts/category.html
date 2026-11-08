@@ -63,7 +63,7 @@ layout: default
         {% if model.thumbnail_image %}
           {% assign thumb_src = model.thumbnail_image %}
         {% elsif model.shortname %}
-          {% assign thumb_src = '/images/models/3d-model-' | append: model.shortname | append: '-thumb.webp' %}
+          {% assign thumb_src = '/images/models/' | append: model.shortname | append: '/3d-model-' | append: model.shortname | append: '-thumb.webp' %}
         {% else %}
           {% assign thumb_src = model.cover_image %}
         {% endif %}

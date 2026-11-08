@@ -2,8 +2,8 @@
 title: "Baby Ducks | Multi-color 3mf | Free to a good home"
 shortname: "baby-ducks"
 category: "gifts-decor"
-thumbnail_image: "/images/models/3d-model-baby-ducks-thumb.webp"
-cover_image: "/images/models/3d-model-baby-ducks-main.webp"
+thumbnail_image: "/images/models/baby-ducks/3d-model-baby-ducks-thumb.webp"
+cover_image: "/images/models/baby-ducks/3d-model-baby-ducks-main.webp"
 gallery_images: []
 tags:
   - "duck"

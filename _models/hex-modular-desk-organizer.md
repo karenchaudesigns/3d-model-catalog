@@ -2,12 +2,12 @@
 title: "Hexagonal Modular Desk Organizer"
 shortname: "hex-organizer"
 category: "useful-prints"
-thumbnail_image: "/images/models/3d-model-hex-organizer-thumb.webp"
-cover_image: "/images/models/3d-model-hex-organizer-main.webp"
+thumbnail_image: "/images/models/hex-organizer/3d-model-hex-organizer-thumb.webp"
+cover_image: "/images/models/hex-organizer/3d-model-hex-organizer-main.webp"
 gallery_images:
-  - "/images/models/3d-model-hex-organizer-angle1.webp"
-  - "/images/models/3d-model-hex-organizer-angle2.webp"
-animation: "/images/models/3d-model-hex-organizer-loop.mp4"
+  - "/images/models/hex-organizer/3d-model-hex-organizer-angle1.webp"
+  - "/images/models/hex-organizer/3d-model-hex-organizer-angle2.webp"
+animation: "/images/models/hex-organizer/3d-model-hex-organizer-loop.mp4"
 tags:
   - "desk-organization"
   - "modular"

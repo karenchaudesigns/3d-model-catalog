@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D Model Catalog — Local Uploader & Git Publisher</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-page: hsl(36, 33%, 97%);
+      --bg-card: #ffffff;
+      --bg-subtle: hsl(34, 24%, 93%);
+      --text-main: hsl(24, 18%, 14%);
+      --text-secondary: hsl(24, 10%, 38%);
+      --text-muted: hsl(24, 8%, 54%);
+      --accent: hsl(16, 62%, 46%);
+      --accent-hover: hsl(16, 66%, 38%);
+      --accent-soft: hsl(16, 55%, 94%);
+      --border: hsl(32, 18%, 86%);
+      --border-strong: hsl(28, 16%, 72%);
+      --success: hsl(150, 75%, 30%);
+      --success-bg: hsl(150, 55%, 94%);
+      --danger: hsl(0, 70%, 48%);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-display: 'Fraunces', Georgia, serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.55;
+      padding-bottom: 4rem;
+    }
+
+    .topbar {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 0.9rem 1.75rem;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 600;
+    }
+
+    .brand-hex {
+      width: 1.3rem;
+      height: 1.3rem;
+      background: var(--accent);
+      clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);
+    }
+
+    .topbar-badge {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      background: var(--accent-soft);
+      color: var(--accent);
+      padding: 0.25rem 0.65rem;
+      border-radius: 999px;
+      font-weight: 500;
+    }
+
+    .workspace {
+      max-width: 1360px;
+      margin: 1.75rem auto 0;
+      padding: 0 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.75rem;
+    }
+
+    @media (min-width: 1024px) {
+      .workspace {
+        grid-template-columns: 1.25fr 0.85fr;
+        align-items: start;
+      }
+    }
+
+    .panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      box-shadow: 0 2px 10px -2px hsla(24, 20%, 14%, 0.05);
+      margin-bottom: 1.5rem;
+    }
+
+    .panel-title {
+      font-family: var(--font-display);
+      font-size: 1.22rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .panel-subtitle {
+      font-size: 0.86rem;
+      color: var(--text-secondary);
+      margin-bottom: 1.25rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    @media (min-width: 640px) {
+      .form-grid-2 {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .field label {
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .field-hint {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 400;
+      color: var(--text-muted);
+    }
+
+    input[type="text"],
+    input[type="url"],
+    select,
+    textarea {
+      width: 100%;
+      font-family: var(--font-sans);
+      font-size: 0.92rem;
+      color: var(--text-main);
+      background: var(--bg-page);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.62rem 0.8rem;
+      transition: border-color 0.16s ease, background-color 0.16s ease;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: #fff;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 92px;
+    }
+
+    .mono-input {
+      font-family: var(--font-mono) !important;
+      font-size: 0.83rem !important;
+    }
+
+    .tag-preview-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-top: 0.3rem;
+    }
+
+    .tag-chip {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      background: var(--bg-subtle);
+      color: var(--text-secondary);
+      padding: 0.15rem 0.55rem;
+      border-radius: 5px;
+    }
+
+    /* Clipboard Paste Zone */
+    .paste-zone {
+      border: 2px dashed var(--border-strong);
+      border-radius: var(--radius-md);
+      background: var(--bg-page);
+      padding: 2rem 1.25rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.18s ease, background-color 0.18s ease;
+      position: relative;
+    }
+
+    .paste-zone:hover,
+    .paste-zone.is-dragover,
+    .paste-zone:focus {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      outline: none;
+    }
+
+    .paste-zone-title {
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .paste-zone-desc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.85rem;
+    }
+
+    .kbd-pill {
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      background: #fff;
+      border: 1px solid var(--border);
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+
+    .fit-mode-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      margin-top: 1rem;
+      padding: 0.65rem 0.85rem;
+      background: var(--bg-subtle);
+      border-radius: var(--radius-sm);
+      font-size: 0.83rem;
+    }
+
+    .source-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 0.85rem;
+      margin-top: 1.15rem;
+    }
+
+    .source-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .source-card.is-main {
+      border: 2px solid var(--accent);
+    }
+
+    .source-card-img-wrap {
+      position: relative;
+      aspect-ratio: 1 / 1;
+      background: var(--bg-subtle);
+    }
+
+    .source-card-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .role-badge {
+      position: absolute;
+      top: 0.45rem;
+      left: 0.45rem;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      padding: 0.15rem 0.48rem;
+      border-radius: 4px;
+      background: hsla(24, 18%, 14%, 0.82);
+      color: #fff;
+      font-weight: 500;
+    }
+
+    .source-card.is-main .role-badge {
+      background: var(--accent);
+    }
+
+    .source-card-actions {
+      display: flex;
+      gap: 0.35rem;
+      padding: 0.45rem;
+      border-top: 1px solid var(--border);
+      background: var(--bg-page);
+    }
+
+    .btn-mini {
+      flex: 1;
+      font-family: var(--font-sans);
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.28rem 0.4rem;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .btn-mini:hover {
+      border-color: var(--text-main);
+    }
+
+    .btn-mini-danger {
+      color: var(--danger);
+    }
+
+    /* Generated WebP Preview List */
+    .webp-output-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .webp-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.6rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--bg-page);
+    }
+
+    .webp-item img {
+      width: 54px;
+      height: 54px;
+      border-radius: 6px;
+      object-fit: cover;
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .webp-item-meta {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .webp-item-path {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-main);
+      word-break: break-all;
+    }
+
+    .webp-item-spec {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    /* Actions & Submit */
+    .submit-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-top: 1.25rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .btn-primary {
+      appearance: none;
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      font-family: var(--font-sans);
+      font-size: 0.96rem;
+      font-weight: 700;
+      padding: 0.8rem 1.5rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background-color 0.16s ease, transform 0.16s ease;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .btn-ghost {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text-secondary);
+      font-family: var(--font-sans);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.3rem 0.65rem;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--text-main);
+      color: var(--text-main);
+    }
+
+    .code-preview {
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      background: hsl(24, 18%, 12%);
+      color: hsl(36, 30%, 92%);
+      padding: 1rem;
+      border-radius: var(--radius-sm);
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 360px;
+      overflow-y: auto;
+    }
+
+    .status-box {
+      display: none;
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.88rem;
+    }
+
+    .status-box.is-success {
+      display: block;
+      background: var(--success-bg);
+      border: 1px solid var(--success);
+      color: var(--text-main);
+    }
+
+    .status-box.is-error {
+      display: block;
+      background: hsl(0, 75%, 96%);
+      border: 1px solid var(--danger);
+      color: var(--danger);
+    }
+
+    .existing-models-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .existing-models-list li {
+      font-size: 0.83rem;
+      padding: 0.5rem 0.7rem;
+      background: var(--bg-page);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .existing-models-list code {
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-hex" aria-hidden="true"></span>
+      <span>Karen Chau Designs &mdash; 3D Model Catalog Admin</span>
+    </div>
+    <span class="topbar-badge">Local Express + Canvas WebP + Auto Git Push</span>
+  </header>
+
+  <main class="workspace">
+    <!-- Left Column: Model Metadata & Clipboard Image Paste Form -->
+    <form id="uploader-form" novalidate>
+      <!-- Section 1: Core Model Metadata -->
+      <section class="panel">
+        <h1 class="panel-title">1. Model Details &amp; Categorization</h1>
+        <p class="panel-subtitle">Enter the model title, category, description, and print settings.</p>
+
+        <div class="form-grid">
+          <div class="field">
+            <label for="model-name">
+              <span>Model Name *</span>
+              <span class="field-hint">YAML: title</span>
+            </label>
+            <input
+              type="text"
+              id="model-name"
+              required
+              placeholder="e.g., Baby Ducks | Multi-color 3mf | Free to a good home"
+            >
+          </div>
+
+          <div class="form-grid form-grid-2">
+            <div class="field">
+              <label for="model-shortname">
+                <span>Model Shortname (SEO Slug) *</span>
+                <span class="field-hint">Used in filenames</span>
+              </label>
+              <input
+                type="text"
+                id="model-shortname"
+                class="mono-input"
+                required
+                placeholder="e.g., baby-ducks"
+              >
+            </div>
+
+            <div class="field">
+              <label for="model-category">
+                <span>Catalog Category *</span>
+                <span class="field-hint">YAML: category</span>
+              </label>
+              <select id="model-category">
+                <option value="useful-prints">Useful Prints (useful-prints)</option>
+                <option value="gifts-decor">Gifts &amp; Decor (gifts-decor)</option>
+                <option value="seasonal">Seasonal (seasonal)</option>
+                <option value="fan-favorites">Fan Favorites (fan-favorites)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="model-description">
+              <span>Description (Markdown supported)</span>
+              <span class="field-hint">Markdown body</span>
+            </label>
+            <textarea
+              id="model-description"
+              rows="4"
+              placeholder="Describe the model, how it prints, and any special features..."
+            ></textarea>
+          </div>
+
+          <div class="field">
+            <label for="model-print-settings">
+              <span>Print Settings</span>
+              <button type="button" class="btn-ghost" id="btn-fill-settings">+ Insert Default Template</button>
+            </label>
+            <textarea
+              id="model-print-settings"
+              rows="4"
+              placeholder="- **Supports:** None&#10;- **Layer Height:** 0.20 mm&#10;- **Infill:** 15% Gyroid"
+            ></textarea>
+          </div>
+
+          <div class="field">
+            <label for="model-tags">
+              <span>Tags (comma-separated)</span>
+              <span class="field-hint">YAML: tags list</span>
+            </label>
+            <input
+              type="text"
+              id="model-tags"
+              placeholder="e.g., duck, rubber duck, decor, yellow, multicolor, cute"
+            >
+            <div class="tag-preview-row" id="tag-preview-row"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 2: Clipboard Image Paste Zone & Canvas WebP Generator -->
+      <section class="panel">
+        <h2 class="panel-title">2. Clipboard Image Paste-Zone (Auto WebP)</h2>
+        <p class="panel-subtitle">
+          Copy any image and press <span class="kbd-pill">Ctrl+V</span> / <span class="kbd-pill">&#8984;+V</span> anywhere on this page (or click/drop files below). The first/main image generates the <strong>1200&times;1200px Main</strong> and <strong>600&times;600px Thumbnail</strong> WebP files; additional images generate <strong>1000&times;1000px Gallery Angle</strong> WebP files.
+        </p>
+
+        <div
+          class="paste-zone"
+          id="paste-zone"
+          tabindex="0"
+          role="button"
+          aria-label="Paste image from clipboard or click to select image files"
+        >
+          <p class="paste-zone-title">Paste Image from Clipboard (<span class="kbd-pill">Ctrl+V</span> / <span class="kbd-pill">&#8984;+V</span>)</p>
+          <p class="paste-zone-desc">Or drag &amp; drop images here, or click to browse files from disk</p>
+          <input type="file" id="file-picker" accept="image/*" multiple style="display:none">
+          <button type="button" class="btn-ghost" id="btn-browse-files">Choose Image Files&hellip;</button>
+        </div>
+
+        <div class="fit-mode-bar">
+          <span><strong>Square Framing Mode:</strong></span>
+          <label style="display:inline-flex;align-items:center;gap:0.4rem;cursor:pointer;">
+            <input type="radio" name="fit-mode" value="contain-blur" checked>
+            <span>Preserve Full Image + Ambient Blur Backdrop (No cropping)</span>
+          </label>
+          <label style="display:inline-flex;align-items:center;gap:0.4rem;cursor:pointer;">
+            <input type="radio" name="fit-mode" value="cover">
+            <span>1:1 Center Crop (Fill square)</span>
+          </label>
+        </div>
+
+        <div class="source-list" id="source-images-list"></div>
+      </section>
+
+      <!-- Section 3: Download Links & YouTube Embed -->
+      <section class="panel">
+        <h2 class="panel-title">3. Download Links &amp; YouTube Video</h2>
+        <p class="panel-subtitle">Only platforms with links provided will render download buttons on the model page.</p>
+
+        <div class="form-grid form-grid-2">
+          <div class="field">
+            <label for="dl-makerworld">
+              <span>MakerWorld URL</span>
+              <span class="field-hint">downloads.makerworld</span>
+            </label>
+            <input type="url" id="dl-makerworld" placeholder="https://makerworld.com/en/models/...">
+          </div>
+
+          <div class="field">
+            <label for="dl-printables">
+              <span>Printables URL</span>
+              <span class="field-hint">downloads.printables</span>
+            </label>
+            <input type="url" id="dl-printables" placeholder="https://www.printables.com/model/...">
+          </div>
+
+          <div class="field">
+            <label for="dl-thangs">
+              <span>Thangs URL</span>
+              <span class="field-hint">downloads.thangs</span>
+            </label>
+            <input type="url" id="dl-thangs" placeholder="https://thangs.com/designer/...">
+          </div>
+
+          <div class="field">
+            <label for="dl-cults3d">
+              <span>Cults3D URL</span>
+              <span class="field-hint">downloads.cults3d</span>
+            </label>
+            <input type="url" id="dl-cults3d" placeholder="https://cults3d.com/en/3d-model/...">
+          </div>
+        </div>
+
+        <div class="field" style="margin-top: 1rem;">
+          <label for="model-youtube-id">
+            <span>YouTube Video ID (or full YouTube URL)</span>
+            <span class="field-hint">YAML: youtube_id</span>
+          </label>
+          <input
+            type="text"
+            id="model-youtube-id"
+            placeholder="e.g., M7lc1UVf-VE or https://www.youtube.com/watch?v=M7lc1UVf-VE"
+          >
+        </div>
+
+        <div class="submit-row">
+          <label style="display:inline-flex;align-items:center;gap:0.5rem;font-size:0.88rem;font-weight:500;cursor:pointer;">
+            <input type="checkbox" id="auto-deploy-checkbox" checked>
+            <span>Auto-run <code>git add .</code>, <code>git commit -m "Add [model name]"</code>, and <code>git push</code></span>
+          </label>
+
+          <button type="submit" class="btn-primary" id="btn-submit-model">
+            Save Model &amp; Push to GitHub &rarr;
+          </button>
+        </div>
+
+        <div class="status-box" id="status-box"></div>
+      </section>
+    </form>
+
+    <!-- Right Column: Live WebP Outputs & Generated Jekyll Markdown Preview -->
+    <aside>
+      <section class="panel">
+        <h2 class="panel-title">Generated WebP Assets Preview</h2>
+        <p class="panel-subtitle">
+          Client-side Canvas WebP conversions ready to save into <code id="target-folder-label">/images/models/[shortname]/</code>:
+        </p>
+        <div class="webp-output-list" id="webp-output-list">
+          <p style="font-size:0.85rem;color:var(--text-muted);">Paste or select an image to preview the 1200&times;1200, 600&times;600, and 1000&times;1000 WebP outputs.</p>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2 class="panel-title">Live Jekyll Markdown Preview</h2>
+        <p class="panel-subtitle">Target file: <code id="target-md-label">/_models/[shortname].md</code></p>
+        <pre class="code-preview" id="markdown-live-preview"></pre>
+      </section>
+
+      <section class="panel">
+        <h2 class="panel-title">Existing Catalog Models (<code>_models/</code>)</h2>
+        <p class="panel-subtitle">Currently published Markdown files in your repository:</p>
+        <ul class="existing-models-list" id="existing-models-list"></ul>
+      </section>
+    </aside>
+  </main>
+
+  <script>
+    (function () {
+      var nameInput = document.getElementById('model-name');
+      var shortnameInput = document.getElementById('model-shortname');
+      var categorySelect = document.getElementById('model-category');
+      var descInput = document.getElementById('model-description');
+      var settingsInput = document.getElementById('model-print-settings');
+      var tagsInput = document.getElementById('model-tags');
+      var tagPreviewRow = document.getElementById('tag-preview-row');
+      var youtubeInput = document.getElementById('model-youtube-id');
+      var dlMakerworld = document.getElementById('dl-makerworld');
+      var dlPrintables = document.getElementById('dl-printables');
+      var dlThangs = document.getElementById('dl-thangs');
+      var dlCults3d = document.getElementById('dl-cults3d');
+      var autoDeployCheckbox = document.getElementById('auto-deploy-checkbox');
+
+      var pasteZone = document.getElementById('paste-zone');
+      var filePicker = document.getElementById('file-picker');
+      var btnBrowse = document.getElementById('btn-browse-files');
+      var btnFillSettings = document.getElementById('btn-fill-settings');
+      var sourceListEl = document.getElementById('source-images-list');
+      var webpOutputListEl = document.getElementById('webp-output-list');
+      var targetFolderLabel = document.getElementById('target-folder-label');
+      var targetMdLabel = document.getElementById('target-md-label');
+      var mdPreviewEl = document.getElementById('markdown-live-preview');
+      var formEl = document.getElementById('uploader-form');
+      var submitBtn = document.getElementById('btn-submit-model');
+      var statusBox = document.getElementById('status-box');
+      var existingModelsList = document.getElementById('existing-models-list');
+
+      var shortnameManuallyEdited = false;
+      // Array of { id, imgElement, originalUrl, width, height }
+      var sourceImages = [];
+      // Processed WebP data URLs
+      var generatedWebP = {
+        main: null,
+        thumb: null,
+        gallery: []
+      };
+
+      function slugifyShortname(str) {
+        return String(str || '')
+          .toLowerCase()
+          .split('|')[0]
+          .trim()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-+|-+$/g, '')
+          .slice(0, 60);
+      }
+
+      function extractYoutubeId(raw) {
+        var str = String(raw || '').trim();
+        if (!str) return '';
+        var m = str.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+        return m ? m[1] : str;
+      }
+
+      function getShortname() {
+        return slugifyShortname(shortnameInput.value || nameInput.value) || 'sample-model';
+      }
+
+      function getFitMode() {
+        var checked = document.querySelector('input[name="fit-mode"]:checked');
+        return checked ? checked.value : 'contain-blur';
+      }
+
+      /**
+       * Convert an HTMLImageElement to a square WebP dataURL of targetSize x targetSize
+       * using the browser Canvas API
+       */
+      function renderSquareWebP(imgEl, targetSize, quality, fitMode) {
+        var canvas = document.createElement('canvas');
+        canvas.width = targetSize;
+        canvas.height = targetSize;
+        var ctx = canvas.getContext('2d');
+
+        var srcW = imgEl.naturalWidth || imgEl.width;
+        var srcH = imgEl.naturalHeight || imgEl.height;
+
+        if (fitMode === 'cover' || srcW === srcH) {
+          // 1:1 Center Crop
+          var scale = Math.max(targetSize / srcW, targetSize / srcH);
+          var drawW = srcW * scale;
+          var drawH = srcH * scale;
+          var offsetX = (targetSize - drawW) / 2;
+          var offsetY = (targetSize - drawH) / 2;
+          ctx.drawImage(imgEl, offsetX, offsetY, drawW, drawH);
+        } else {
+          // Contain + Ambient Blurred Backdrop (preserves entire non-square photo)
+          ctx.save();
+          var bgScale = Math.max(targetSize / srcW, targetSize / srcH) * 1.12;
+          var bgW = srcW * bgScale;
+          var bgH = srcH * bgScale;
+          var bgX = (targetSize - bgW) / 2;
+          var bgY = (targetSize - bgH) / 2;
+          ctx.filter = 'blur(' + Math.round(targetSize * 0.025) + 'px) brightness(0.92)';
+          ctx.drawImage(imgEl, bgX, bgY, bgW, bgH);
+          ctx.restore();
+
+          var fgScale = Math.min(targetSize / srcW, targetSize / srcH);
+          var fgW = srcW * fgScale;
+          var fgH = srcH * fgScale;
+          var fgX = (targetSize - fgW) / 2;
+          var fgY = (targetSize - fgH) / 2;
+          ctx.drawImage(imgEl, fgX, fgY, fgW, fgH);
+        }
+
+        return canvas.toDataURL('image/webp', quality);
+      }
+
+      function approxKilobytes(dataUrl) {
+        if (!dataUrl) return 0;
+        var base64Length = dataUrl.split(',')[1].length;
+        var byteLength = (base64Length * 3) / 4;
+        return Math.round(byteLength / 102.4) / 10;
+      }
+
+      function rebuildWebPAssets() {
+        var shortname = getShortname();
+        var fitMode = getFitMode();
+        targetFolderLabel.textContent = '/images/models/' + shortname + '/';
+        targetMdLabel.textContent = '/_models/' + shortname + '.md';
+
+        if (sourceImages.length === 0) {
+          generatedWebP.main = null;
+          generatedWebP.thumb = null;
+          generatedWebP.gallery = [];
+          webpOutputListEl.innerHTML =
+            '<p style="font-size:0.85rem;color:var(--text-muted);">Paste or select an image to preview the 1200&times;1200, 600&times;600, and 1000&times;1000 WebP outputs.</p>';
+          updateMarkdownPreview();
+          return;
+        }
+
+        // First image is Main Showcase (1200x1200) + Model Thumbnail (600x600)
+        var primary = sourceImages[0].imgElement;
+        generatedWebP.main = renderSquareWebP(primary, 1200, 0.88, fitMode);
+        generatedWebP.thumb = renderSquareWebP(primary, 600, 0.85, fitMode);
+
+        // Additional images (index >= 1) become 1000x1000 Gallery Angles
+        generatedWebP.gallery = sourceImages.slice(1).map(function (item) {
+          return renderSquareWebP(item.imgElement, 1000, 0.86, fitMode);
+        });
+
+        // Render preview cards
+        var itemsHtml = '';
+        itemsHtml +=
+          '<div class="webp-item">' +
+          '<img src="' + generatedWebP.main + '" alt="Main WebP preview">' +
+          '<div class="webp-item-meta">' +
+          '<div class="webp-item-path">/images/models/' + shortname + '/3d-model-' + shortname + '-main.webp</div>' +
+          '<div class="webp-item-spec">Main Showcase &middot; <strong>1200&times;1200px</strong> WebP &middot; ~' + approxKilobytes(generatedWebP.main) + ' KB</div>' +
+          '</div>' +
+          '</div>';
+
+        itemsHtml +=
+          '<div class="webp-item">' +
+          '<img src="' + generatedWebP.thumb + '" alt="Thumb WebP preview">' +
+          '<div class="webp-item-meta">' +
+          '<div class="webp-item-path">/images/models/' + shortname + '/3d-model-' + shortname + '-thumb.webp</div>' +
+          '<div class="webp-item-spec">Model Thumbnail &middot; <strong>600&times;600px</strong> WebP &middot; ~' + approxKilobytes(generatedWebP.thumb) + ' KB</div>' +
+          '</div>' +
+          '</div>';
+
+        generatedWebP.gallery.forEach(function (gDataUrl, idx) {
+          var angleNum = idx + 1;
+          itemsHtml +=
+            '<div class="webp-item">' +
+            '<img src="' + gDataUrl + '" alt="Gallery angle ' + angleNum + ' preview">' +
+            '<div class="webp-item-meta">' +
+            '<div class="webp-item-path">/images/models/' + shortname + '/3d-model-' + shortname + '-angle' + angleNum + '.webp</div>' +
+            '<div class="webp-item-spec">Gallery Angle ' + angleNum + ' &middot; <strong>1000&times;1000px</strong> WebP &middot; ~' + approxKilobytes(gDataUrl) + ' KB</div>' +
+            '</div>' +
+            '</div>';
+        });
+
+        webpOutputListEl.innerHTML = itemsHtml;
+        updateMarkdownPreview();
+      }
+
+      function renderSourceCards() {
+        sourceListEl.innerHTML = '';
+        sourceImages.forEach(function (item, idx) {
+          var card = document.createElement('div');
+          card.className = 'source-card' + (idx === 0 ? ' is-main' : '');
+
+          var roleLabel = idx === 0 ? 'MAIN + THUMB' : 'ANGLE ' + idx;
+          card.innerHTML =
+            '<div class="source-card-img-wrap">' +
+            '<img src="' + item.originalUrl + '" alt="Pasted source">' +
+            '<span class="role-badge">' + roleLabel + '</span>' +
+            '</div>' +
+            '<div class="source-card-actions">' +
+            (idx > 0
+              ? '<button type="button" class="btn-mini" data-action="promote" data-idx="' + idx + '">Set Main</button>'
+              : '<span style="font-size:0.72rem;font-weight:600;color:var(--accent);padding:0.2rem 0.3rem;">Primary</span>') +
+            '<button type="button" class="btn-mini btn-mini-danger" data-action="remove" data-idx="' + idx + '">Remove</button>' +
+            '</div>';
+
+          sourceListEl.appendChild(card);
+        });
+
+        rebuildWebPAssets();
+      }
+
+      sourceListEl.addEventListener('click', function (e) {
+        var btn = e.target.closest('button[data-action]');
+        if (!btn) return;
+        var idx = parseInt(btn.getAttribute('data-idx'), 10);
+        var action = btn.getAttribute('data-action');
+        if (action === 'promote' && idx > 0 && idx < sourceImages.length) {
+          var chosen = sourceImages.splice(idx, 1)[0];
+          sourceImages.unshift(chosen);
+          renderSourceCards();
+        } else if (action === 'remove' && idx >= 0 && idx < sourceImages.length) {
+          sourceImages.splice(idx, 1);
+          renderSourceCards();
+        }
+      });
+
+      function addImageBlob(fileOrBlob) {
+        if (!fileOrBlob || !fileOrBlob.type || fileOrBlob.type.indexOf('image/') !== 0) return;
+        var reader = new FileReader();
+        reader.onload = function (evt) {
+          var dataUrl = evt.target.result;
+          var img = new Image();
+          img.onload = function () {
+            sourceImages.push({
+              id: Date.now() + '-' + Math.random(),
+              imgElement: img,
+              originalUrl: dataUrl,
+              width: img.naturalWidth,
+              height: img.naturalHeight
+            });
+            renderSourceCards();
+          };
+          img.src = dataUrl;
+        };
+        reader.readAsDataURL(fileOrBlob);
+      }
+
+      // Listen for Clipboard Paste anywhere on the window
+      window.addEventListener('paste', function (e) {
+        var clipboardData = e.clipboardData || window.clipboardData;
+        if (!clipboardData || !clipboardData.items) return;
+        var foundImage = false;
+        for (var i = 0; i < clipboardData.items.length; i++) {
+          var item = clipboardData.items[i];
+          if (item.type && item.type.indexOf('image/') === 0) {
+            var blob = item.getAsFile();
+            if (blob) {
+              addImageBlob(blob);
+              foundImage = true;
+            }
+          }
+        }
+        if (foundImage) {
+          e.preventDefault();
+        }
+      });
+
+      // Drag and drop & file picker support on pasteZone
+      btnBrowse.addEventListener('click', function (e) {
+        e.stopPropagation();
+        filePicker.click();
+      });
+      pasteZone.addEventListener('click', function (e) {
+        if (e.target === btnBrowse) return;
+        filePicker.click();
+      });
+      filePicker.addEventListener('change', function () {
+        Array.from(filePicker.files || []).forEach(addImageBlob);
+        filePicker.value = '';
+      });
+      pasteZone.addEventListener('dragover', function (e) {
+        e.preventDefault();
+        pasteZone.classList.add('is-dragover');
+      });
+      pasteZone.addEventListener('dragleave', function () {
+        pasteZone.classList.remove('is-dragover');
+      });
+      pasteZone.addEventListener('drop', function (e) {
+        e.preventDefault();
+        pasteZone.classList.remove('is-dragover');
+        if (e.dataTransfer && e.dataTransfer.files) {
+          Array.from(e.dataTransfer.files).forEach(addImageBlob);
+        }
+      });
+
+      document.querySelectorAll('input[name="fit-mode"]').forEach(function (radio) {
+        radio.addEventListener('change', rebuildWebPAssets);
+      });
+
+      nameInput.addEventListener('input', function () {
+        if (!shortnameManuallyEdited) {
+          shortnameInput.value = slugifyShortname(nameInput.value);
+        }
+        rebuildWebPAssets();
+      });
+
+      shortnameInput.addEventListener('input', function () {
+        shortnameManuallyEdited = Boolean(shortnameInput.value.trim());
+        rebuildWebPAssets();
+      });
+
+      tagsInput.addEventListener('input', function () {
+        var tags = tagsInput.value
+          .split(',')
+          .map(function (t) { return t.trim(); })
+          .filter(Boolean);
+        tagPreviewRow.innerHTML = tags
+          .map(function (t) { return '<span class="tag-chip">#' + t + '</span>'; })
+          .join('');
+        updateMarkdownPreview();
+      });
+
+      btnFillSettings.addEventListener('click', function () {
+        var template =
+          '- **Material:** PLA / Matte PLA\n' +
+          '- **Layer Height:** `0.20 mm`\n' +
+          '- **Supports:** None required\n' +
+          '- **Infill:** 15% Gyroid\n' +
+          '- **Walls:** 3 perimeters';
+        settingsInput.value = settingsInput.value
+          ? settingsInput.value.trim() + '\n' + template
+          : template;
+        updateMarkdownPreview();
+      });
+
+      [categorySelect, descInput, settingsInput, youtubeInput, dlMakerworld, dlPrintables, dlThangs, dlCults3d].forEach(
+        function (el) {
+          el.addEventListener('input', updateMarkdownPreview);
+          el.addEventListener('change', updateMarkdownPreview);
+        }
+      );
+
+      function yamlEscape(s) {
+        return '"' + String(s || '').trim().replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"';
+      }
+
+      function updateMarkdownPreview() {
+        var title = nameInput.value.trim() || 'Untitled 3D Model';
+        var shortname = getShortname();
+        var category = categorySelect.value;
+        var thumbPath = '/images/models/' + shortname + '/3d-model-' + shortname + '-thumb.webp';
+        var mainPath = '/images/models/' + shortname + '/3d-model-' + shortname + '-main.webp';
+
+        var lines = [
+          '---',
+          'title: ' + yamlEscape(title),
+          'shortname: ' + yamlEscape(shortname),
+          'category: ' + yamlEscape(category),
+          'thumbnail_image: ' + yamlEscape(thumbPath),
+          'cover_image: ' + yamlEscape(mainPath)
+        ];
+
+        if (generatedWebP.gallery.length > 0) {
+          lines.push('gallery_images:');
+          generatedWebP.gallery.forEach(function (_, idx) {
+            lines.push(
+              '  - ' + yamlEscape('/images/models/' + shortname + '/3d-model-' + shortname + '-angle' + (idx + 1) + '.webp')
+            );
+          });
+        } else {
+          lines.push('gallery_images: []');
+        }
+
+        var tags = tagsInput.value
+          .split(',')
+          .map(function (t) { return t.trim(); })
+          .filter(Boolean);
+
+        if (tags.length > 0) {
+          lines.push('tags:');
+          tags.forEach(function (t) {
+            lines.push('  - ' + yamlEscape(t));
+          });
+        } else {
+          lines.push('tags: []');
+        }
+
+        lines.push('downloads:');
+        lines.push('  makerworld: ' + yamlEscape(dlMakerworld.value));
+        lines.push('  printables: ' + yamlEscape(dlPrintables.value));
+        lines.push('  thangs: ' + yamlEscape(dlThangs.value));
+        lines.push('  cults3d: ' + yamlEscape(dlCults3d.value));
+        lines.push('youtube_id: ' + yamlEscape(extractYoutubeId(youtubeInput.value)));
+        lines.push('---');
+        lines.push('');
+
+        if (descInput.value.trim()) {
+          lines.push(descInput.value.trim());
+          lines.push('');
+        }
+        if (settingsInput.value.trim()) {
+          var st = settingsInput.value.trim();
+          if (!/^#{1,4}\s+/m.test(st)) {
+            lines.push('### Recommended Print Settings');
+            lines.push('');
+          }
+          lines.push(st);
+        }
+
+        mdPreviewEl.textContent = lines.join('\n');
+      }
+
+      function fetchExistingModels() {
+        fetch('/api/models')
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            if (!data.models || !data.models.length) {
+              existingModelsList.innerHTML = '<li>No models found.</li>';
+              return;
+            }
+            existingModelsList.innerHTML = data.models
+              .map(function (m) {
+                return (
+                  '<li><span>' +
+                  m.title +
+                  '</span><code>_models/' +
+                  m.filename +
+                  '</code></li>'
+                );
+              })
+              .join('');
+          })
+          .catch(function () {});
+      }
+
+      formEl.addEventListener('submit', function (e) {
+        e.preventDefault();
+        statusBox.className = 'status-box';
+        statusBox.innerHTML = '';
+
+        var title = nameInput.value.trim();
+        var shortname = getShortname();
+
+        if (!title) {
+          statusBox.className = 'status-box is-error';
+          statusBox.textContent = 'Please enter a Model Name.';
+          return;
+        }
+        if (!generatedWebP.main || !generatedWebP.thumb) {
+          statusBox.className = 'status-box is-error';
+          statusBox.textContent = 'Please paste or select at least one image first.';
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Saving WebP & Pushing to GitHub...';
+
+        var payload = {
+          title: title,
+          shortname: shortname,
+          category: categorySelect.value,
+          description: descInput.value,
+          printSettings: settingsInput.value,
+          tags: tagsInput.value,
+          youtubeId: youtubeInput.value,
+          downloads: {
+            makerworld: dlMakerworld.value.trim(),
+            printables: dlPrintables.value.trim(),
+            thangs: dlThangs.value.trim(),
+            cults3d: dlCults3d.value.trim()
+          },
+          mainImage: generatedWebP.main,
+          thumbImage: generatedWebP.thumb,
+          galleryImages: generatedWebP.gallery,
+          autoDeploy: autoDeployCheckbox.checked
+        };
+
+        fetch('/api/models', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+          .then(function (res) {
+            return res.json().then(function (body) {
+              return { ok: res.ok, body: body };
+            });
+          })
+          .then(function (result) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Save Model & Push to GitHub →';
+
+            if (!result.ok) {
+              statusBox.className = 'status-box is-error';
+              statusBox.textContent = result.body.error || 'Failed to save model.';
+              return;
+            }
+
+            var b = result.body;
+            statusBox.className = 'status-box is-success';
+            statusBox.innerHTML =
+              '<strong>Model saved' +
+              (b.deployed ? ' and pushed to GitHub!' : ' locally!') +
+              '</strong>' +
+              '<div style="margin-top:0.5rem;font-family:var(--font-mono);font-size:0.76rem;">' +
+              b.savedFiles.map(function (f) { return '&bull; ' + f; }).join('<br>') +
+              '</div>' +
+              (b.gitLog
+                ? '<pre class="code-preview" style="margin-top:0.65rem;max-height:180px;">' +
+                  b.gitLog.replace(/</g, '&lt;') +
+                  '</pre>'
+                : '');
+
+            fetchExistingModels();
+          })
+          .catch(function (err) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Save Model & Push to GitHub →';
+            statusBox.className = 'status-box is-error';
+            statusBox.textContent = 'Network error: ' + err.message;
+          });
+      });
+
+      updateMarkdownPreview();
+      fetchExistingModels();
+    })();
+  </script>
+</body>
+</html>

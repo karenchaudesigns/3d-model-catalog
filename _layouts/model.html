@@ -5,7 +5,7 @@ layout: default
 {% if page.cover_image %}
   {% assign main_img = page.cover_image %}
 {% elsif page.shortname %}
-  {% assign main_img = '/images/models/3d-model-' | append: page.shortname | append: '-main.webp' %}
+  {% assign main_img = '/images/models/' | append: page.shortname | append: '/3d-model-' | append: page.shortname | append: '-main.webp' %}
 {% endif %}
 
 <article class="model-detail container" id="model-detail-{{ page.slug }}">

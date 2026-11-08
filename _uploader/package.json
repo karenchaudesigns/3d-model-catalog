@@ -1,0 +1,12 @@
+{
+  "name": "3d-model-catalog-uploader",
+  "version": "1.0.0",
+  "description": "Local admin dashboard for uploading 3D models, converting clipboard images to WebP, generating Jekyll Markdown, and auto-pushing to GitHub Pages.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}

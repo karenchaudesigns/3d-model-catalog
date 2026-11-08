@@ -5,4 +5,5 @@ _site/
 .bundle/
 vendor/
 node_modules/
+_uploader/node_modules/
 .DS_Store
