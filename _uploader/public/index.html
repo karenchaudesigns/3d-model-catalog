@@ -1212,12 +1212,18 @@
       aspect-ratio: 1 / 1;
       background-color: var(--bg-subtle);
       overflow: hidden;
+      cursor: pointer;
     }
 
     .model-thumb-img {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      transition: transform 0.22s ease;
+    }
+
+    .model-thumb-media:hover .model-thumb-img {
+      transform: scale(1.03);
     }
 
     .model-thumb-body {
@@ -2764,7 +2770,7 @@
               : '';
             return (
               '<article class="model-thumb-card' + (isCurrentEdit ? ' is-editing' : '') + '" style="' + (m.hidden ? 'opacity:0.75;' : '') + '">' +
-              '<div class="model-thumb-media">' +
+              '<div class="model-thumb-media" data-slug="' + m.slug + '" title="Edit ' + (m.title || m.slug).replace(/"/g, '&quot;') + '">' +
               (thumbUrl
                 ? '<img src="' + thumbUrl + '" class="model-thumb-img" alt="' + (m.title || m.slug) + '" loading="lazy">'
                 : '') +
@@ -2799,9 +2805,9 @@
           toggleModelVisibility(tSlug, !currentlyHidden);
           return;
         }
-        var btn = e.target.closest('.btn-edit-model');
-        if (!btn) return;
-        var slug = btn.getAttribute('data-slug');
+        var editTrigger = e.target.closest('.btn-edit-model, .model-thumb-media');
+        if (!editTrigger) return;
+        var slug = editTrigger.getAttribute('data-slug');
         if (slug) openEditModel(slug);
       });
 
