@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% if page.title %}{{ page.title }} | {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
+  <meta name="description" content="{{ page.excerpt | default: page.description | default: site.description | strip_html | normalize_whitespace | truncate: 160 }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:opsz,wght@9..144,500;9..144,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+</head>
+<body>
+  <header class="site-header" id="site-header">
+    <div class="container header-inner">
+      <a href="{{ '/' | relative_url }}" class="brand-logo" id="nav-brand-link">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span class="brand-text">Karen Chau Designs</span>
+      </a>
+      <nav class="site-nav" id="site-nav" aria-label="Primary Navigation">
+        <a href="{{ '/' | relative_url }}" class="nav-link {% if page.url == '/' %}is-active{% endif %}" id="nav-home">Catalog</a>
+        {% for cat in site.catalog_categories %}
+          <a href="{{ cat.url | relative_url }}" class="nav-link {% if page.category_slug == cat.slug or page.category == cat.slug %}is-active{% endif %}" id="nav-cat-{{ cat.slug }}">
+            {{ cat.title }}
+          </a>
+        {% endfor %}
+      </nav>
+    </div>
+  </header>
+
+  <main class="site-main" id="main-content">
+    {{ content }}
+  </main>
+
+  <footer class="site-footer" id="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <p class="footer-title">{{ site.author }}</p>
+        <p class="footer-subtitle">{{ site.tagline }}</p>
+      </div>
+      <div class="footer-links">
+        <a href="https://makerworld.com" target="_blank" rel="noopener noreferrer" id="footer-makerworld">MakerWorld</a>
+        <a href="https://www.printables.com" target="_blank" rel="noopener noreferrer" id="footer-printables">Printables</a>
+        <a href="https://thangs.com" target="_blank" rel="noopener noreferrer" id="footer-thangs">Thangs</a>
+      </div>
+      <p class="footer-copy">&copy; {{ "now" | date: "%Y" }} {{ site.author }}. Built with Jekyll for GitHub Pages.</p>
+    </div>
+  </footer>
+</body>
+</html>

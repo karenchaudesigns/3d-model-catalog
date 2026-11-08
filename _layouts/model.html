@@ -1,0 +1,280 @@
+---
+layout: default
+---
+{% assign category_obj = site.catalog_categories | where: "slug", page.category | first %}
+{% if page.cover_image %}
+  {% assign main_img = page.cover_image %}
+{% elsif page.shortname %}
+  {% assign main_img = '/images/models/3d-model-' | append: page.shortname | append: '-main.webp' %}
+{% endif %}
+
+<article class="model-detail container" id="model-detail-{{ page.slug }}">
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="{{ '/' | relative_url }}" id="breadcrumb-home">Catalog</a>
+    <span class="breadcrumb-sep" aria-hidden="true">/</span>
+    {% if category_obj %}
+      <a href="{{ category_obj.url | relative_url }}" id="breadcrumb-category">{{ category_obj.title }}</a>
+      <span class="breadcrumb-sep" aria-hidden="true">/</span>
+    {% elsif page.category %}
+      <span class="breadcrumb-category-text">{{ page.category }}</span>
+      <span class="breadcrumb-sep" aria-hidden="true">/</span>
+    {% endif %}
+    <span class="breadcrumb-current" aria-current="page">{{ page.title }}</span>
+  </nav>
+
+  <div class="model-hero-grid">
+    <!-- Left Column: Main Showcase Image & Thumbnail Strip -->
+    <div class="model-media-column">
+      {% if main_img %}
+        <figure class="model-main-stage" id="model-main-stage">
+          <img
+            id="active-showcase-image"
+            src="{{ main_img | relative_url }}"
+            alt="{{ page.title }} — 3D printed model main showcase"
+            width="1200"
+            height="1200"
+            decoding="async"
+            fetchpriority="high"
+            class="model-cover-image"
+          >
+        </figure>
+      {% endif %}
+
+      {% if page.gallery_images and page.gallery_images.size > 0 %}
+        <div class="model-thumb-strip" role="list" aria-label="Model angles selector">
+          {% if main_img %}
+            <button
+              type="button"
+              class="thumb-selector is-selected"
+              data-full-src="{{ main_img | relative_url }}"
+              data-full-alt="{{ page.title }} — main showcase"
+              id="thumb-select-main"
+              aria-label="View main showcase image"
+            >
+              <img
+                src="{{ main_img | relative_url }}"
+                alt="{{ page.title }} main angle thumbnail"
+                width="160"
+                height="160"
+                loading="lazy"
+                decoding="async"
+              >
+            </button>
+          {% endif %}
+          {% for img_path in page.gallery_images %}
+            <button
+              type="button"
+              class="thumb-selector"
+              data-full-src="{{ img_path | relative_url }}"
+              data-full-alt="{{ page.title }} — gallery angle {{ forloop.index }}"
+              id="thumb-select-angle-{{ forloop.index }}"
+              aria-label="View angle {{ forloop.index }}"
+            >
+              <img
+                src="{{ img_path | relative_url }}"
+                alt="{{ page.title }} — angle {{ forloop.index }}"
+                width="160"
+                height="160"
+                loading="lazy"
+                decoding="async"
+              >
+            </button>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Right Column: Metadata, Conditional Download Buttons, Tags -->
+    <div class="model-info-column">
+      <div class="model-meta-header">
+        {% if category_obj %}
+          <a href="{{ category_obj.url | relative_url }}" class="category-pill" id="model-category-badge">
+            {{ category_obj.title }}
+          </a>
+        {% elsif page.category %}
+          <span class="category-pill" id="model-category-badge">{{ page.category }}</span>
+        {% endif %}
+        <h1 class="model-title">{{ page.title }}</h1>
+      </div>
+
+      {% if page.tags and page.tags.size > 0 %}
+        <ul class="tag-list" aria-label="Model tags">
+          {% for tag in page.tags %}
+            <li class="tag-badge">#{{ tag }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      {% if page.downloads %}
+        {% assign has_makerworld = false %}
+        {% assign has_printables = false %}
+        {% assign has_thangs = false %}
+        {% assign has_cults3d = false %}
+        {% if page.downloads.makerworld and page.downloads.makerworld != "" %}
+          {% assign has_makerworld = true %}
+        {% endif %}
+        {% if page.downloads.printables and page.downloads.printables != "" %}
+          {% assign has_printables = true %}
+        {% endif %}
+        {% if page.downloads.thangs and page.downloads.thangs != "" %}
+          {% assign has_thangs = true %}
+        {% endif %}
+        {% if page.downloads.cults3d and page.downloads.cults3d != "" %}
+          {% assign has_cults3d = true %}
+        {% endif %}
+
+        {% if has_makerworld or has_printables or has_thangs or has_cults3d %}
+          <section class="download-panel" aria-labelledby="download-heading">
+            <h2 class="download-heading" id="download-heading">Download 3D Print Files</h2>
+            <p class="download-subtext">Available on verified 3D printing repositories (STL / 3MF print profiles):</p>
+            <div class="download-buttons">
+              {% if has_makerworld %}
+                <a
+                  href="{{ page.downloads.makerworld }}"
+                  class="btn-download btn-makerworld"
+                  id="download-makerworld"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span class="btn-platform-dot" aria-hidden="true"></span>
+                  <span>Download on MakerWorld</span>
+                  <span class="btn-arrow" aria-hidden="true">&rarr;</span>
+                </a>
+              {% endif %}
+
+              {% if has_printables %}
+                <a
+                  href="{{ page.downloads.printables }}"
+                  class="btn-download btn-printables"
+                  id="download-printables"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span class="btn-platform-dot" aria-hidden="true"></span>
+                  <span>Download on Printables</span>
+                  <span class="btn-arrow" aria-hidden="true">&rarr;</span>
+                </a>
+              {% endif %}
+
+              {% if has_thangs %}
+                <a
+                  href="{{ page.downloads.thangs }}"
+                  class="btn-download btn-thangs"
+                  id="download-thangs"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span class="btn-platform-dot" aria-hidden="true"></span>
+                  <span>Download on Thangs</span>
+                  <span class="btn-arrow" aria-hidden="true">&rarr;</span>
+                </a>
+              {% endif %}
+
+              {% if has_cults3d %}
+                <a
+                  href="{{ page.downloads.cults3d }}"
+                  class="btn-download btn-cults3d"
+                  id="download-cults3d"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span class="btn-platform-dot" aria-hidden="true"></span>
+                  <span>Download on Cults3D</span>
+                  <span class="btn-arrow" aria-hidden="true">&rarr;</span>
+                </a>
+              {% endif %}
+            </div>
+          </section>
+        {% endif %}
+      {% endif %}
+
+      <!-- Markdown Description Body -->
+      <div class="model-description prose">
+        {{ content }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Below-the-Fold Gallery Images (1000x1000px native lazy-loaded) & Optional MP4 Loop -->
+  {% if page.gallery_images and page.gallery_images.size > 0 or page.animation %}
+    <section class="model-gallery-section" aria-labelledby="gallery-heading">
+      <div class="section-header">
+        <h2 class="section-title" id="gallery-heading">Detailed Views &amp; Print Showcase</h2>
+        <p class="section-subtitle">High-resolution angles and 360&deg; motion showcase ({{ page.shortname | default: page.slug }})</p>
+      </div>
+      <div class="model-gallery-grid">
+        {% for img_path in page.gallery_images %}
+          <figure class="gallery-card">
+            <img
+              src="{{ img_path | relative_url }}"
+              alt="{{ page.title }} — detailed angle {{ forloop.index }}"
+              width="1000"
+              height="1000"
+              loading="lazy"
+              decoding="async"
+              class="gallery-image"
+            >
+            <figcaption class="gallery-caption">Angle {{ forloop.index }} &middot; <code>{{ img_path | split: '/' | last }}</code></figcaption>
+          </figure>
+        {% endfor %}
+
+        {% if page.animation and page.animation != "" %}
+          <figure class="gallery-card gallery-video-card">
+            <video
+              src="{{ page.animation | relative_url }}"
+              autoplay
+              loop
+              muted
+              playsinline
+              preload="metadata"
+              width="600"
+              height="600"
+              class="gallery-video"
+              aria-label="{{ page.title }} looping animation"
+            ></video>
+            <figcaption class="gallery-caption">Looping Showcase &middot; <code>{{ page.animation | split: '/' | last }}</code></figcaption>
+          </figure>
+        {% endif %}
+      </div>
+    </section>
+  {% endif %}
+
+  <!-- Conditional YouTube Embed -->
+  {% if page.youtube_id and page.youtube_id != "" %}
+    <section class="model-video-section" aria-labelledby="video-heading">
+      <div class="section-header">
+        <h2 class="section-title" id="video-heading">Build &amp; Assembly Video</h2>
+      </div>
+      <div class="video-embed-wrapper">
+        <iframe
+          src="https://www.youtube-nocookie.com/embed/{{ page.youtube_id }}"
+          title="{{ page.title }} — YouTube video player"
+          loading="lazy"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen
+        ></iframe>
+      </div>
+    </section>
+  {% endif %}
+</article>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var mainImg = document.getElementById('active-showcase-image');
+    var selectors = document.querySelectorAll('.thumb-selector');
+    if (!mainImg || !selectors.length) return;
+
+    selectors.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var newSrc = btn.getAttribute('data-full-src');
+        var newAlt = btn.getAttribute('data-full-alt');
+        if (newSrc) {
+          mainImg.src = newSrc;
+          if (newAlt) mainImg.alt = newAlt;
+        }
+        selectors.forEach(function (b) { b.classList.remove('is-selected'); });
+        btn.classList.add('is-selected');
+      });
+    });
+  });
+</script>

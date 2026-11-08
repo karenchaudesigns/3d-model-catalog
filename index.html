@@ -1,0 +1,156 @@
+---
+layout: default
+title: "3D Printing Model Catalog"
+description: "Browse original 3D printable models by category—Useful Prints, Gifts & Decor, Seasonal, and Fan Favorites."
+---
+
+<section class="hero-banner container" id="catalog-hero">
+  <div class="hero-content">
+    <span class="eyebrow">3D Printing Portfolio &amp; Digital Catalog</span>
+    <h1 class="hero-title">Designed for Clean Prints &amp; Everyday Utility</h1>
+    <p class="hero-description">
+      Explore support-free functional organizers, sculptural home accents, and articulated prints. Select a product category below or filter the full model library by tag.
+    </p>
+  </div>
+</section>
+
+<!-- Product Categories Grid (800x800px Category Thumbnails: category-[name]-3dmodels.webp) -->
+<section class="categories-showcase container" id="categories-section" aria-labelledby="categories-heading">
+  <div class="section-header">
+    <h2 class="section-title" id="categories-heading">Browse by Category</h2>
+    <p class="section-subtitle">Click a category collection to explore themed 3D models</p>
+  </div>
+
+  <div class="category-grid">
+    {% for cat in site.catalog_categories %}
+      {% assign cat_models = site.models | where: "category", cat.slug %}
+      <a href="{{ cat.url | relative_url }}" class="category-card" id="category-card-{{ cat.slug }}">
+        <div class="category-card-media">
+          <img
+            src="{{ cat.image | relative_url }}"
+            alt="{{ cat.title }} — 3D printing models category"
+            width="800"
+            height="800"
+            {% if forloop.index > 2 %}loading="lazy"{% else %}fetchpriority="high"{% endif %}
+            decoding="async"
+            class="category-card-img"
+          >
+          <span class="category-card-count">{{ cat_models.size }} {% if cat_models.size == 1 %}Model{% else %}Models{% endif %}</span>
+        </div>
+        <div class="category-card-body">
+          <h3 class="category-card-title">
+            <span>{{ cat.title }}</span>
+            <span class="category-card-arrow" aria-hidden="true">&rarr;</span>
+          </h3>
+          <p class="category-card-desc">{{ cat.description }}</p>
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- All Models Filterable Grid (600x600px Model Thumbnails: 3d-model-[shortname]-thumb.webp) -->
+<section class="all-models-section container" id="all-models-section" aria-labelledby="all-models-heading">
+  <div class="section-header">
+    <h2 class="section-title" id="all-models-heading">Featured &amp; Recent Models</h2>
+    <p class="section-subtitle">Filter across all {{ site.models.size }} catalog designs by tag</p>
+  </div>
+
+  {% assign all_tags = "" | split: "" %}
+  {% for model in site.models %}
+    {% for t in model.tags %}
+      {% unless all_tags contains t %}
+        {% assign all_tags = all_tags | push: t %}
+      {% endunless %}
+    {% endfor %}
+  {% endfor %}
+
+  {% if all_tags.size > 0 %}
+    <div class="filter-bar" role="region" aria-label="Filter models by tag">
+      <span class="filter-label">Filter by tag:</span>
+      <div class="filter-pills">
+        <button type="button" class="filter-btn is-active" data-filter="all" id="home-filter-all">All Models</button>
+        {% for tag in all_tags %}
+          <button type="button" class="filter-btn" data-filter="{{ tag | slugify }}" id="home-filter-{{ tag | slugify }}">
+            #{{ tag }}
+          </button>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  <div class="model-thumbnail-grid" id="home-model-grid">
+    {% for model in site.models %}
+      {% assign cat_info = site.catalog_categories | where: "slug", model.category | first %}
+      {% if model.thumbnail_image %}
+        {% assign thumb_src = model.thumbnail_image %}
+      {% elsif model.shortname %}
+        {% assign thumb_src = '/images/models/3d-model-' | append: model.shortname | append: '-thumb.webp' %}
+      {% else %}
+        {% assign thumb_src = model.cover_image %}
+      {% endif %}
+
+      {% assign tag_slugs = "" %}
+      {% for t in model.tags %}
+        {% assign s = t | slugify %}
+        {% assign tag_slugs = tag_slugs | append: s | append: " " %}
+      {% endfor %}
+
+      <article class="model-thumb-card" data-tags="{{ tag_slugs | strip }}">
+        <a href="{{ model.url | relative_url }}" class="model-thumb-link" id="home-model-card-{{ model.slug }}">
+          <div class="model-thumb-media">
+            <img
+              src="{{ thumb_src | relative_url }}"
+              alt="{{ model.title }} — 3D model thumbnail"
+              width="600"
+              height="600"
+              loading="lazy"
+              decoding="async"
+              class="model-thumb-img"
+            >
+          </div>
+          <div class="model-thumb-body">
+            {% if cat_info %}
+              <span class="model-card-category">{{ cat_info.title }}</span>
+            {% elsif model.category %}
+              <span class="model-card-category">{{ model.category }}</span>
+            {% endif %}
+            <h3 class="model-card-title">{{ model.title }}</h3>
+            {% if model.tags and model.tags.size > 0 %}
+              <div class="model-card-tags">
+                {% for t in model.tags limit: 3 %}
+                  <span class="mini-tag">#{{ t }}</span>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+        </a>
+      </article>
+    {% endfor %}
+  </div>
+</section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var filterBtns = document.querySelectorAll('#all-models-section .filter-btn');
+    var cards = document.querySelectorAll('#home-model-grid .model-thumb-card');
+    if (!filterBtns.length || !cards.length) return;
+
+    filterBtns.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var filterValue = btn.getAttribute('data-filter');
+        filterBtns.forEach(function (b) { b.classList.remove('is-active'); });
+        btn.classList.add('is-active');
+
+        cards.forEach(function (card) {
+          var cardTags = (card.getAttribute('data-tags') || '').split(/\s+/);
+          if (filterValue === 'all' || cardTags.indexOf(filterValue) !== -1) {
+            card.style.display = '';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    });
+  });
+</script>

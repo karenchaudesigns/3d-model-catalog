@@ -1,0 +1,140 @@
+---
+layout: default
+---
+{% assign current_slug = page.category_slug | default: page.slug %}
+{% assign category_meta = site.catalog_categories | where: "slug", current_slug | first %}
+{% assign category_models = site.models | where: "category", current_slug %}
+
+<section class="category-page container" id="category-page-{{ current_slug }}">
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="{{ '/' | relative_url }}" id="breadcrumb-catalog">Catalog</a>
+    <span class="breadcrumb-sep" aria-hidden="true">/</span>
+    <span class="breadcrumb-current" aria-current="page">{{ page.title | default: category_meta.title }}</span>
+  </nav>
+
+  <header class="category-hero">
+    <div class="category-hero-text">
+      <span class="eyebrow">Category Collection</span>
+      <h1 class="page-title">{{ page.title | default: category_meta.title }}</h1>
+      {% if page.description or category_meta.description %}
+        <p class="page-subtitle">{{ page.description | default: category_meta.description }}</p>
+      {% endif %}
+    </div>
+    <div class="category-count-pill">
+      <span class="count-number">{{ category_models.size }}</span>
+      <span class="count-label">{% if category_models.size == 1 %}Model{% else %}Models{% endif %}</span>
+    </div>
+  </header>
+
+  {% if content and content != "" %}
+    <div class="category-intro prose">
+      {{ content }}
+    </div>
+  {% endif %}
+
+  <!-- Collect unique tags within this category for quick filtering -->
+  {% assign cat_tags = "" | split: "" %}
+  {% for model in category_models %}
+    {% for t in model.tags %}
+      {% unless cat_tags contains t %}
+        {% assign cat_tags = cat_tags | push: t %}
+      {% endunless %}
+    {% endfor %}
+  {% endfor %}
+
+  {% if cat_tags.size > 0 %}
+    <div class="filter-bar" role="region" aria-label="Filter category models by tag">
+      <span class="filter-label">Filter by tag:</span>
+      <div class="filter-pills">
+        <button type="button" class="filter-btn is-active" data-filter="all" id="cat-filter-all">All</button>
+        {% for tag in cat_tags %}
+          <button type="button" class="filter-btn" data-filter="{{ tag | slugify }}" id="cat-filter-{{ tag | slugify }}">
+            #{{ tag }}
+          </button>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- Category Model Grid: 4-5 columns on desktop, 2-3 on mobile -->
+  {% if category_models.size > 0 %}
+    <div class="model-thumbnail-grid" id="category-model-grid">
+      {% for model in category_models %}
+        {% if model.thumbnail_image %}
+          {% assign thumb_src = model.thumbnail_image %}
+        {% elsif model.shortname %}
+          {% assign thumb_src = '/images/models/3d-model-' | append: model.shortname | append: '-thumb.webp' %}
+        {% else %}
+          {% assign thumb_src = model.cover_image %}
+        {% endif %}
+
+        {% assign tag_slugs = "" %}
+        {% for t in model.tags %}
+          {% assign s = t | slugify %}
+          {% assign tag_slugs = tag_slugs | append: s | append: " " %}
+        {% endfor %}
+
+        <article class="model-thumb-card" data-tags="{{ tag_slugs | strip }}">
+          <a href="{{ model.url | relative_url }}" class="model-thumb-link" id="model-card-{{ model.slug }}">
+            <div class="model-thumb-media">
+              <img
+                src="{{ thumb_src | relative_url }}"
+                alt="{{ model.title }} — 3D model thumbnail"
+                width="600"
+                height="600"
+                loading="lazy"
+                decoding="async"
+                class="model-thumb-img"
+              >
+            </div>
+            <div class="model-thumb-body">
+              {% if category_meta %}
+                <span class="model-card-category">{{ category_meta.title }}</span>
+              {% elsif model.category %}
+                <span class="model-card-category">{{ model.category }}</span>
+              {% endif %}
+              <h2 class="model-card-title">{{ model.title }}</h2>
+              {% if model.tags and model.tags.size > 0 %}
+                <div class="model-card-tags">
+                  {% for t in model.tags limit: 3 %}
+                    <span class="mini-tag">#{{ t }}</span>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </a>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-category-state">
+      <p>No models have been published in <strong>{{ page.title | default: category_meta.title }}</strong> yet. Add a Markdown file to <code>_models/</code> with <code>category: {{ current_slug }}</code> to populate this gallery.</p>
+      <a href="{{ '/' | relative_url }}" class="btn-secondary" id="back-to-catalog-btn">&larr; Back to Root Catalog</a>
+    </div>
+  {% endif %}
+</section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var filterBtns = document.querySelectorAll('.filter-btn');
+    var cards = document.querySelectorAll('#category-model-grid .model-thumb-card');
+    if (!filterBtns.length || !cards.length) return;
+
+    filterBtns.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var filterValue = btn.getAttribute('data-filter');
+        filterBtns.forEach(function (b) { b.classList.remove('is-active'); });
+        btn.classList.add('is-active');
+
+        cards.forEach(function (card) {
+          var cardTags = (card.getAttribute('data-tags') || '').split(/\s+/);
+          if (filterValue === 'all' || cardTags.indexOf(filterValue) !== -1) {
+            card.style.display = '';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    });
+  });
+</script>
