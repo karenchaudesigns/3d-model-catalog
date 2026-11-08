@@ -3,34 +3,46 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>3D Model Catalog — Local Uploader &amp; Model Editor</title>
+  <title>3D Model Catalog — Model Page Editor &amp; Uploader</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-page: hsl(36, 33%, 97%);
-      --bg-card: #ffffff;
+      --bg-primary: hsl(36, 33%, 97%);
+      --bg-surface: hsl(0, 0%, 100%);
       --bg-subtle: hsl(34, 24%, 93%);
-      --text-main: hsl(24, 18%, 14%);
+      --text-primary: hsl(24, 18%, 14%);
       --text-secondary: hsl(24, 10%, 38%);
       --text-muted: hsl(24, 8%, 54%);
-      --accent: hsl(16, 62%, 46%);
-      --accent-hover: hsl(16, 66%, 38%);
+      --accent-terracotta: hsl(16, 62%, 46%);
+      --accent-terracotta-hover: hsl(16, 66%, 38%);
       --accent-soft: hsl(16, 55%, 94%);
+      --border-subtle: hsl(32, 18%, 87%);
+      --border-strong: hsl(28, 16%, 76%);
+
+      /* Platform colors matching _layouts/model.html */
+      --color-makerworld: hsl(150, 100%, 33%);
+      --color-printables: hsl(16, 95%, 56%);
+      --color-thangs: hsl(215, 28%, 17%);
+      --color-cults3d: hsl(243, 75%, 59%);
+
       --edit-blue: hsl(214, 72%, 44%);
       --edit-blue-soft: hsl(214, 80%, 95%);
-      --border: hsl(32, 18%, 86%);
-      --border-strong: hsl(28, 16%, 72%);
       --success: hsl(150, 75%, 28%);
       --success-bg: hsl(150, 55%, 94%);
       --danger: hsl(0, 70%, 48%);
+
+      --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-display: 'Fraunces', Georgia, serif;
+      --font-mono: 'JetBrains Mono', monospace;
+
       --radius-sm: 8px;
       --radius-md: 12px;
       --radius-lg: 16px;
-      --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-      --font-display: 'Fraunces', Georgia, serif;
-      --font-mono: 'JetBrains Mono', monospace;
+      --shadow-card: 0 2px 10px -2px hsla(24, 20%, 14%, 0.06), 0 1px 3px hsla(24, 20%, 14%, 0.04);
+      --shadow-hover: 0 14px 28px -6px hsla(24, 20%, 14%, 0.11), 0 4px 10px -2px hsla(24, 20%, 14%, 0.06);
+      --container-max: 1320px;
     }
 
     *, *::before, *::after {
@@ -41,111 +53,133 @@
 
     body {
       font-family: var(--font-sans);
-      background-color: var(--bg-page);
-      color: var(--text-main);
-      line-height: 1.55;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
       padding-bottom: 4rem;
     }
 
-    .topbar {
-      background: var(--bg-card);
-      border-bottom: 1px solid var(--border);
-      padding: 0.85rem 1.75rem;
+    img, video {
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .container {
+      width: 100%;
+      max-width: var(--container-max);
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    /* ==========================================================================
+       Site Header (matches _layouts/default.html)
+       ========================================================================== */
+    .site-header {
       position: sticky;
       top: 0;
-      z-index: 30;
+      z-index: 40;
+      background-color: hsla(36, 33%, 97%, 0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .header-inner {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 1rem;
+      min-height: 4.25rem;
+      gap: 1.25rem;
       flex-wrap: wrap;
+      padding-top: 0.5rem;
+      padding-bottom: 0.5rem;
     }
 
-    .brand {
-      display: flex;
+    .brand-logo {
+      display: inline-flex;
       align-items: center;
       gap: 0.65rem;
       font-family: var(--font-display);
-      font-size: 1.15rem;
       font-weight: 600;
+      font-size: 1.15rem;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+      text-decoration: none;
     }
 
-    .brand-hex {
-      width: 1.3rem;
-      height: 1.3rem;
-      background: var(--accent);
+    .brand-mark {
+      width: 1.35rem;
+      height: 1.35rem;
+      background-color: var(--accent-terracotta);
       clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);
+      display: inline-block;
+      flex-shrink: 0;
     }
 
-    .topbar-actions {
+    .site-nav {
       display: flex;
       align-items: center;
-      gap: 0.6rem;
+      gap: 0.45rem;
       flex-wrap: wrap;
     }
 
-    .btn-top {
+    .nav-btn {
       appearance: none;
-      border: 1px solid var(--border);
-      background: var(--bg-page);
-      color: var(--text-main);
+      border: 1px solid var(--border-subtle);
+      background-color: var(--bg-surface);
+      color: var(--text-secondary);
       font-family: var(--font-sans);
-      font-size: 0.83rem;
+      font-size: 0.86rem;
       font-weight: 600;
-      padding: 0.45rem 0.9rem;
+      padding: 0.45rem 0.95rem;
       border-radius: 999px;
       cursor: pointer;
       transition: all 0.16s ease;
     }
 
-    .btn-top:hover {
-      border-color: var(--text-main);
+    .nav-btn:hover {
+      color: var(--text-primary);
+      border-color: var(--border-strong);
     }
 
-    .btn-top.is-active {
-      background: var(--text-main);
-      color: #fff;
-      border-color: var(--text-main);
+    .nav-btn.is-active {
+      color: var(--accent-terracotta);
+      background-color: var(--accent-soft);
+      border-color: hsla(16, 62%, 46%, 0.35);
     }
 
-    .workspace {
-      max-width: 1360px;
-      margin: 1.75rem auto 0;
-      padding: 0 1.5rem;
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 1.75rem;
-    }
-
-    @media (min-width: 1024px) {
-      .workspace {
-        grid-template-columns: 1.25fr 0.85fr;
-        align-items: start;
-      }
-    }
-
-    .panel {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
+    /* ==========================================================================
+       Banners (Post-Upload Success & Edit Mode Indicator)
+       ========================================================================== */
+    .post-upload-card {
+      display: none;
+      background: var(--success-bg);
+      border: 2px solid var(--success);
       border-radius: var(--radius-lg);
-      padding: 1.5rem;
-      box-shadow: 0 2px 10px -2px hsla(24, 20%, 14%, 0.05);
-      margin-bottom: 1.5rem;
+      padding: 1.35rem 1.5rem;
+      margin-top: 1.25rem;
+      box-shadow: 0 6px 20px -4px hsla(150, 60%, 20%, 0.12);
     }
 
-    .panel-title {
+    .post-upload-card.is-visible {
+      display: block;
+    }
+
+    .post-upload-title {
       font-family: var(--font-display);
-      font-size: 1.22rem;
-      margin-bottom: 0.25rem;
+      font-size: 1.25rem;
+      color: var(--success);
+      margin-bottom: 0.2rem;
     }
 
-    .panel-subtitle {
-      font-size: 0.86rem;
-      color: var(--text-secondary);
-      margin-bottom: 1.25rem;
+    .post-upload-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      margin-top: 0.9rem;
     }
 
-    /* Edit Mode Banner */
     .edit-mode-banner {
       display: none;
       align-items: center;
@@ -154,10 +188,10 @@
       gap: 0.75rem;
       background: var(--edit-blue-soft);
       border: 1px solid var(--edit-blue);
-      color: var(--text-main);
-      padding: 0.9rem 1.15rem;
+      color: var(--text-primary);
+      padding: 0.8rem 1.15rem;
       border-radius: var(--radius-md);
-      margin-bottom: 1.25rem;
+      margin-top: 1.25rem;
     }
 
     .edit-mode-banner.is-visible {
@@ -176,165 +210,317 @@
       border-radius: 4px;
     }
 
-    /* Post-Upload Success Card */
-    .post-upload-card {
-      display: none;
-      background: var(--success-bg);
-      border: 2px solid var(--success);
-      border-radius: var(--radius-lg);
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 6px 20px -4px hsla(150, 60%, 20%, 0.12);
-    }
-
-    .post-upload-card.is-visible {
-      display: block;
-    }
-
-    .post-upload-header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 1rem;
-      flex-wrap: wrap;
-      margin-bottom: 1rem;
-    }
-
-    .post-upload-title {
-      font-family: var(--font-display);
-      font-size: 1.3rem;
-      color: var(--success);
-      margin-bottom: 0.25rem;
-    }
-
-    .post-upload-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.65rem;
-      margin-top: 1rem;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 1rem;
-    }
-
-    @media (min-width: 640px) {
-      .form-grid-2 {
-        grid-template-columns: 1fr 1fr;
-      }
-    }
-
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 0.35rem;
-    }
-
-    .field label {
-      font-size: 0.84rem;
-      font-weight: 600;
-      color: var(--text-main);
+    /* ==========================================================================
+       Breadcrumb Bar (matches _layouts/model.html)
+       ========================================================================== */
+    .breadcrumb-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      padding: 1.35rem 0 1.15rem;
     }
 
-    .field-hint {
-      font-family: var(--font-mono);
-      font-size: 0.72rem;
-      font-weight: 400;
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      font-size: 0.86rem;
+      color: var(--text-secondary);
+    }
+
+    .breadcrumb-sep {
       color: var(--text-muted);
     }
 
-    input[type="text"],
-    input[type="url"],
-    select,
-    textarea {
-      width: 100%;
-      font-family: var(--font-sans);
-      font-size: 0.92rem;
-      color: var(--text-main);
-      background: var(--bg-page);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 0.62rem 0.8rem;
-      transition: border-color 0.16s ease, background-color 0.16s ease;
+    .breadcrumb-current {
+      color: var(--text-primary);
+      font-weight: 600;
     }
 
-    input:focus,
-    select:focus,
-    textarea:focus {
-      outline: none;
-      border-color: var(--accent);
-      background: #fff;
-    }
-
-    textarea {
-      resize: vertical;
-      min-height: 92px;
-    }
-
-    .mono-input {
-      font-family: var(--font-mono) !important;
-      font-size: 0.83rem !important;
-    }
-
-    .tag-preview-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.35rem;
-      margin-top: 0.3rem;
-    }
-
-    .tag-chip {
+    .slug-badge-editor {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 999px;
+      padding: 0.25rem 0.75rem;
       font-family: var(--font-mono);
-      font-size: 0.72rem;
-      background: var(--bg-subtle);
+      font-size: 0.75rem;
       color: var(--text-secondary);
-      padding: 0.15rem 0.55rem;
-      border-radius: 5px;
     }
 
-    /* Clipboard Paste Zone */
-    .paste-zone {
-      border: 2px dashed var(--border-strong);
-      border-radius: var(--radius-md);
-      background: var(--bg-page);
-      padding: 1.75rem 1.25rem;
-      text-align: center;
-      cursor: pointer;
+    .slug-badge-editor input {
+      border: none;
+      background: transparent;
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      width: 11rem;
+      outline: none;
+      border-bottom: 1px dashed var(--border-strong);
+      padding: 0.05rem 0.2rem;
+    }
+
+    .slug-badge-editor input:focus {
+      border-bottom-color: var(--accent-terracotta);
+    }
+
+    /* ==========================================================================
+       Model Hero Grid (exact match to _layouts/model.html: Left Media, Right Info)
+       ========================================================================== */
+    .model-hero-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2.25rem;
+      margin-bottom: 3.25rem;
+    }
+
+    @media (min-width: 920px) {
+      .model-hero-grid {
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 3rem;
+        align-items: start;
+      }
+    }
+
+    /* Left Column: Main Showcase Stage & Thumbnail Strip */
+    .model-media-column {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .model-main-stage {
+      position: relative;
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+      aspect-ratio: 1 / 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       transition: border-color 0.18s ease, background-color 0.18s ease;
     }
 
-    .paste-zone:hover,
-    .paste-zone.is-dragover,
-    .paste-zone:focus {
-      border-color: var(--accent);
-      background: var(--accent-soft);
-      outline: none;
+    .model-main-stage.is-empty {
+      border: 2px dashed var(--border-strong);
+      cursor: pointer;
     }
 
-    .paste-zone-title {
+    .model-main-stage.is-empty:hover,
+    .model-main-stage.is-dragover {
+      border-color: var(--accent-terracotta);
+      background-color: var(--accent-soft);
+    }
+
+    .stage-empty-prompt {
+      text-align: center;
+      padding: 2rem 1.5rem;
+      max-width: 26rem;
+    }
+
+    .stage-empty-icon {
+      width: 3.25rem;
+      height: 3.25rem;
+      border-radius: 50%;
+      background: var(--bg-subtle);
+      color: var(--accent-terracotta);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
       font-weight: 700;
-      font-size: 1rem;
-      margin-bottom: 0.3rem;
+      margin-bottom: 0.85rem;
     }
 
-    .paste-zone-desc {
-      font-size: 0.85rem;
+    .stage-empty-title {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+      color: var(--text-primary);
+    }
+
+    .stage-empty-desc {
+      font-size: 0.88rem;
       color: var(--text-secondary);
-      margin-bottom: 0.85rem;
+      margin-bottom: 1.1rem;
     }
 
     .kbd-pill {
       font-family: var(--font-mono);
-      font-size: 0.76rem;
-      background: #fff;
-      border: 1px solid var(--border);
-      padding: 0.15rem 0.45rem;
+      font-size: 0.75rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      padding: 0.12rem 0.42rem;
       border-radius: 4px;
+    }
+
+    .model-cover-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+
+    .model-main-stage.has-image .model-cover-image {
+      display: block;
+    }
+
+    .model-main-stage.has-image .stage-empty-prompt {
+      display: none;
+    }
+
+    /* Overlay bar on top of active showcase stage */
+    .stage-overlay-bar {
+      display: none;
+      position: absolute;
+      top: 0.85rem;
+      left: 0.85rem;
+      right: 0.85rem;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      pointer-events: none;
+    }
+
+    .model-main-stage.has-image .stage-overlay-bar {
+      display: flex;
+    }
+
+    .stage-role-pill {
+      pointer-events: auto;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 500;
+      padding: 0.28rem 0.65rem;
+      border-radius: 999px;
+      background: hsla(24, 18%, 14%, 0.82);
+      backdrop-filter: blur(6px);
+      color: #fff;
+    }
+
+    .stage-role-pill.is-primary {
+      background: var(--accent-terracotta);
+    }
+
+    .stage-overlay-actions {
+      pointer-events: auto;
+      display: flex;
+      gap: 0.4rem;
+    }
+
+    .btn-stage-overlay {
+      appearance: none;
+      border: 1px solid hsla(0, 0%, 100%, 0.25);
+      background: hsla(24, 18%, 14%, 0.78);
+      backdrop-filter: blur(6px);
+      color: #fff;
+      font-family: var(--font-sans);
+      font-size: 0.76rem;
+      font-weight: 600;
+      padding: 0.3rem 0.68rem;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background-color 0.15s ease;
+    }
+
+    .btn-stage-overlay:hover {
+      background: hsla(24, 18%, 14%, 0.95);
+    }
+
+    .btn-stage-overlay.is-danger:hover {
+      background: var(--danger);
+    }
+
+    /* Thumbnail Strip below Main Stage (matches .model-thumb-strip in _layouts/model.html) */
+    .model-thumb-strip {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-top: 0.85rem;
+      overflow-x: auto;
+      padding-bottom: 0.3rem;
+    }
+
+    .thumb-selector {
+      position: relative;
+      width: 5.25rem;
+      height: 5.25rem;
+      border-radius: var(--radius-sm);
+      border: 2px solid var(--border-subtle);
+      overflow: hidden;
+      cursor: pointer;
+      background: var(--bg-surface);
+      padding: 0;
+      flex-shrink: 0;
+      opacity: 0.78;
+      transition: opacity 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+    }
+
+    .thumb-selector:hover {
+      opacity: 1;
+    }
+
+    .thumb-selector.is-selected {
+      opacity: 1;
+      border-color: var(--accent-terracotta);
+      box-shadow: 0 0 0 2px var(--accent-soft);
+    }
+
+    .thumb-selector img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .thumb-mini-tag {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: hsla(24, 18%, 14%, 0.78);
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      text-align: center;
+      padding: 0.1rem 0.2rem;
+    }
+
+    .thumb-selector.is-main-thumb .thumb-mini-tag {
+      background: var(--accent-terracotta);
+    }
+
+    .thumb-add-btn {
+      width: 5.25rem;
+      height: 5.25rem;
+      border-radius: var(--radius-sm);
+      border: 2px dashed var(--border-strong);
+      background: var(--bg-surface);
+      color: var(--text-secondary);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.15rem;
+      cursor: pointer;
+      flex-shrink: 0;
+      font-family: var(--font-sans);
+      font-size: 0.72rem;
+      font-weight: 600;
+      transition: border-color 0.16s ease, color 0.16s ease, background-color 0.16s ease;
+    }
+
+    .thumb-add-btn:hover {
+      border-color: var(--accent-terracotta);
+      color: var(--accent-terracotta);
+      background: var(--accent-soft);
     }
 
     .fit-mode-bar {
@@ -342,164 +528,323 @@
       align-items: center;
       justify-content: space-between;
       flex-wrap: wrap;
-      gap: 0.65rem;
-      margin-top: 1rem;
-      padding: 0.65rem 0.85rem;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+      padding: 0.55rem 0.85rem;
       background: var(--bg-subtle);
       border-radius: var(--radius-sm);
-      font-size: 0.83rem;
-    }
-
-    .source-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      gap: 0.85rem;
-      margin-top: 1.15rem;
-    }
-
-    .source-card {
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      overflow: hidden;
-      background: #fff;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .source-card.is-main {
-      border: 2px solid var(--accent);
-    }
-
-    .source-card-img-wrap {
-      position: relative;
-      aspect-ratio: 1 / 1;
-      background: var(--bg-subtle);
-    }
-
-    .source-card-img-wrap img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    .role-badge {
-      position: absolute;
-      top: 0.45rem;
-      left: 0.45rem;
-      font-family: var(--font-mono);
-      font-size: 0.68rem;
-      padding: 0.15rem 0.48rem;
-      border-radius: 4px;
-      background: hsla(24, 18%, 14%, 0.82);
-      color: #fff;
-      font-weight: 500;
-    }
-
-    .source-card.is-main .role-badge {
-      background: var(--accent);
-    }
-
-    .source-card-actions {
-      display: flex;
-      gap: 0.35rem;
-      padding: 0.45rem;
-      border-top: 1px solid var(--border);
-      background: var(--bg-page);
-    }
-
-    .btn-mini {
-      flex: 1;
-      font-family: var(--font-sans);
-      font-size: 0.72rem;
-      font-weight: 600;
-      padding: 0.28rem 0.4rem;
-      border-radius: 4px;
-      border: 1px solid var(--border);
-      background: #fff;
-      cursor: pointer;
-    }
-
-    .btn-mini:hover {
-      border-color: var(--text-main);
-    }
-
-    .btn-mini-danger {
-      color: var(--danger);
-    }
-
-    /* Generated WebP Preview List */
-    .webp-output-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.65rem;
-    }
-
-    .webp-item {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 0.6rem;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      background: var(--bg-page);
-    }
-
-    .webp-item img {
-      width: 54px;
-      height: 54px;
-      border-radius: 6px;
-      object-fit: cover;
-      border: 1px solid var(--border);
-      flex-shrink: 0;
-    }
-
-    .webp-item-meta {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .webp-item-path {
-      font-family: var(--font-mono);
-      font-size: 0.75rem;
-      font-weight: 500;
-      color: var(--text-main);
-      word-break: break-all;
-    }
-
-    .webp-item-spec {
-      font-size: 0.75rem;
+      font-size: 0.8rem;
       color: var(--text-secondary);
     }
 
-    /* Actions & Submit */
-    .submit-row {
+    /* ==========================================================================
+       Right Column: Model Info Column (matches .model-info-column in _layouts/model.html)
+       ========================================================================== */
+    .model-info-column {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .model-meta-header {
+      margin-bottom: 0.75rem;
+    }
+
+    .meta-pills-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      margin-bottom: 0.65rem;
+    }
+
+    /* Category select styled identically to .category-pill in _layouts/model.html */
+    .category-pill-select {
+      appearance: none;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--accent-terracotta);
+      background-color: var(--accent-soft);
+      border: 1px solid hsla(16, 62%, 46%, 0.3);
+      padding: 0.28rem 1.75rem 0.28rem 0.75rem;
+      border-radius: 999px;
+      font-weight: 600;
+      cursor: pointer;
+      background-image: linear-gradient(45deg, transparent 50%, var(--accent-terracotta) 50%),
+                        linear-gradient(135deg, var(--accent-terracotta) 50%, transparent 50%);
+      background-position: calc(100% - 13px) 52%, calc(100% - 8px) 52%;
+      background-size: 5px 5px, 5px 5px;
+      background-repeat: no-repeat;
+    }
+
+    .category-pill-select:focus {
+      outline: 2px solid var(--accent-terracotta);
+    }
+
+    /* Hidden Toggle Pill */
+    .hidden-pill-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: var(--font-mono);
+      font-size: 0.73rem;
+      padding: 0.25rem 0.7rem;
+      border-radius: 999px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease;
+    }
+
+    .hidden-pill-toggle:has(input:checked) {
+      background: hsl(0, 75%, 94%);
+      border-color: var(--danger);
+      color: var(--danger);
+      font-weight: 600;
+    }
+
+    /* Model Title Input styled identically to <h1 class="model-title"> */
+    .model-title-input {
+      width: 100%;
+      font-family: var(--font-display);
+      font-size: clamp(1.65rem, 2.8vw, 2.25rem);
+      font-weight: 600;
+      line-height: 1.18;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 0.45rem 0.7rem;
+      transition: border-color 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .model-title-input::placeholder {
+      color: hsl(24, 8%, 68%);
+      font-weight: 500;
+    }
+
+    .model-title-input:focus {
+      outline: none;
+      border-color: var(--accent-terracotta);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    /* Tag List Block (matches <ul class="tag-list"> in _layouts/model.html) */
+    .tag-editor-block {
+      margin-bottom: 1.4rem;
+    }
+
+    .tag-list {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.42rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .tag-badge {
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      color: var(--text-secondary);
+      background-color: var(--bg-subtle);
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+    }
+
+    .tag-input-inline {
+      width: 100%;
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
+      color: var(--text-primary);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 0.42rem 0.7rem;
+    }
+
+    .tag-input-inline:focus {
+      outline: none;
+      border-color: var(--accent-terracotta);
+    }
+
+    /* Download Panel (matches <section class="download-panel"> in _layouts/model.html) */
+    .download-panel {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1.2rem;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow-card);
+    }
+
+    .download-heading {
+      font-size: 0.92rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.2rem;
+    }
+
+    .download-subtext {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.9rem;
+    }
+
+    .download-buttons {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.6rem;
+    }
+
+    @media (min-width: 480px) {
+      .download-buttons {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .btn-download-editor {
+      display: flex;
+      flex-direction: column;
+      gap: 0.38rem;
+      padding: 0.65rem 0.8rem;
+      border-radius: var(--radius-sm);
+      color: #fff;
+      opacity: 0.52;
+      transition: opacity 0.18s ease, transform 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .btn-download-editor:focus-within,
+    .btn-download-editor.has-url {
+      opacity: 1;
+      box-shadow: 0 4px 12px -2px hsla(24, 20%, 14%, 0.18);
+    }
+
+    .btn-download-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 1rem;
+      gap: 0.5rem;
+      font-size: 0.84rem;
+      font-weight: 600;
+    }
+
+    .btn-platform-dot {
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.85);
+      flex-shrink: 0;
+    }
+
+    .btn-download-editor input {
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      background: rgba(0, 0, 0, 0.18);
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 0.73rem;
+      padding: 0.32rem 0.5rem;
+      border-radius: 5px;
+      outline: none;
+    }
+
+    .btn-download-editor input::placeholder {
+      color: rgba(255, 255, 255, 0.68);
+    }
+
+    .btn-download-editor input:focus {
+      background: rgba(0, 0, 0, 0.32);
+      border-color: #fff;
+    }
+
+    .btn-makerworld { background-color: var(--color-makerworld); }
+    .btn-printables { background-color: var(--color-printables); }
+    .btn-thangs { background-color: var(--color-thangs); }
+    .btn-cults3d { background-color: var(--color-cults3d); }
+
+    /* Prose / Markdown Description & Print Settings (matches .model-description.prose in _layouts/model.html) */
+    .model-description-editor {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1.15rem;
+      margin-bottom: 1.25rem;
+      box-shadow: var(--shadow-card);
+    }
+
+    .prose-field-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .prose-field-label {
+      font-family: var(--font-display);
+      font-size: 1.08rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .prose-textarea {
+      width: 100%;
+      font-family: var(--font-sans);
+      font-size: 0.92rem;
+      color: var(--text-primary);
+      background: var(--bg-primary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 0.65rem 0.8rem;
+      line-height: 1.55;
+      resize: vertical;
+    }
+
+    .prose-textarea:focus {
+      outline: none;
+      border-color: var(--accent-terracotta);
+      background: #fff;
+    }
+
+    /* Action Bar in Right Column */
+    .info-submit-panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1rem 1.15rem;
+      box-shadow: var(--shadow-card);
+    }
+
+    .submit-controls-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       flex-wrap: wrap;
-      margin-top: 1.25rem;
-      padding-top: 1.25rem;
-      border-top: 1px solid var(--border);
+      gap: 0.75rem;
+      margin-top: 0.75rem;
     }
 
     .btn-primary {
       appearance: none;
       border: none;
-      background: var(--accent);
+      background: var(--accent-terracotta);
       color: #fff;
       font-family: var(--font-sans);
-      font-size: 0.94rem;
+      font-size: 0.92rem;
       font-weight: 700;
-      padding: 0.78rem 1.4rem;
+      padding: 0.72rem 1.35rem;
       border-radius: var(--radius-sm);
       cursor: pointer;
       transition: background-color 0.16s ease, transform 0.16s ease;
     }
 
     .btn-primary:hover:not(:disabled) {
-      background: var(--accent-hover);
+      background: var(--accent-terracotta-hover);
       transform: translateY(-1px);
     }
 
@@ -510,32 +855,291 @@
 
     .btn-secondary {
       appearance: none;
-      border: 1px solid var(--text-main);
-      background: var(--text-main);
+      border: 1px solid var(--text-primary);
+      background: var(--text-primary);
       color: #fff;
       font-family: var(--font-sans);
-      font-size: 0.86rem;
+      font-size: 0.84rem;
       font-weight: 600;
-      padding: 0.6rem 1.1rem;
+      padding: 0.55rem 1rem;
       border-radius: var(--radius-sm);
       cursor: pointer;
     }
 
     .btn-ghost {
       appearance: none;
-      border: 1px solid var(--border);
-      background: #fff;
-      color: var(--text-main);
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+      color: var(--text-primary);
       font-family: var(--font-sans);
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       font-weight: 600;
-      padding: 0.45rem 0.85rem;
+      padding: 0.4rem 0.8rem;
       border-radius: 6px;
       cursor: pointer;
     }
 
     .btn-ghost:hover {
-      border-color: var(--text-main);
+      border-color: var(--text-primary);
+    }
+
+    .status-box {
+      display: none;
+      margin-top: 0.85rem;
+      padding: 0.85rem 1rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.86rem;
+    }
+
+    .status-box.is-error {
+      display: block;
+      background: hsl(0, 75%, 96%);
+      border: 1px solid var(--danger);
+      color: var(--danger);
+    }
+
+    /* ==========================================================================
+       Below-the-Fold Section 1: Detailed Views & Print Showcase (.model-gallery-section)
+       ========================================================================== */
+    .model-gallery-section {
+      padding-top: 2.25rem;
+      border-top: 1px solid var(--border-subtle);
+      margin-bottom: 2.75rem;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 1.45rem;
+      font-weight: 600;
+      letter-spacing: -0.015em;
+    }
+
+    .section-subtitle {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .model-gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 1.15rem;
+    }
+
+    .gallery-card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+    }
+
+    .gallery-image {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      background-color: var(--bg-subtle);
+    }
+
+    .gallery-caption {
+      padding: 0.65rem 0.85rem;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .gallery-caption code {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-primary);
+      word-break: break-all;
+    }
+
+    /* ==========================================================================
+       Below-the-Fold Section 2: Build & Assembly Video (.model-video-section)
+       ========================================================================== */
+    .model-video-section {
+      padding-top: 2.25rem;
+      border-top: 1px solid var(--border-subtle);
+      margin-bottom: 2.75rem;
+    }
+
+    .youtube-input-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 0.85rem 1.1rem;
+      margin-bottom: 1.15rem;
+      box-shadow: var(--shadow-card);
+    }
+
+    .youtube-input-bar label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .youtube-input-bar input {
+      flex: 1;
+      min-width: 220px;
+      font-family: var(--font-mono);
+      font-size: 0.84rem;
+      padding: 0.48rem 0.75rem;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+    }
+
+    .video-embed-wrapper {
+      display: none;
+      position: relative;
+      width: 100%;
+      max-width: 54rem;
+      aspect-ratio: 16 / 9;
+      background-color: #000;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+    }
+
+    .video-embed-wrapper.is-visible {
+      display: block;
+    }
+
+    .video-embed-wrapper iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    /* ==========================================================================
+       Below-the-Fold Section 3: Existing Catalog Models Grid (matches index.html)
+       ========================================================================== */
+    .catalog-library-section {
+      padding-top: 2.25rem;
+      border-top: 1px solid var(--border-subtle);
+      margin-bottom: 2.5rem;
+    }
+
+    .model-thumbnail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    @media (min-width: 640px) {
+      .model-thumbnail-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1.15rem;
+      }
+    }
+
+    @media (min-width: 980px) {
+      .model-thumbnail-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 1.25rem;
+      }
+    }
+
+    .model-thumb-card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    }
+
+    .model-thumb-card.is-editing {
+      border: 2px solid var(--edit-blue);
+      box-shadow: 0 0 0 3px var(--edit-blue-soft);
+    }
+
+    .model-thumb-media {
+      position: relative;
+      aspect-ratio: 1 / 1;
+      background-color: var(--bg-subtle);
+      overflow: hidden;
+    }
+
+    .model-thumb-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .model-thumb-body {
+      padding: 0.8rem 0.9rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      flex: 1;
+    }
+
+    .model-card-category {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent-terracotta);
+      font-weight: 600;
+    }
+
+    .model-card-title {
+      font-size: 0.92rem;
+      font-weight: 600;
+      line-height: 1.35;
+      color: var(--text-primary);
+    }
+
+    .model-card-actions {
+      display: flex;
+      gap: 0.4rem;
+      padding: 0.6rem 0.9rem 0.8rem;
+      border-top: 1px solid var(--border-subtle);
+      background: var(--bg-primary);
+    }
+
+    .model-card-actions button {
+      flex: 1;
+    }
+
+    /* Live Markdown Inspector Drawer */
+    .markdown-drawer {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1rem 1.25rem;
+    }
+
+    .markdown-drawer summary {
+      cursor: pointer;
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 1.05rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
     .code-preview {
@@ -548,347 +1152,332 @@
       overflow-x: auto;
       white-space: pre-wrap;
       word-break: break-word;
-      max-height: 340px;
+      max-height: 320px;
       overflow-y: auto;
-    }
-
-    .status-box {
-      display: none;
-      margin-top: 1rem;
-      padding: 1rem;
-      border-radius: var(--radius-sm);
-      font-size: 0.88rem;
-    }
-
-    .status-box.is-error {
-      display: block;
-      background: hsl(0, 75%, 96%);
-      border: 1px solid var(--danger);
-      color: var(--danger);
-    }
-
-    /* Existing Models Cards List */
-    .existing-models-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-
-    .existing-model-card {
-      display: flex;
-      align-items: center;
-      gap: 0.85rem;
-      padding: 0.7rem;
-      background: var(--bg-page);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      transition: border-color 0.16s ease, box-shadow 0.16s ease;
-    }
-
-    .existing-model-card.is-editing {
-      border-color: var(--edit-blue);
-      background: var(--edit-blue-soft);
-    }
-
-    .existing-model-thumb {
-      width: 60px;
-      height: 60px;
-      border-radius: 6px;
-      object-fit: cover;
-      background: var(--bg-subtle);
-      border: 1px solid var(--border);
-      flex-shrink: 0;
-    }
-
-    .existing-model-info {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .existing-model-title {
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: var(--text-main);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .existing-model-meta {
-      font-family: var(--font-mono);
-      font-size: 0.72rem;
-      color: var(--text-secondary);
-      margin-top: 0.15rem;
+      margin-top: 0.85rem;
     }
   </style>
 </head>
 <body>
-  <header class="topbar">
-    <div class="brand">
-      <span class="brand-hex" aria-hidden="true"></span>
-      <span>Karen Chau Designs &mdash; 3D Model Catalog Admin</span>
-    </div>
-    <div class="topbar-actions">
-      <button type="button" class="btn-top is-active" id="btn-nav-new">+ Upload New Model</button>
-      <button type="button" class="btn-top" id="btn-nav-library">Existing Models (<span id="nav-model-count">0</span>)</button>
+  <!-- Header matching _layouts/default.html -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="#top" class="brand-logo" id="brand-reset-link">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span class="brand-text">Karen Chau Designs &mdash; Model Page Editor</span>
+      </a>
+      <nav class="site-nav" aria-label="Editor navigation">
+        <button type="button" class="nav-btn is-active" id="btn-nav-new">+ Upload New Model</button>
+        <button type="button" class="nav-btn" id="btn-nav-library">Existing Catalog Models (<span id="nav-model-count">0</span>)</button>
+      </nav>
     </div>
   </header>
 
-  <main class="workspace">
-    <!-- Left Column: Success Banner, Edit Banner, and Form -->
-    <div>
-      <!-- Post-Upload / Post-Update Success Card -->
-      <section class="post-upload-card" id="post-upload-card" aria-live="polite">
-        <div class="post-upload-header">
-          <div>
-            <h2 class="post-upload-title" id="post-upload-title">Model Published &amp; Pushed to GitHub!</h2>
-            <p style="font-size:0.9rem;color:var(--text-main);" id="post-upload-subtitle"></p>
-          </div>
-        </div>
-        <div id="post-upload-files" style="font-family:var(--font-mono);font-size:0.76rem;margin-bottom:0.75rem;"></div>
-        <pre class="code-preview" id="post-upload-gitlog" style="max-height:160px;"></pre>
+  <main class="container" id="top">
+    <!-- Post-Upload / Post-Update Success Card -->
+    <section class="post-upload-card" id="post-upload-card" aria-live="polite">
+      <h2 class="post-upload-title" id="post-upload-title">Model Published &amp; Pushed to GitHub!</h2>
+      <p style="font-size:0.9rem;color:var(--text-primary);margin-bottom:0.5rem;" id="post-upload-subtitle"></p>
+      <div id="post-upload-files" style="font-family:var(--font-mono);font-size:0.75rem;margin-bottom:0.6rem;"></div>
+      <pre class="code-preview" id="post-upload-gitlog" style="max-height:140px;margin-top:0;"></pre>
+      <div class="post-upload-actions">
+        <button type="button" class="btn-primary" id="btn-upload-another">+ Upload Another Model</button>
+        <button type="button" class="btn-secondary" id="btn-edit-just-saved">Edit This Model</button>
+        <button type="button" class="btn-ghost" id="btn-jump-existing">Browse Existing Models &darr;</button>
+      </div>
+    </section>
 
-        <div class="post-upload-actions">
-          <button type="button" class="btn-primary" id="btn-upload-another">+ Upload Another Model</button>
-          <button type="button" class="btn-secondary" id="btn-edit-just-saved">Edit This Model</button>
-          <button type="button" class="btn-ghost" id="btn-jump-existing">Browse Existing Models &darr;</button>
-        </div>
-      </section>
+    <!-- Edit Mode Indicator Banner -->
+    <div class="edit-mode-banner" id="edit-mode-banner">
+      <div class="edit-banner-label">
+        <strong>Editing Existing Model Page:</strong> <span id="edit-banner-title"></span>
+        <code id="edit-banner-file"></code>
+      </div>
+      <button type="button" class="btn-ghost" id="btn-cancel-edit">+ Switch to Upload New Model</button>
+    </div>
 
-      <!-- Edit Mode Indicator Banner -->
-      <div class="edit-mode-banner" id="edit-mode-banner">
-        <div class="edit-banner-label">
-          <strong>Editing Existing Model:</strong> <span id="edit-banner-title"></span>
-          <code id="edit-banner-file"></code>
-        </div>
-        <button type="button" class="btn-ghost" id="btn-cancel-edit">+ Switch to Upload New Model</button>
+    <form id="uploader-form" novalidate>
+      <!-- Breadcrumb Bar matching _layouts/model.html -->
+      <div class="breadcrumb-row">
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+          <span>Catalog</span>
+          <span class="breadcrumb-sep" aria-hidden="true">/</span>
+          <span id="breadcrumb-category-label">Useful Prints</span>
+          <span class="breadcrumb-sep" aria-hidden="true">/</span>
+          <span class="breadcrumb-current" id="breadcrumb-title-label">New 3D Model</span>
+        </nav>
+
+        <label class="slug-badge-editor" title="SEO shortname used for /models/[shortname]/ and image filenames">
+          <span>URL Slug: <code>/models/</code></span>
+          <input type="text" id="model-shortname" required placeholder="model-shortname">
+        </label>
       </div>
 
-      <form id="uploader-form" novalidate>
-        <!-- Section 1: Core Model Metadata -->
-        <section class="panel">
-          <h1 class="panel-title" id="form-main-heading">1. Upload a New 3D Model</h1>
-          <p class="panel-subtitle" id="form-main-subheading">Enter the model title, category, description, and print settings.</p>
-
-          <div class="form-grid">
-            <div class="field">
-              <label for="model-name">
-                <span>Model Name *</span>
-                <span class="field-hint">YAML: title</span>
-              </label>
-              <input
-                type="text"
-                id="model-name"
-                required
-                placeholder="e.g., Baby Ducks | Multi-color 3mf | Free to a good home"
-              >
-            </div>
-
-            <div class="form-grid form-grid-2">
-              <div class="field">
-                <label for="model-shortname">
-                  <span>Model Shortname (SEO Slug) *</span>
-                  <span class="field-hint">Used in filenames</span>
-                </label>
-                <input
-                  type="text"
-                  id="model-shortname"
-                  class="mono-input"
-                  required
-                  placeholder="e.g., baby-ducks"
-                >
-              </div>
-
-              <div class="field">
-                <label for="model-category">
-                  <span>Catalog Category *</span>
-                  <span class="field-hint">YAML: category</span>
-                </label>
-                <select id="model-category">
-                  <option value="useful-prints">Useful Prints (useful-prints)</option>
-                  <option value="gifts-decor">Gifts &amp; Decor (gifts-decor)</option>
-                  <option value="seasonal">Seasonal (seasonal)</option>
-                  <option value="fan-favorites">Fan Favorites (fan-favorites)</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="field">
-              <label for="model-description">
-                <span>Description (Markdown supported)</span>
-                <span class="field-hint">Markdown body</span>
-              </label>
-              <textarea
-                id="model-description"
-                rows="4"
-                placeholder="Describe the model, how it prints, and any special features..."
-              ></textarea>
-            </div>
-
-            <div class="field">
-              <label for="model-print-settings">
-                <span>Print Settings</span>
-                <button type="button" class="btn-ghost" id="btn-fill-settings">+ Insert Default Template</button>
-              </label>
-              <textarea
-                id="model-print-settings"
-                rows="4"
-                placeholder="- **Supports:** None&#10;- **Layer Height:** 0.20 mm&#10;- **Infill:** 15% Gyroid"
-              ></textarea>
-            </div>
-
-            <div class="field">
-              <label for="model-tags">
-                <span>Tags (comma-separated)</span>
-                <span class="field-hint">YAML: tags list</span>
-              </label>
-              <input
-                type="text"
-                id="model-tags"
-                placeholder="e.g., duck, rubber duck, decor, yellow, multicolor, cute"
-              >
-              <div class="tag-preview-row" id="tag-preview-row"></div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Section 2: Clipboard Image Paste Zone & Canvas WebP Generator -->
-        <section class="panel">
-          <h2 class="panel-title">2. Clipboard Image Paste-Zone (Auto WebP)</h2>
-          <p class="panel-subtitle" id="image-section-subtitle">
-            Copy any image and press <span class="kbd-pill">Ctrl+V</span> / <span class="kbd-pill">&#8984;+V</span> anywhere on this page (or click/drop files below). The first/main image generates the <strong>1200&times;1200px Main</strong> and <strong>600&times;600px Thumbnail</strong> WebP files; additional images generate <strong>1000&times;1000px Gallery Angle</strong> WebP files.
-          </p>
-
+      <!-- Model Hero Grid: Left Column (Media Stage + Thumbnails) | Right Column (Title, Tags, Downloads, Prose) -->
+      <div class="model-hero-grid">
+        <!-- LEFT COLUMN: Main Showcase Image & Thumbnail Strip -->
+        <div class="model-media-column">
           <div
-            class="paste-zone"
+            class="model-main-stage is-empty"
             id="paste-zone"
             tabindex="0"
             role="button"
-            aria-label="Paste image from clipboard or click to select image files"
+            aria-label="Main model showcase image stage — paste from clipboard or click to browse"
           >
-            <p class="paste-zone-title">Paste Image from Clipboard (<span class="kbd-pill">Ctrl+V</span> / <span class="kbd-pill">&#8984;+V</span>)</p>
-            <p class="paste-zone-desc">Or drag &amp; drop images here, or click to browse files from disk</p>
+            <!-- Empty State Prompt inside 1:1 Main Stage -->
+            <div class="stage-empty-prompt">
+              <div class="stage-empty-icon" aria-hidden="true">+</div>
+              <p class="stage-empty-title">Paste Showcase Image (<span class="kbd-pill">Ctrl+V</span> / <span class="kbd-pill">&#8984;+V</span>)</p>
+              <p class="stage-empty-desc">
+                Drop or paste your model photos right into the main showcase stage. Auto-generates the <strong>1200&times;1200px Main</strong>, <strong>600&times;600px Thumbnail</strong>, and <strong>1000&times;1000px Angle</strong> WebP files.
+              </p>
+              <button type="button" class="btn-ghost" id="btn-browse-files">Choose Image Files&hellip;</button>
+            </div>
+
+            <!-- Active Preview Image inside 1:1 Main Stage -->
+            <img
+              id="active-stage-image"
+              class="model-cover-image"
+              src=""
+              alt="Active model showcase preview"
+            >
+
+            <!-- Floating Controls when an image is loaded -->
+            <div class="stage-overlay-bar">
+              <span class="stage-role-pill is-primary" id="active-stage-badge">MAIN SHOWCASE (1200&times;1200)</span>
+              <div class="stage-overlay-actions">
+                <button type="button" class="btn-stage-overlay" id="btn-stage-set-main" style="display:none;">Set as Main Cover</button>
+                <button type="button" class="btn-stage-overlay" id="btn-stage-add-more">+ Add Photo</button>
+                <button type="button" class="btn-stage-overlay is-danger" id="btn-stage-remove">Remove</button>
+              </div>
+            </div>
+
             <input type="file" id="file-picker" accept="image/*" multiple style="display:none">
-            <button type="button" class="btn-ghost" id="btn-browse-files">Choose Image Files&hellip;</button>
           </div>
 
+          <!-- Thumbnail Strip matching .model-thumb-strip in _layouts/model.html -->
+          <div class="model-thumb-strip" id="source-images-list" role="list" aria-label="Model angles selector"></div>
+
+          <!-- Square Framing Mode -->
           <div class="fit-mode-bar">
-            <span><strong>Square Framing Mode:</strong></span>
-            <label style="display:inline-flex;align-items:center;gap:0.4rem;cursor:pointer;">
+            <span><strong>1:1 Framing:</strong></span>
+            <label style="display:inline-flex;align-items:center;gap:0.35rem;cursor:pointer;">
               <input type="radio" name="fit-mode" value="contain-blur" checked>
-              <span>Preserve Full Image + Ambient Blur Backdrop (No cropping)</span>
+              <span>Full Image + Blur Backdrop</span>
             </label>
-            <label style="display:inline-flex;align-items:center;gap:0.4rem;cursor:pointer;">
+            <label style="display:inline-flex;align-items:center;gap:0.35rem;cursor:pointer;">
               <input type="radio" name="fit-mode" value="cover">
-              <span>1:1 Center Crop (Fill square)</span>
+              <span>1:1 Center Crop</span>
             </label>
           </div>
+        </div>
 
-          <div class="source-list" id="source-images-list"></div>
-        </section>
+        <!-- RIGHT COLUMN: Category Pill, Title, Tags, Download Panel, Description & Print Settings -->
+        <div class="model-info-column">
+          <div class="model-meta-header">
+            <div class="meta-pills-row">
+              <select id="model-category" class="category-pill-select" aria-label="Catalog Category">
+                <option value="useful-prints">Useful Prints</option>
+                <option value="gifts-decor">Gifts &amp; Decor</option>
+                <option value="seasonal">Seasonal</option>
+                <option value="fan-favorites">Fan Favorites</option>
+              </select>
 
-        <!-- Section 3: Download Links & YouTube Embed -->
-        <section class="panel">
-          <h2 class="panel-title">3. Download Links &amp; YouTube Video</h2>
-          <p class="panel-subtitle">Only platforms with links provided will render download buttons on the model page.</p>
-
-          <div class="form-grid form-grid-2">
-            <div class="field">
-              <label for="dl-makerworld">
-                <span>MakerWorld URL</span>
-                <span class="field-hint">downloads.makerworld</span>
+              <label class="hidden-pill-toggle" title="When checked, sets hidden: true in front matter to hide from home and category pages">
+                <input type="checkbox" id="model-hidden">
+                <span>Hidden from Catalog (<code>hidden: true</code>)</span>
               </label>
-              <input type="url" id="dl-makerworld" placeholder="https://makerworld.com/en/models/...">
             </div>
 
-            <div class="field">
-              <label for="dl-printables">
-                <span>Printables URL</span>
-                <span class="field-hint">downloads.printables</span>
-              </label>
-              <input type="url" id="dl-printables" placeholder="https://www.printables.com/model/...">
-            </div>
-
-            <div class="field">
-              <label for="dl-thangs">
-                <span>Thangs URL</span>
-                <span class="field-hint">downloads.thangs</span>
-              </label>
-              <input type="url" id="dl-thangs" placeholder="https://thangs.com/designer/...">
-            </div>
-
-            <div class="field">
-              <label for="dl-cults3d">
-                <span>Cults3D URL</span>
-                <span class="field-hint">downloads.cults3d</span>
-              </label>
-              <input type="url" id="dl-cults3d" placeholder="https://cults3d.com/en/3d-model/...">
-            </div>
-          </div>
-
-          <div class="field" style="margin-top: 1rem;">
-            <label for="model-youtube-id">
-              <span>YouTube Video ID (or full YouTube URL)</span>
-              <span class="field-hint">YAML: youtube_id</span>
-            </label>
             <input
               type="text"
-              id="model-youtube-id"
-              placeholder="e.g., M7lc1UVf-VE or https://www.youtube.com/watch?v=M7lc1UVf-VE"
+              id="model-name"
+              class="model-title-input"
+              required
+              placeholder="Model Title (e.g., Baby Ducks | Multi-color 3mf)"
+              aria-label="Model Title"
             >
           </div>
 
-          <div class="submit-row">
-            <label style="display:inline-flex;align-items:center;gap:0.5rem;font-size:0.88rem;font-weight:500;cursor:pointer;">
+          <!-- Tags matching .tag-list in _layouts/model.html -->
+          <div class="tag-editor-block">
+            <ul class="tag-list" id="tag-preview-row" aria-label="Model tags preview">
+              <li class="tag-badge">#tags-appear-here</li>
+            </ul>
+            <input
+              type="text"
+              id="model-tags"
+              class="tag-input-inline"
+              placeholder="Add comma-separated tags (e.g., duck, rubber duck, decor, multicolor, cute)..."
+              aria-label="Comma-separated model tags"
+            >
+          </div>
+
+          <!-- Download 3D Print Files Panel matching .download-panel in _layouts/model.html -->
+          <section class="download-panel" aria-labelledby="download-heading">
+            <h2 class="download-heading" id="download-heading">Download 3D Print Files</h2>
+            <p class="download-subtext">Paste links for any platforms where this model is available (empty buttons stay hidden on the live page):</p>
+            <div class="download-buttons">
+              <div class="btn-download-editor btn-makerworld" id="card-dl-makerworld">
+                <div class="btn-download-header">
+                  <span style="display:inline-flex;align-items:center;gap:0.45rem;">
+                    <span class="btn-platform-dot" aria-hidden="true"></span>
+                    <span>Download on MakerWorld</span>
+                  </span>
+                  <span aria-hidden="true">&rarr;</span>
+                </div>
+                <input type="url" id="dl-makerworld" placeholder="https://makerworld.com/en/models/...">
+              </div>
+
+              <div class="btn-download-editor btn-printables" id="card-dl-printables">
+                <div class="btn-download-header">
+                  <span style="display:inline-flex;align-items:center;gap:0.45rem;">
+                    <span class="btn-platform-dot" aria-hidden="true"></span>
+                    <span>Download on Printables</span>
+                  </span>
+                  <span aria-hidden="true">&rarr;</span>
+                </div>
+                <input type="url" id="dl-printables" placeholder="https://www.printables.com/model/...">
+              </div>
+
+              <div class="btn-download-editor btn-thangs" id="card-dl-thangs">
+                <div class="btn-download-header">
+                  <span style="display:inline-flex;align-items:center;gap:0.45rem;">
+                    <span class="btn-platform-dot" aria-hidden="true"></span>
+                    <span>Download on Thangs</span>
+                  </span>
+                  <span aria-hidden="true">&rarr;</span>
+                </div>
+                <input type="url" id="dl-thangs" placeholder="https://thangs.com/designer/...">
+              </div>
+
+              <div class="btn-download-editor btn-cults3d" id="card-dl-cults3d">
+                <div class="btn-download-header">
+                  <span style="display:inline-flex;align-items:center;gap:0.45rem;">
+                    <span class="btn-platform-dot" aria-hidden="true"></span>
+                    <span>Download on Cults3D</span>
+                  </span>
+                  <span aria-hidden="true">&rarr;</span>
+                </div>
+                <input type="url" id="dl-cults3d" placeholder="https://cults3d.com/en/3d-model/...">
+              </div>
+            </div>
+          </section>
+
+          <!-- Markdown Description & Print Settings matching .model-description.prose in _layouts/model.html -->
+          <div class="model-description-editor">
+            <div class="prose-field-header">
+              <label for="model-description" class="prose-field-label">Model Description</label>
+              <span style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-muted);">Markdown body</span>
+            </div>
+            <textarea
+              id="model-description"
+              class="prose-textarea"
+              rows="4"
+              placeholder="Write the model overview, printing notes, or assembly tips..."
+            ></textarea>
+
+            <div class="prose-field-header" style="margin-top: 1rem;">
+              <label for="model-print-settings" class="prose-field-label">Recommended Print Settings</label>
+              <button type="button" class="btn-ghost" id="btn-fill-settings" style="font-size:0.74rem;padding:0.22rem 0.6rem;">+ Insert Default Template</button>
+            </div>
+            <textarea
+              id="model-print-settings"
+              class="prose-textarea"
+              rows="4"
+              placeholder="- **Supports:** None&#10;- **Layer Height:** 0.20 mm&#10;- **Infill:** 15% Gyroid"
+            ></textarea>
+          </div>
+
+          <!-- Save & Deploy Action Bar -->
+          <div class="info-submit-panel">
+            <label style="display:inline-flex;align-items:center;gap:0.5rem;font-size:0.84rem;font-weight:500;cursor:pointer;">
               <input type="checkbox" id="auto-deploy-checkbox" checked>
               <span>Auto-run <code>git add .</code>, <code>git commit</code>, and <code>git push</code></span>
             </label>
 
-            <div style="display:flex;gap:0.65rem;flex-wrap:wrap;">
-              <button type="button" class="btn-ghost" id="btn-reset-form">Clear / Reset Form</button>
+            <div class="submit-controls-row">
+              <button type="button" class="btn-ghost" id="btn-reset-form">Clear / Reset</button>
               <button type="submit" class="btn-primary" id="btn-submit-model">
                 Save Model &amp; Push to GitHub &rarr;
               </button>
             </div>
+
+            <div class="status-box" id="status-box"></div>
           </div>
-
-          <div class="status-box" id="status-box"></div>
-        </section>
-      </form>
-    </div>
-
-    <!-- Right Column: Existing Models Library, WebP Preview, & Live Markdown Preview -->
-    <aside>
-      <!-- Existing Models Library with Edit Buttons -->
-      <section class="panel" id="existing-models-section">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.25rem;">
-          <h2 class="panel-title">Existing Catalog Models (<code>_models/</code>)</h2>
-          <button type="button" class="btn-ghost" id="btn-new-from-library" style="font-size:0.76rem;padding:0.28rem 0.65rem;">+ New Model</button>
         </div>
-        <p class="panel-subtitle">Click <strong>Edit</strong> on any model to load its details, links, tags, and images into the editor:</p>
-        <div class="existing-models-grid" id="existing-models-list"></div>
+      </div>
+
+      <!-- Below-the-Fold Section 1: Detailed Views & Print Showcase (matches .model-gallery-section in _layouts/model.html) -->
+      <section class="model-gallery-section" aria-labelledby="gallery-heading">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title" id="gallery-heading">Detailed Views &amp; Generated WebP Showcase</h2>
+            <p class="section-subtitle">
+              Target folder: <code id="target-folder-label">/images/models/sample-model/</code> (1200&times;1200 Main, 600&times;600 Thumb, 1000&times;1000 Gallery Angles)
+            </p>
+          </div>
+        </div>
+        <div class="model-gallery-grid" id="webp-output-list"></div>
       </section>
 
-      <section class="panel">
-        <h2 class="panel-title">Generated WebP Assets Preview</h2>
-        <p class="panel-subtitle">
-          Target directory: <code id="target-folder-label">/images/models/[shortname]/</code>
-        </p>
-        <div class="webp-output-list" id="webp-output-list">
-          <p style="font-size:0.85rem;color:var(--text-muted);">Paste or select an image to preview the 1200&times;1200, 600&times;600, and 1000&times;1000 WebP outputs.</p>
+      <!-- Below-the-Fold Section 2: Build & Assembly Video (matches .model-video-section in _layouts/model.html) -->
+      <section class="model-video-section" aria-labelledby="video-heading">
+        <div class="section-header">
+          <h2 class="section-title" id="video-heading">Build &amp; Assembly Video</h2>
+          <p class="section-subtitle">Optional YouTube embed rendered at the bottom of the model page</p>
+        </div>
+        <div class="youtube-input-bar">
+          <label for="model-youtube-id">YouTube Video ID or URL:</label>
+          <input
+            type="text"
+            id="model-youtube-id"
+            placeholder="e.g., M7lc1UVf-VE or https://www.youtube.com/watch?v=M7lc1UVf-VE"
+          >
+        </div>
+        <div class="video-embed-wrapper" id="youtube-preview-wrapper">
+          <iframe
+            id="youtube-preview-iframe"
+            src=""
+            title="YouTube video preview"
+            loading="lazy"
+            allowfullscreen
+          ></iframe>
         </div>
       </section>
+    </form>
 
-      <section class="panel">
-        <h2 class="panel-title">Live Jekyll Markdown Preview</h2>
-        <p class="panel-subtitle">Target file: <code id="target-md-label">/_models/[shortname].md</code></p>
-        <pre class="code-preview" id="markdown-live-preview"></pre>
-      </section>
-    </aside>
+    <!-- Below-the-Fold Section 3: Existing Catalog Models Library -->
+    <section class="catalog-library-section" id="existing-models-section">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Existing Catalog Models (<code>_models/</code>)</h2>
+          <p class="section-subtitle">Click <strong>Edit Model</strong> to load any model into the page layout above, or click <strong>Hide / Unhide</strong> to toggle catalog visibility:</p>
+        </div>
+        <button type="button" class="btn-ghost" id="btn-new-from-library">+ Upload New Model</button>
+      </div>
+      <div class="model-thumbnail-grid" id="existing-models-list"></div>
+    </section>
+
+    <!-- Collapsible Live Jekyll Markdown Inspector -->
+    <details class="markdown-drawer">
+      <summary>
+        <span>Live Jekyll Markdown Output (<code id="target-md-label">/_models/sample-model.md</code>)</span>
+        <span style="font-size:0.8rem;font-family:var(--font-mono);color:var(--text-secondary);">Click to expand/collapse</span>
+      </summary>
+      <pre class="code-preview" id="markdown-live-preview"></pre>
+    </details>
   </main>
 
   <script>
     (function () {
+      var CATEGORY_LABELS = {
+        'useful-prints': 'Useful Prints',
+        'gifts-decor': 'Gifts & Decor',
+        'seasonal': 'Seasonal',
+        'fan-favorites': 'Fan Favorites'
+      };
+
       var nameInput = document.getElementById('model-name');
       var shortnameInput = document.getElementById('model-shortname');
       var categorySelect = document.getElementById('model-category');
@@ -898,13 +1487,24 @@
       var tagsInput = document.getElementById('model-tags');
       var tagPreviewRow = document.getElementById('tag-preview-row');
       var youtubeInput = document.getElementById('model-youtube-id');
+      var youtubePreviewWrapper = document.getElementById('youtube-preview-wrapper');
+      var youtubePreviewIframe = document.getElementById('youtube-preview-iframe');
+
       var dlMakerworld = document.getElementById('dl-makerworld');
       var dlPrintables = document.getElementById('dl-printables');
       var dlThangs = document.getElementById('dl-thangs');
       var dlCults3d = document.getElementById('dl-cults3d');
       var autoDeployCheckbox = document.getElementById('auto-deploy-checkbox');
 
+      var breadcrumbCategoryLabel = document.getElementById('breadcrumb-category-label');
+      var breadcrumbTitleLabel = document.getElementById('breadcrumb-title-label');
+
       var pasteZone = document.getElementById('paste-zone');
+      var activeStageImage = document.getElementById('active-stage-image');
+      var activeStageBadge = document.getElementById('active-stage-badge');
+      var btnStageSetMain = document.getElementById('btn-stage-set-main');
+      var btnStageAddMore = document.getElementById('btn-stage-add-more');
+      var btnStageRemove = document.getElementById('btn-stage-remove');
       var filePicker = document.getElementById('file-picker');
       var btnBrowse = document.getElementById('btn-browse-files');
       var btnFillSettings = document.getElementById('btn-fill-settings');
@@ -936,8 +1536,7 @@
       var btnNavNew = document.getElementById('btn-nav-new');
       var btnNavLibrary = document.getElementById('btn-nav-library');
       var btnNewFromLibrary = document.getElementById('btn-new-from-library');
-      var formMainHeading = document.getElementById('form-main-heading');
-      var formMainSubheading = document.getElementById('form-main-subheading');
+      var brandResetLink = document.getElementById('brand-reset-link');
 
       var shortnameManuallyEdited = false;
       var editingSlug = null;
@@ -947,6 +1546,7 @@
 
       // Array of { id, imgElement, originalUrl }
       var sourceImages = [];
+      var selectedStageIndex = 0;
       var generatedWebP = {
         main: null,
         thumb: null,
@@ -1018,6 +1618,69 @@
         return Math.round(byteLength / 102.4) / 10;
       }
 
+      function syncDownloadButtonHighlights() {
+        [
+          { input: dlMakerworld, card: document.getElementById('card-dl-makerworld') },
+          { input: dlPrintables, card: document.getElementById('card-dl-printables') },
+          { input: dlThangs, card: document.getElementById('card-dl-thangs') },
+          { input: dlCults3d, card: document.getElementById('card-dl-cults3d') }
+        ].forEach(function (pair) {
+          if (pair.input.value.trim()) {
+            pair.card.classList.add('has-url');
+          } else {
+            pair.card.classList.remove('has-url');
+          }
+        });
+      }
+
+      function syncYoutubePreview() {
+        var ytId = extractYoutubeId(youtubeInput.value);
+        if (ytId && /^[A-Za-z0-9_-]{6,15}$/.test(ytId)) {
+          var embedUrl = 'https://www.youtube-nocookie.com/embed/' + ytId;
+          if (youtubePreviewIframe.getAttribute('src') !== embedUrl) {
+            youtubePreviewIframe.setAttribute('src', embedUrl);
+          }
+          youtubePreviewWrapper.classList.add('is-visible');
+        } else {
+          youtubePreviewIframe.setAttribute('src', '');
+          youtubePreviewWrapper.classList.remove('is-visible');
+        }
+      }
+
+      function syncBreadcrumbs() {
+        breadcrumbCategoryLabel.textContent = CATEGORY_LABELS[categorySelect.value] || categorySelect.value;
+        breadcrumbTitleLabel.textContent = nameInput.value.trim() || (editingSlug ? editingSlug : 'New 3D Model');
+      }
+
+      function updateMainStageDisplay() {
+        if (sourceImages.length === 0) {
+          pasteZone.classList.add('is-empty');
+          pasteZone.classList.remove('has-image');
+          activeStageImage.removeAttribute('src');
+          return;
+        }
+
+        if (selectedStageIndex >= sourceImages.length) {
+          selectedStageIndex = 0;
+        }
+
+        pasteZone.classList.remove('is-empty');
+        pasteZone.classList.add('has-image');
+
+        if (selectedStageIndex === 0) {
+          activeStageImage.src = generatedWebP.main || sourceImages[0].originalUrl;
+          activeStageBadge.textContent = 'MAIN SHOWCASE (1200×1200 + 600×600 THUMB)';
+          activeStageBadge.classList.add('is-primary');
+          btnStageSetMain.style.display = 'none';
+        } else {
+          var galleryIdx = selectedStageIndex - 1;
+          activeStageImage.src = generatedWebP.gallery[galleryIdx] || sourceImages[selectedStageIndex].originalUrl;
+          activeStageBadge.textContent = 'GALLERY ANGLE ' + selectedStageIndex + ' (1000×1000 WebP)';
+          activeStageBadge.classList.remove('is-primary');
+          btnStageSetMain.style.display = 'inline-block';
+        }
+      }
+
       function rebuildWebPAssets() {
         var shortname = getShortname();
         var fitMode = getFitMode();
@@ -1028,25 +1691,12 @@
           generatedWebP.main = null;
           generatedWebP.thumb = null;
           generatedWebP.gallery = [];
+          updateMainStageDisplay();
 
-          if (editingModelData && editingModelData.cover_image) {
-            webpOutputListEl.innerHTML =
-              '<div class="webp-item">' +
-              '<img src="' + editingModelData.cover_image + '" alt="Current cover">' +
-              '<div class="webp-item-meta">' +
-              '<div class="webp-item-path">' + editingModelData.cover_image + '</div>' +
-              '<div class="webp-item-spec">Current Main Image (Kept unless you paste a replacement)</div>' +
-              '</div></div>' +
-              '<div class="webp-item">' +
-              '<img src="' + (editingModelData.thumbnail_image || editingModelData.cover_image) + '" alt="Current thumb">' +
-              '<div class="webp-item-meta">' +
-              '<div class="webp-item-path">' + (editingModelData.thumbnail_image || '') + '</div>' +
-              '<div class="webp-item-spec">Current 600&times;600 Thumbnail</div>' +
-              '</div></div>';
-          } else {
-            webpOutputListEl.innerHTML =
-              '<p style="font-size:0.85rem;color:var(--text-muted);">Paste or select an image to preview the 1200&times;1200, 600&times;600, and 1000&times;1000 WebP outputs.</p>';
-          }
+          webpOutputListEl.innerHTML =
+            '<div class="gallery-card" style="grid-column: 1 / -1; padding: 1.5rem; text-align: center; color: var(--text-muted); font-size: 0.88rem;">' +
+            'Paste or select at least one image in the Main Showcase Stage above to preview the auto-generated <strong>1200&times;1200px Main</strong>, <strong>600&times;600px Thumbnail</strong>, and <strong>1000&times;1000px Gallery Angle</strong> WebP files.' +
+            '</div>';
           updateMarkdownPreview();
           return;
         }
@@ -1058,74 +1708,104 @@
           return renderSquareWebP(item.imgElement, 1000, 0.86, fitMode);
         });
 
-        var itemsHtml = '';
-        itemsHtml +=
-          '<div class="webp-item">' +
-          '<img src="' + generatedWebP.main + '" alt="Main WebP preview">' +
-          '<div class="webp-item-meta">' +
-          '<div class="webp-item-path">/images/models/' + shortname + '/3d-model-' + shortname + '-main.webp</div>' +
-          '<div class="webp-item-spec">Main Showcase &middot; <strong>1200&times;1200px</strong> WebP &middot; ~' + approxKilobytes(generatedWebP.main) + ' KB</div>' +
-          '</div></div>';
+        updateMainStageDisplay();
 
-        itemsHtml +=
-          '<div class="webp-item">' +
-          '<img src="' + generatedWebP.thumb + '" alt="Thumb WebP preview">' +
-          '<div class="webp-item-meta">' +
-          '<div class="webp-item-path">/images/models/' + shortname + '/3d-model-' + shortname + '-thumb.webp</div>' +
-          '<div class="webp-item-spec">Model Thumbnail &middot; <strong>600&times;600px</strong> WebP &middot; ~' + approxKilobytes(generatedWebP.thumb) + ' KB</div>' +
-          '</div></div>';
+        var cardsHtml = '';
+        cardsHtml +=
+          '<figure class="gallery-card">' +
+          '<img src="' + generatedWebP.main + '" alt="Main showcase WebP" class="gallery-image">' +
+          '<figcaption class="gallery-caption">' +
+          '<span><strong>Main Showcase</strong> &middot; 1200&times;1200px &middot; ~' + approxKilobytes(generatedWebP.main) + ' KB</span>' +
+          '<code>3d-model-' + shortname + '-main.webp</code>' +
+          '</figcaption></figure>';
+
+        cardsHtml +=
+          '<figure class="gallery-card">' +
+          '<img src="' + generatedWebP.thumb + '" alt="Thumbnail WebP" class="gallery-image">' +
+          '<figcaption class="gallery-caption">' +
+          '<span><strong>Catalog Thumbnail</strong> &middot; 600&times;600px &middot; ~' + approxKilobytes(generatedWebP.thumb) + ' KB</span>' +
+          '<code>3d-model-' + shortname + '-thumb.webp</code>' +
+          '</figcaption></figure>';
 
         generatedWebP.gallery.forEach(function (gDataUrl, idx) {
           var angleNum = idx + 1;
-          itemsHtml +=
-            '<div class="webp-item">' +
-            '<img src="' + gDataUrl + '" alt="Gallery angle ' + angleNum + ' preview">' +
-            '<div class="webp-item-meta">' +
-            '<div class="webp-item-path">/images/models/' + shortname + '/3d-model-' + shortname + '-angle' + angleNum + '.webp</div>' +
-            '<div class="webp-item-spec">Gallery Angle ' + angleNum + ' &middot; <strong>1000&times;1000px</strong> WebP &middot; ~' + approxKilobytes(gDataUrl) + ' KB</div>' +
-            '</div></div>';
+          cardsHtml +=
+            '<figure class="gallery-card">' +
+            '<img src="' + gDataUrl + '" alt="Gallery angle ' + angleNum + '" class="gallery-image">' +
+            '<figcaption class="gallery-caption">' +
+            '<span><strong>Angle ' + angleNum + '</strong> &middot; 1000&times;1000px &middot; ~' + approxKilobytes(gDataUrl) + ' KB</span>' +
+            '<code>3d-model-' + shortname + '-angle' + angleNum + '.webp</code>' +
+            '</figcaption></figure>';
         });
 
-        webpOutputListEl.innerHTML = itemsHtml;
+        webpOutputListEl.innerHTML = cardsHtml;
         updateMarkdownPreview();
       }
 
       function renderSourceCards() {
         sourceListEl.innerHTML = '';
         sourceImages.forEach(function (item, idx) {
-          var card = document.createElement('div');
-          card.className = 'source-card' + (idx === 0 ? ' is-main' : '');
-
-          var roleLabel = idx === 0 ? 'MAIN + THUMB' : 'ANGLE ' + idx;
-          card.innerHTML =
-            '<div class="source-card-img-wrap">' +
-            '<img src="' + item.originalUrl + '" alt="Pasted source">' +
-            '<span class="role-badge">' + roleLabel + '</span>' +
-            '</div>' +
-            '<div class="source-card-actions">' +
-            (idx > 0
-              ? '<button type="button" class="btn-mini" data-action="promote" data-idx="' + idx + '">Set Main</button>'
-              : '<span style="font-size:0.72rem;font-weight:600;color:var(--accent);padding:0.2rem 0.3rem;">Primary</span>') +
-            '<button type="button" class="btn-mini btn-mini-danger" data-action="remove" data-idx="' + idx + '">Remove</button>' +
-            '</div>';
-
-          sourceListEl.appendChild(card);
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className =
+            'thumb-selector' +
+            (idx === selectedStageIndex ? ' is-selected' : '') +
+            (idx === 0 ? ' is-main-thumb' : '');
+          btn.setAttribute('data-idx', String(idx));
+          btn.innerHTML =
+            '<img src="' + item.originalUrl + '" alt="Angle ' + idx + '">' +
+            '<span class="thumb-mini-tag">' + (idx === 0 ? 'MAIN' : 'ANGLE ' + idx) + '</span>';
+          sourceListEl.appendChild(btn);
         });
+
+        // Always append a "+ Add Angle" button in the thumbnail strip matching the model page strip
+        var addTile = document.createElement('button');
+        addTile.type = 'button';
+        addTile.className = 'thumb-add-btn';
+        addTile.id = 'btn-strip-add';
+        addTile.innerHTML = '<span style="font-size:1.15rem;line-height:1;">+</span><span>Add Angle</span>';
+        sourceListEl.appendChild(addTile);
 
         rebuildWebPAssets();
       }
 
       sourceListEl.addEventListener('click', function (e) {
-        var btn = e.target.closest('button[data-action]');
-        if (!btn) return;
-        var idx = parseInt(btn.getAttribute('data-idx'), 10);
-        var action = btn.getAttribute('data-action');
-        if (action === 'promote' && idx > 0 && idx < sourceImages.length) {
-          var chosen = sourceImages.splice(idx, 1)[0];
-          sourceImages.unshift(chosen);
+        var addBtn = e.target.closest('#btn-strip-add');
+        if (addBtn) {
+          filePicker.click();
+          return;
+        }
+        var thumbBtn = e.target.closest('.thumb-selector');
+        if (!thumbBtn) return;
+        var idx = parseInt(thumbBtn.getAttribute('data-idx'), 10);
+        if (!isNaN(idx) && idx >= 0 && idx < sourceImages.length) {
+          selectedStageIndex = idx;
           renderSourceCards();
-        } else if (action === 'remove' && idx >= 0 && idx < sourceImages.length) {
-          sourceImages.splice(idx, 1);
+        }
+      });
+
+      btnStageSetMain.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (selectedStageIndex > 0 && selectedStageIndex < sourceImages.length) {
+          var chosen = sourceImages.splice(selectedStageIndex, 1)[0];
+          sourceImages.unshift(chosen);
+          selectedStageIndex = 0;
+          renderSourceCards();
+        }
+      });
+
+      btnStageAddMore.addEventListener('click', function (e) {
+        e.stopPropagation();
+        filePicker.click();
+      });
+
+      btnStageRemove.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (selectedStageIndex >= 0 && selectedStageIndex < sourceImages.length) {
+          sourceImages.splice(selectedStageIndex, 1);
+          if (selectedStageIndex >= sourceImages.length) {
+            selectedStageIndex = Math.max(0, sourceImages.length - 1);
+          }
           renderSourceCards();
         }
       });
@@ -1140,6 +1820,7 @@
             imgElement: img,
             originalUrl: url
           });
+          selectedStageIndex = sourceImages.length - 1;
           renderSourceCards();
         };
         img.src = url;
@@ -1177,14 +1858,18 @@
         e.stopPropagation();
         filePicker.click();
       });
+
       pasteZone.addEventListener('click', function (e) {
-        if (e.target === btnBrowse) return;
-        filePicker.click();
+        if (sourceImages.length === 0 && e.target !== btnBrowse) {
+          filePicker.click();
+        }
       });
+
       filePicker.addEventListener('change', function () {
         Array.from(filePicker.files || []).forEach(addImageBlob);
         filePicker.value = '';
       });
+
       pasteZone.addEventListener('dragover', function (e) {
         e.preventDefault();
         pasteZone.classList.add('is-dragover');
@@ -1208,6 +1893,7 @@
         if (!shortnameManuallyEdited && !editingSlug) {
           shortnameInput.value = slugifyShortname(nameInput.value);
         }
+        syncBreadcrumbs();
         rebuildWebPAssets();
       });
 
@@ -1216,13 +1902,22 @@
         rebuildWebPAssets();
       });
 
+      categorySelect.addEventListener('change', function () {
+        syncBreadcrumbs();
+        updateMarkdownPreview();
+      });
+
       function renderTagPills() {
         var tags = tagsInput.value
           .split(',')
           .map(function (t) { return t.trim(); })
           .filter(Boolean);
+        if (!tags.length) {
+          tagPreviewRow.innerHTML = '<li class="tag-badge" style="opacity:0.55;">#tags-appear-here</li>';
+          return;
+        }
         tagPreviewRow.innerHTML = tags
-          .map(function (t) { return '<span class="tag-chip">#' + t + '</span>'; })
+          .map(function (t) { return '<li class="tag-badge">#' + t + '</li>'; })
           .join('');
       }
 
@@ -1244,10 +1939,18 @@
         updateMarkdownPreview();
       });
 
-      [categorySelect, hiddenCheckbox, descInput, settingsInput, youtubeInput, dlMakerworld, dlPrintables, dlThangs, dlCults3d].forEach(
+      [hiddenCheckbox, descInput, settingsInput, youtubeInput, dlMakerworld, dlPrintables, dlThangs, dlCults3d].forEach(
         function (el) {
-          el.addEventListener('input', updateMarkdownPreview);
-          el.addEventListener('change', updateMarkdownPreview);
+          el.addEventListener('input', function () {
+            syncDownloadButtonHighlights();
+            syncYoutubePreview();
+            updateMarkdownPreview();
+          });
+          el.addEventListener('change', function () {
+            syncDownloadButtonHighlights();
+            syncYoutubePreview();
+            updateMarkdownPreview();
+          });
         }
       );
 
@@ -1336,13 +2039,11 @@
         mdPreviewEl.textContent = lines.join('\n');
       }
 
-      /**
-       * Reset form to fresh "Upload New Model" state
-       */
       function resetToNewModel(hideSuccessCard) {
         editingSlug = null;
         editingModelData = null;
         shortnameManuallyEdited = false;
+        selectedStageIndex = 0;
 
         nameInput.value = '';
         shortnameInput.value = '';
@@ -1356,7 +2057,6 @@
         dlPrintables.value = '';
         dlThangs.value = '';
         dlCults3d.value = '';
-        tagPreviewRow.innerHTML = '';
 
         sourceImages = [];
         editBanner.classList.remove('is-visible');
@@ -1367,21 +2067,20 @@
           postUploadCard.classList.remove('is-visible');
         }
 
-        formMainHeading.textContent = '1. Upload a New 3D Model';
-        formMainSubheading.textContent = 'Enter the model title, category, description, and print settings.';
         submitBtn.textContent = 'Save Model & Push to GitHub →';
 
         if (window.history && window.history.replaceState) {
           window.history.replaceState({}, '', window.location.pathname);
         }
 
+        renderTagPills();
+        syncBreadcrumbs();
+        syncDownloadButtonHighlights();
+        syncYoutubePreview();
         renderSourceCards();
         renderExistingModelsList();
       }
 
-      /**
-       * Load an existing model into Edit Mode
-       */
       function openEditModel(slug) {
         fetch('/api/models/' + encodeURIComponent(slug))
           .then(function (r) { return r.json(); })
@@ -1391,6 +2090,7 @@
             editingSlug = m.slug;
             editingModelData = m;
             shortnameManuallyEdited = true;
+            selectedStageIndex = 0;
 
             postUploadCard.classList.remove('is-visible');
             statusBox.className = 'status-box';
@@ -1410,26 +2110,39 @@
             dlCults3d.value = (m.downloads && m.downloads.cults3d) || '';
 
             renderTagPills();
+            syncBreadcrumbs();
+            syncDownloadButtonHighlights();
+            syncYoutubePreview();
 
             editBannerTitle.textContent = m.title;
             editBannerFile.textContent = '_models/' + m.filename;
             editBanner.classList.add('is-visible');
 
-            formMainHeading.textContent = '1. Edit Model: ' + m.title;
-            formMainSubheading.textContent = 'Modify any details below and click "Save Changes & Push Update to GitHub".';
             submitBtn.textContent = 'Save Changes & Push Update to GitHub →';
 
-            // Load existing cover image + gallery images into the editor so the user can view/reorder/add/replace them
             sourceImages = [];
             renderSourceCards();
-            if (m.cover_image) {
-              addImageFromUrl(m.cover_image);
-            }
+            var allUrls = [];
+            if (m.cover_image) allUrls.push(m.cover_image);
             if (Array.isArray(m.gallery_images)) {
               m.gallery_images.forEach(function (gPath) {
-                addImageFromUrl(gPath);
+                allUrls.push(gPath);
               });
             }
+            allUrls.forEach(function (u, idx) {
+              var img = new Image();
+              img.crossOrigin = 'anonymous';
+              img.onload = function () {
+                sourceImages.push({
+                  id: Date.now() + '-' + idx + '-' + Math.random(),
+                  imgElement: img,
+                  originalUrl: u
+                });
+                selectedStageIndex = 0;
+                renderSourceCards();
+              };
+              img.src = u;
+            });
 
             if (window.history && window.history.replaceState) {
               window.history.replaceState({}, '', '?edit=' + encodeURIComponent(m.slug));
@@ -1473,7 +2186,7 @@
       function renderExistingModelsList() {
         navModelCount.textContent = catalogModelsCache.length;
         if (!catalogModelsCache.length) {
-          existingModelsList.innerHTML = '<p style="font-size:0.84rem;color:var(--text-muted);">No models found in <code>_models/</code>.</p>';
+          existingModelsList.innerHTML = '<p style="font-size:0.86rem;color:var(--text-muted);">No models found in <code>_models/</code>.</p>';
           return;
         }
 
@@ -1482,26 +2195,30 @@
             var isCurrentEdit = editingSlug === m.slug;
             var thumbUrl = m.thumbnail_image || m.cover_image || '';
             var hiddenBadge = m.hidden
-              ? '<span style="font-family:var(--font-mono);font-size:0.68rem;background:hsl(0,75%,93%);color:var(--danger);padding:0.1rem 0.4rem;border-radius:4px;margin-left:0.4rem;">HIDDEN</span>'
+              ? '<span style="position:absolute;top:0.55rem;left:0.55rem;font-family:var(--font-mono);font-size:0.68rem;background:var(--danger);color:#fff;padding:0.15rem 0.5rem;border-radius:999px;font-weight:600;">HIDDEN</span>'
               : '';
             return (
-              '<div class="existing-model-card' + (isCurrentEdit ? ' is-editing' : '') + '" style="' + (m.hidden ? 'opacity:0.78;' : '') + '">' +
+              '<article class="model-thumb-card' + (isCurrentEdit ? ' is-editing' : '') + '" style="' + (m.hidden ? 'opacity:0.75;' : '') + '">' +
+              '<div class="model-thumb-media">' +
               (thumbUrl
-                ? '<img src="' + thumbUrl + '" class="existing-model-thumb" alt="' + (m.title || m.slug) + '">'
-                : '<div class="existing-model-thumb"></div>') +
-              '<div class="existing-model-info">' +
-              '<div class="existing-model-title" title="' + (m.title || '') + '">' + (m.title || m.slug) + hiddenBadge + '</div>' +
-              '<div class="existing-model-meta"><code>_models/' + m.filename + '</code> &middot; ' + (m.category || 'useful-prints') + '</div>' +
+                ? '<img src="' + thumbUrl + '" class="model-thumb-img" alt="' + (m.title || m.slug) + '" loading="lazy">'
+                : '') +
+              hiddenBadge +
               '</div>' +
-              '<div style="display:flex;gap:0.35rem;flex-shrink:0;">' +
-              '<button type="button" class="btn-ghost btn-toggle-hidden" data-slug="' + m.slug + '" data-hidden="' + (m.hidden ? 'true' : 'false') + '" title="Toggle visibility in catalog">' +
+              '<div class="model-thumb-body">' +
+              '<span class="model-card-category">' + (CATEGORY_LABELS[m.category] || m.category || 'Useful Prints') + '</span>' +
+              '<h3 class="model-card-title">' + (m.title || m.slug) + '</h3>' +
+              '<span style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-muted);">_models/' + m.filename + '</span>' +
+              '</div>' +
+              '<div class="model-card-actions">' +
+              '<button type="button" class="btn-ghost btn-toggle-hidden" data-slug="' + m.slug + '" data-hidden="' + (m.hidden ? 'true' : 'false') + '">' +
               (m.hidden ? 'Unhide' : 'Hide') +
               '</button>' +
               '<button type="button" class="btn-ghost btn-edit-model" data-slug="' + m.slug + '">' +
               (isCurrentEdit ? 'Editing&hellip;' : 'Edit Model') +
               '</button>' +
               '</div>' +
-              '</div>'
+              '</article>'
             );
           })
           .join('');
@@ -1569,6 +2286,12 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
 
+      brandResetLink.addEventListener('click', function (e) {
+        e.preventDefault();
+        resetToNewModel(true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+
       btnNavLibrary.addEventListener('click', function () {
         document.getElementById('existing-models-section').scrollIntoView({ behavior: 'smooth' });
       });
@@ -1583,12 +2306,13 @@
 
         if (!title) {
           statusBox.className = 'status-box is-error';
-          statusBox.textContent = 'Please enter a Model Name.';
+          statusBox.textContent = 'Please enter a Model Title.';
+          nameInput.focus();
           return;
         }
         if (!generatedWebP.main && !(editingModelData && editingModelData.cover_image)) {
           statusBox.className = 'status-box is-error';
-          statusBox.textContent = 'Please paste or select at least one image first.';
+          statusBox.textContent = 'Please paste or select at least one showcase image on the left stage.';
           return;
         }
 
@@ -1649,7 +2373,6 @@
             var b = result.body;
             lastSavedSlug = b.slug || b.shortname;
 
-            // Show Post-Upload Success Card and reset form for next upload
             postUploadTitle.textContent = b.isEdit
               ? 'Model Updated & Pushed to GitHub!'
               : 'New Model Published & Pushed to GitHub!';
@@ -1661,7 +2384,6 @@
             postUploadGitlog.textContent = b.gitLog || 'Saved locally.';
             postUploadCard.classList.add('is-visible');
 
-            // Reset form underneath so user can immediately start another model or click "Edit This Model"
             resetToNewModel(false);
             fetchExistingModels();
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1676,9 +2398,11 @@
           });
       });
 
-      updateMarkdownPreview();
+      renderTagPills();
+      syncBreadcrumbs();
+      syncDownloadButtonHighlights();
+      renderSourceCards();
       fetchExistingModels(function () {
-        // Check if URL has ?edit=<slug>
         var params = new URLSearchParams(window.location.search);
         var editParam = params.get('edit');
         if (editParam) {
