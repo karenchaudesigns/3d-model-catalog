@@ -306,9 +306,11 @@ function saveAndDeployModel(req, res) {
       mainImage = null,
       thumbImage = null,
       galleryImages = null,
+      detailedImages = null,
       existingCoverImage = '',
       existingThumbImage = '',
       existingGalleryImages = [],
+      existingDetailedImages = [],
       existingAnimation = '',
       autoDeploy = true
     } = req.body;
@@ -384,6 +386,26 @@ function saveAndDeployModel(req, res) {
       });
     }
 
+    // 4b. Detailed View Images (1000x1000px): 3d-model-[shortname]-detail1.webp, detail2.webp, ...
+    const detailedWebPaths = [];
+    const inputDetailed = Array.isArray(detailedImages) ? detailedImages : existingDetailedImages;
+    if (Array.isArray(inputDetailed)) {
+      inputDetailed.forEach((item, idx) => {
+        if (!item) return;
+        const detailFilename = `3d-model-${shortname}-detail${idx + 1}.webp`;
+        const detailDiskPath = path.join(modelImageDir, detailFilename);
+        const detailWebPath = `/images/models/${shortname}/${detailFilename}`;
+
+        if (typeof item === 'string' && item.startsWith('data:image/')) {
+          fs.writeFileSync(detailDiskPath, decodeBase64WebP(item));
+          detailedWebPaths.push(detailWebPath);
+          savedFiles.push(detailWebPath);
+        } else if (typeof item === 'string') {
+          detailedWebPaths.push(item);
+        }
+      });
+    }
+
     // 5. Parse comma-separated tags
     const parsedTags = Array.isArray(tags)
       ? tags.map((t) => String(t).trim()).filter(Boolean)
@@ -422,6 +444,15 @@ function saveAndDeployModel(req, res) {
       });
     } else {
       yamlLines.push('gallery_images: []');
+    }
+
+    if (detailedWebPaths.length > 0) {
+      yamlLines.push('detailed_images:');
+      detailedWebPaths.forEach((p) => {
+        yamlLines.push(`  - ${yamlQuote(p)}`);
+      });
+    } else {
+      yamlLines.push('detailed_images: []');
     }
 
     if (existingAnimation) {
@@ -597,6 +628,7 @@ app.patch('/api/models/:slug/visibility', (req, res) => {
       existingCoverImage: existing.cover_image,
       existingThumbImage: existing.thumbnail_image,
       existingGalleryImages: existing.gallery_images,
+      existingDetailedImages: existing.detailed_images,
       existingAnimation: existing.animation,
       autoDeploy: req.body.autoDeploy !== false
     };
@@ -1040,8 +1072,12 @@ app.post('/api/import/printables', async (req, res) => {
 
     // Extract all YouTube links inside the description HTML/Markdown and classify Shorts vs long videos
     const { youtubeShorts, youtubeVideos, youtubeId } = await extractAndClassifyYoutubeVideos(
-      `${descriptionHtml} ${descriptionMarkdown}`
+      `${descriptionHtml} ${descriptionMarkdown}`,
+      false
     );
+
+    // Extract photos embedded in the Printables description that are not already in the top photo section
+    const descriptionImageUrls = extractDescriptionImages(descriptionHtml, imageUrls);
 
     // Guess best matching catalog category if possible
     const combinedText = `${decodedFullTitle} ${tags.join(' ')} ${categoryPath.join(' ')}`.toLowerCase();
@@ -1071,13 +1107,80 @@ app.post('/api/import/printables', async (req, res) => {
       youtubeVideos,
       youtubeId,
       suggestedCategory,
-      imageUrls: imageUrls.slice(0, 8)
+      imageUrls,
+      descriptionImageUrls
     });
   } catch (err) {
     console.error('Printables import error:', err);
     return res.status(500).json({ error: `Failed to import from Printables: ${err.message}` });
   }
 });
+
+/**
+ * Normalize a Printables image URL (strip #hash and ?query) and compute a deduplication key
+ */
+function getPrintablesImageDedupKeys(rawUrl) {
+  const cleanUrl = String(rawUrl || '')
+    .trim()
+    .replace(/#.*$/, '')
+    .replace(/\?.*$/, '');
+  if (!cleanUrl) return { cleanUrl: '', pathKey: '', fileKey: '' };
+
+  let pathname = cleanUrl;
+  try {
+    pathname = new URL(cleanUrl).pathname;
+  } catch (e) {
+    // keep cleanUrl
+  }
+  const pathKey = pathname.toLowerCase().replace(/^\/+/, '');
+  const base = pathKey.split('/').pop() || '';
+  // Generic filenames like image.png / image.jpg are reused across different rich_content UUID folders
+  const isGeneric = /^(image|img|photo|picture|unnamed|untitled|screenshot)\.(png|jpe?g|webp|gif)$/i.test(base);
+  const fileKey = isGeneric ? '' : base;
+  return { cleanUrl, pathKey, fileKey };
+}
+
+/**
+ * Extract all <img src="..."> URLs from Printables description HTML that are not already in galleryImageUrls
+ */
+function extractDescriptionImages(descriptionHtml, galleryImageUrls = []) {
+  if (!descriptionHtml || typeof descriptionHtml !== 'string') return [];
+
+  const seenPaths = new Set();
+  const seenFiles = new Set();
+
+  (Array.isArray(galleryImageUrls) ? galleryImageUrls : []).forEach((u) => {
+    const { pathKey, fileKey } = getPrintablesImageDedupKeys(u);
+    if (pathKey) seenPaths.add(pathKey);
+    if (fileKey) seenFiles.add(fileKey);
+  });
+
+  const out = [];
+  const imgRegex = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi;
+  let match;
+  while ((match = imgRegex.exec(descriptionHtml)) !== null) {
+    let rawSrc = decodeHtmlEntities(match[1] || '').trim();
+    if (!rawSrc) continue;
+    rawSrc = rawSrc.replace(/#.*$/, '').trim();
+    if (!rawSrc) continue;
+    if (rawSrc.startsWith('/')) {
+      rawSrc = `https://media.printables.com${rawSrc}`;
+    } else if (!rawSrc.startsWith('http')) {
+      rawSrc = `https://media.printables.com/${rawSrc}`;
+    }
+
+    const { cleanUrl, pathKey, fileKey } = getPrintablesImageDedupKeys(rawSrc);
+    if (!cleanUrl || !pathKey) continue;
+    if (seenPaths.has(pathKey)) continue;
+    if (fileKey && seenFiles.has(fileKey)) continue;
+
+    seenPaths.add(pathKey);
+    if (fileKey) seenFiles.add(fileKey);
+    out.push(cleanUrl);
+  }
+
+  return out;
+}
 
 /**
  * Determine whether a YouTube video ID is a YouTube Short (9:16 vertical short) vs a standard long-form video
@@ -1107,9 +1210,10 @@ async function checkIsYoutubeShort(videoId, rawUrlHint = '') {
 }
 
 /**
- * Extract all unique YouTube video IDs from text/HTML and classify into youtubeShorts and youtubeVideos
+ * Extract all unique YouTube video IDs from text/HTML and classify into youtubeShorts and youtubeVideos.
+ * Only allows bare 11-char IDs when allowBareIds === true (e.g. direct user input in /api/youtube/classify).
  */
-async function extractAndClassifyYoutubeVideos(text) {
+async function extractAndClassifyYoutubeVideos(text, allowBareIds = false) {
   const raw = String(text || '');
   const regex = /(https?:\/\/(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11}))/gi;
   const entries = [];
@@ -1125,8 +1229,8 @@ async function extractAndClassifyYoutubeVideos(text) {
     }
   }
 
-  // Also support bare 11-char IDs if separated by commas/spaces when called from /api/youtube/classify
-  if (entries.length === 0) {
+  // Only support bare 11-char IDs when explicitly called from /api/youtube/classify
+  if (allowBareIds && entries.length === 0) {
     raw
       .split(/[\s,]+/)
       .map((t) => t.trim())
@@ -1168,7 +1272,7 @@ app.post('/api/youtube/classify', async (req, res) => {
     if (!input) {
       return res.json({ youtubeShorts: [], youtubeVideos: [] });
     }
-    const result = await extractAndClassifyYoutubeVideos(input);
+    const result = await extractAndClassifyYoutubeVideos(input, true);
     return res.json(result);
   } catch (err) {
     return res.status(500).json({ error: err.message });

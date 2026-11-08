@@ -1118,11 +1118,73 @@
     }
 
     .gallery-card {
+      position: relative;
       background-color: var(--bg-surface);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-md);
       overflow: hidden;
       box-shadow: var(--shadow-card);
+    }
+
+    .gallery-card-top-bar {
+      position: absolute;
+      top: 0.55rem;
+      left: 0.55rem;
+      right: 0.55rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.35rem;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    .gallery-card-badge {
+      pointer-events: auto;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      font-weight: 600;
+      padding: 0.2rem 0.5rem;
+      border-radius: 999px;
+      background: hsla(24, 18%, 14%, 0.82);
+      backdrop-filter: blur(4px);
+      color: #fff;
+    }
+
+    .gallery-card-badge.is-description-photo {
+      background: hsl(208, 68%, 38%);
+    }
+
+    .gallery-card-actions {
+      pointer-events: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      margin-left: auto;
+    }
+
+    .btn-gallery-action {
+      appearance: none;
+      border: 1px solid hsla(0, 0%, 100%, 0.3);
+      background: hsla(24, 18%, 14%, 0.82);
+      backdrop-filter: blur(4px);
+      color: #fff;
+      font-family: var(--font-sans);
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.24rem 0.55rem;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background-color 0.15s ease, transform 0.15s ease;
+    }
+
+    .btn-gallery-action:hover {
+      background: hsla(24, 18%, 14%, 0.96);
+    }
+
+    .btn-gallery-action.is-delete:hover {
+      background: var(--danger);
+      border-color: var(--danger);
     }
 
     .gallery-image {
@@ -2073,8 +2135,12 @@
           <div>
             <h2 class="section-title" id="gallery-heading">Detailed Views &amp; Generated WebP Showcase</h2>
             <p class="section-subtitle">
-              Target folder: <code id="target-folder-label">/images/models/sample-model/</code> (1200&times;1200 Main, 600&times;600 Thumb, 1000&times;1000 Gallery Angles)
+              Target folder: <code id="target-folder-label">/images/models/sample-model/</code> (1200&times;1200 Main, 600&times;600 Thumb, 1000&times;1000 Gallery Angles &amp; Description Photos)
             </p>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+            <button type="button" class="btn-ghost" id="btn-add-detailed-photo">+ Add Detailed Photo</button>
+            <input type="file" id="detailed-file-picker" accept="image/*" multiple style="display:none">
           </div>
         </div>
         <div class="model-gallery-grid" id="webp-output-list"></div>
@@ -2226,6 +2292,13 @@
       var btnStageToggleVideoKind = document.getElementById('btn-stage-toggle-video-kind');
       var btnStageAddMore = document.getElementById('btn-stage-add-more');
       var btnStageRemove = document.getElementById('btn-stage-remove');
+      var btnStagePrev = document.getElementById('btn-stage-prev');
+      var btnStageNext = document.getElementById('btn-stage-next');
+      var stageCounterPill = document.getElementById('stage-counter-pill');
+      var btnThumbScrollLeft = document.getElementById('btn-thumb-scroll-left');
+      var btnThumbScrollRight = document.getElementById('btn-thumb-scroll-right');
+      var btnAddDetailedPhoto = document.getElementById('btn-add-detailed-photo');
+      var detailedFilePicker = document.getElementById('detailed-file-picker');
       var filePicker = document.getElementById('file-picker');
       var btnBrowse = document.getElementById('btn-browse-files');
       var btnFillSettings = document.getElementById('btn-fill-settings');
@@ -2285,8 +2358,10 @@
       var tableLinkDrafts = {}; // { [slug]: { makerworld, printables, thangs, cults3d } }
       var recentlySavedSlugs = {}; // { [slug]: true }
 
-      // Array of { id, imgElement, originalUrl }
+      // Array of { id, imgElement, originalUrl } for Top Photo Section
       var sourceImages = [];
+      // Array of { id, imgElement, originalUrl } for Detailed Views Section (e.g. description photos not in Top Photo Section)
+      var detailedImages = [];
       // YouTube Shorts (rendered first after photos) and Long Videos (rendered after Shorts)
       var youtubeShorts = [];
       var youtubeVideos = [];
@@ -2296,8 +2371,68 @@
       var generatedWebP = {
         main: null,
         thumb: null,
-        gallery: []
+        gallery: [],
+        detailed: []
       };
+
+      function getOrderedStageMediaItems() {
+        var list = [];
+        sourceImages.forEach(function (_, idx) {
+          list.push({ type: 'image', index: idx });
+        });
+        youtubeShorts.forEach(function (id) {
+          list.push({ type: 'short', id: id });
+        });
+        youtubeVideos.forEach(function (id) {
+          list.push({ type: 'video', id: id });
+        });
+        return list;
+      }
+
+      function getCurrentStageMediaIndex(items) {
+        for (var i = 0; i < items.length; i++) {
+          var it = items[i];
+          if (it.type === 'image' && activeStageSelection.type === 'image' && it.index === activeStageSelection.index) {
+            return i;
+          }
+          if ((it.type === 'short' || it.type === 'video') && activeStageSelection.type === it.type && it.id === activeStageSelection.id) {
+            return i;
+          }
+        }
+        return 0;
+      }
+
+      function syncStageCarouselControls() {
+        var items = getOrderedStageMediaItems();
+        if (items.length > 1) {
+          var curIdx = getCurrentStageMediaIndex(items);
+          btnStagePrev.style.display = 'inline-flex';
+          btnStageNext.style.display = 'inline-flex';
+          stageCounterPill.style.display = 'inline-block';
+          stageCounterPill.textContent = (curIdx + 1) + ' / ' + items.length;
+        } else {
+          btnStagePrev.style.display = 'none';
+          btnStageNext.style.display = 'none';
+          stageCounterPill.style.display = 'none';
+        }
+      }
+
+      function scrollActiveThumbnailIntoView() {
+        var selectedThumb = sourceListEl.querySelector('.thumb-selector.is-selected');
+        if (selectedThumb && selectedThumb.scrollIntoView) {
+          selectedThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+        }
+      }
+
+      function stepStageSelection(delta) {
+        var items = getOrderedStageMediaItems();
+        if (items.length <= 1) return;
+        var curIdx = getCurrentStageMediaIndex(items);
+        var nextIdx = (curIdx + delta + items.length) % items.length;
+        activeStageSelection = items[nextIdx];
+        renderSourceCards();
+        scrollActiveThumbnailIntoView();
+      }
 
       function slugifyShortname(str) {
         return String(str || '')
@@ -2385,6 +2520,7 @@
       }
 
       function updateMainStageDisplay() {
+        syncStageCarouselControls();
         // Check if active selection is a video (Short or Long Video)
         if (activeStageSelection.type === 'short' || activeStageSelection.type === 'video') {
           var vidId = activeStageSelection.id;
@@ -2413,6 +2549,7 @@
             }
             btnStageSetMain.style.display = 'none';
             btnStageToggleVideoKind.style.display = 'inline-block';
+            syncStageCarouselControls();
             return;
           }
         }
@@ -2437,6 +2574,7 @@
           pasteZone.classList.add('is-empty');
           pasteZone.classList.remove('has-image');
           activeStageImage.removeAttribute('src');
+          syncStageCarouselControls();
           return;
         }
 
@@ -2461,6 +2599,7 @@
           activeStageBadge.className = 'stage-role-pill';
           btnStageSetMain.style.display = 'inline-block';
         }
+        syncStageCarouselControls();
       }
 
       function rebuildWebPAssets() {
@@ -2469,7 +2608,11 @@
         targetFolderLabel.textContent = '/images/models/' + shortname + '/';
         targetMdLabel.textContent = '/_models/' + (editingSlug || shortname) + '.md';
 
-        if (sourceImages.length === 0) {
+        generatedWebP.detailed = detailedImages.map(function (item) {
+          return renderSquareWebP(item.imgElement, 1000, 0.86, fitMode);
+        });
+
+        if (sourceImages.length === 0 && detailedImages.length === 0) {
           generatedWebP.main = null;
           generatedWebP.thumb = null;
           generatedWebP.gallery = [];
@@ -2483,36 +2626,59 @@
           return;
         }
 
-        var primary = sourceImages[0].imgElement;
-        generatedWebP.main = renderSquareWebP(primary, 1200, 0.88, fitMode);
-        generatedWebP.thumb = renderSquareWebP(primary, 600, 0.85, fitMode);
-        generatedWebP.gallery = sourceImages.slice(1).map(function (item) {
-          return renderSquareWebP(item.imgElement, 1000, 0.86, fitMode);
-        });
+        if (sourceImages.length > 0) {
+          var primary = sourceImages[0].imgElement;
+          generatedWebP.main = renderSquareWebP(primary, 1200, 0.88, fitMode);
+          generatedWebP.thumb = renderSquareWebP(primary, 600, 0.85, fitMode);
+          generatedWebP.gallery = sourceImages.slice(1).map(function (item) {
+            return renderSquareWebP(item.imgElement, 1000, 0.86, fitMode);
+          });
+        } else {
+          generatedWebP.main = null;
+          generatedWebP.thumb = null;
+          generatedWebP.gallery = [];
+        }
 
         updateMainStageDisplay();
 
         var cardsHtml = '';
-        cardsHtml +=
-          '<figure class="gallery-card">' +
-          '<img src="' + generatedWebP.main + '" alt="Main showcase WebP" class="gallery-image">' +
-          '<figcaption class="gallery-caption">' +
-          '<span><strong>Main Showcase</strong> &middot; 1200&times;1200px &middot; ~' + approxKilobytes(generatedWebP.main) + ' KB</span>' +
-          '<code>3d-model-' + shortname + '-main.webp</code>' +
-          '</figcaption></figure>';
+        if (generatedWebP.main) {
+          cardsHtml +=
+            '<figure class="gallery-card">' +
+            '<div class="gallery-card-top-bar">' +
+            '<span class="gallery-card-badge" style="background:var(--accent-terracotta);">MAIN SHOWCASE</span>' +
+            '</div>' +
+            '<img src="' + generatedWebP.main + '" alt="Main showcase WebP" class="gallery-image">' +
+            '<figcaption class="gallery-caption">' +
+            '<span><strong>Main Showcase</strong> &middot; 1200&times;1200px &middot; ~' + approxKilobytes(generatedWebP.main) + ' KB</span>' +
+            '<code>3d-model-' + shortname + '-main.webp</code>' +
+            '</figcaption></figure>';
+        }
 
-        cardsHtml +=
-          '<figure class="gallery-card">' +
-          '<img src="' + generatedWebP.thumb + '" alt="Thumbnail WebP" class="gallery-image">' +
-          '<figcaption class="gallery-caption">' +
-          '<span><strong>Catalog Thumbnail</strong> &middot; 600&times;600px &middot; ~' + approxKilobytes(generatedWebP.thumb) + ' KB</span>' +
-          '<code>3d-model-' + shortname + '-thumb.webp</code>' +
-          '</figcaption></figure>';
+        if (generatedWebP.thumb) {
+          cardsHtml +=
+            '<figure class="gallery-card">' +
+            '<div class="gallery-card-top-bar">' +
+            '<span class="gallery-card-badge">THUMBNAIL</span>' +
+            '</div>' +
+            '<img src="' + generatedWebP.thumb + '" alt="Thumbnail WebP" class="gallery-image">' +
+            '<figcaption class="gallery-caption">' +
+            '<span><strong>Catalog Thumbnail</strong> &middot; 600&times;600px &middot; ~' + approxKilobytes(generatedWebP.thumb) + ' KB</span>' +
+            '<code>3d-model-' + shortname + '-thumb.webp</code>' +
+            '</figcaption></figure>';
+        }
 
         generatedWebP.gallery.forEach(function (gDataUrl, idx) {
           var angleNum = idx + 1;
+          var sourceIdx = idx + 1;
           cardsHtml +=
             '<figure class="gallery-card">' +
+            '<div class="gallery-card-top-bar">' +
+            '<span class="gallery-card-badge">ANGLE ' + angleNum + '</span>' +
+            '<div class="gallery-card-actions">' +
+            '<button type="button" class="btn-gallery-action is-delete" data-delete-angle-idx="' + sourceIdx + '" title="Remove Angle ' + angleNum + '">&times; Delete</button>' +
+            '</div>' +
+            '</div>' +
             '<img src="' + gDataUrl + '" alt="Gallery angle ' + angleNum + '" class="gallery-image">' +
             '<figcaption class="gallery-caption">' +
             '<span><strong>Angle ' + angleNum + '</strong> &middot; 1000&times;1000px &middot; ~' + approxKilobytes(gDataUrl) + ' KB</span>' +
@@ -2520,9 +2686,62 @@
             '</figcaption></figure>';
         });
 
+        generatedWebP.detailed.forEach(function (dDataUrl, dIdx) {
+          var detailNum = dIdx + 1;
+          cardsHtml +=
+            '<figure class="gallery-card">' +
+            '<div class="gallery-card-top-bar">' +
+            '<span class="gallery-card-badge is-description-photo">DETAIL PHOTO ' + detailNum + '</span>' +
+            '<div class="gallery-card-actions">' +
+            '<button type="button" class="btn-gallery-action" data-promote-detail-idx="' + dIdx + '" title="Move to Top Photo Section">&uarr; Top Photos</button>' +
+            '<button type="button" class="btn-gallery-action is-delete" data-delete-detail-idx="' + dIdx + '" title="Delete this detailed view photo">&times; Delete</button>' +
+            '</div>' +
+            '</div>' +
+            '<img src="' + dDataUrl + '" alt="Detailed view ' + detailNum + '" class="gallery-image">' +
+            '<figcaption class="gallery-caption">' +
+            '<span><strong>Detailed View ' + detailNum + '</strong> (from description) &middot; 1000&times;1000px &middot; ~' + approxKilobytes(dDataUrl) + ' KB</span>' +
+            '<code>3d-model-' + shortname + '-detail' + detailNum + '.webp</code>' +
+            '</figcaption></figure>';
+        });
+
         webpOutputListEl.innerHTML = cardsHtml;
         updateMarkdownPreview();
       }
+
+      webpOutputListEl.addEventListener('click', function (e) {
+        var delDetailBtn = e.target.closest('[data-delete-detail-idx]');
+        if (delDetailBtn) {
+          var dIdx = parseInt(delDetailBtn.getAttribute('data-delete-detail-idx'), 10);
+          if (!isNaN(dIdx) && dIdx >= 0 && dIdx < detailedImages.length) {
+            detailedImages.splice(dIdx, 1);
+            rebuildWebPAssets();
+          }
+          return;
+        }
+
+        var promoteDetailBtn = e.target.closest('[data-promote-detail-idx]');
+        if (promoteDetailBtn) {
+          var pIdx = parseInt(promoteDetailBtn.getAttribute('data-promote-detail-idx'), 10);
+          if (!isNaN(pIdx) && pIdx >= 0 && pIdx < detailedImages.length) {
+            var moved = detailedImages.splice(pIdx, 1)[0];
+            sourceImages.push(moved);
+            renderSourceCards();
+          }
+          return;
+        }
+
+        var delAngleBtn = e.target.closest('[data-delete-angle-idx]');
+        if (delAngleBtn) {
+          var sIdx = parseInt(delAngleBtn.getAttribute('data-delete-angle-idx'), 10);
+          if (!isNaN(sIdx) && sIdx >= 0 && sIdx < sourceImages.length) {
+            sourceImages.splice(sIdx, 1);
+            if (activeStageSelection.type === 'image' && activeStageSelection.index >= sourceImages.length) {
+              activeStageSelection.index = Math.max(0, sourceImages.length - 1);
+            }
+            renderSourceCards();
+          }
+        }
+      });
 
       function renderSourceCards() {
         sourceListEl.innerHTML = '';
@@ -2587,6 +2806,24 @@
         rebuildWebPAssets();
       }
 
+      btnStagePrev.addEventListener('click', function (e) {
+        e.stopPropagation();
+        stepStageSelection(-1);
+      });
+
+      btnStageNext.addEventListener('click', function (e) {
+        e.stopPropagation();
+        stepStageSelection(1);
+      });
+
+      btnThumbScrollLeft.addEventListener('click', function () {
+        sourceListEl.scrollBy({ left: -280, behavior: 'smooth' });
+      });
+
+      btnThumbScrollRight.addEventListener('click', function () {
+        sourceListEl.scrollBy({ left: 280, behavior: 'smooth' });
+      });
+
       sourceListEl.addEventListener('click', function (e) {
         var addBtn = e.target.closest('#btn-strip-add');
         if (addBtn) {
@@ -2602,6 +2839,7 @@
           if (vidId) {
             activeStageSelection = { type: mediaType, id: vidId };
             renderSourceCards();
+            scrollActiveThumbnailIntoView();
           }
           return;
         }
@@ -2610,6 +2848,7 @@
         if (!isNaN(idx) && idx >= 0 && idx < sourceImages.length) {
           activeStageSelection = { type: 'image', index: idx };
           renderSourceCards();
+          scrollActiveThumbnailIntoView();
         }
       });
 
@@ -2757,7 +2996,7 @@
         }, 50);
       });
 
-      function addImageFromUrl(url) {
+      function addImageFromUrl(url, selectNewest) {
         if (!url) return;
         var img = new Image();
         img.crossOrigin = 'anonymous';
@@ -2767,20 +3006,87 @@
             imgElement: img,
             originalUrl: url
           });
-          activeStageSelection = { type: 'image', index: sourceImages.length - 1 };
+          if (selectNewest !== false) {
+            activeStageSelection = { type: 'image', index: sourceImages.length - 1 };
+          }
           renderSourceCards();
         };
         img.src = url;
+      }
+
+      function addDetailedImageFromUrl(url) {
+        if (!url) return;
+        var img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = function () {
+          detailedImages.push({
+            id: Date.now() + '-' + Math.random(),
+            imgElement: img,
+            originalUrl: url
+          });
+          rebuildWebPAssets();
+        };
+        img.src = url;
+      }
+
+      function loadImageListInOrder(urls, onComplete) {
+        if (!Array.isArray(urls) || urls.length === 0) {
+          if (onComplete) onComplete([]);
+          return;
+        }
+        var results = new Array(urls.length);
+        var remaining = urls.length;
+
+        urls.forEach(function (url, idx) {
+          var img = new Image();
+          img.crossOrigin = 'anonymous';
+          img.onload = function () {
+            results[idx] = {
+              id: Date.now() + '-' + idx + '-' + Math.random(),
+              imgElement: img,
+              originalUrl: url
+            };
+            remaining--;
+            if (remaining === 0 && onComplete) {
+              onComplete(results.filter(Boolean));
+            }
+          };
+          img.onerror = function () {
+            remaining--;
+            if (remaining === 0 && onComplete) {
+              onComplete(results.filter(Boolean));
+            }
+          };
+          img.src = url;
+        });
       }
 
       function addImageBlob(fileOrBlob) {
         if (!fileOrBlob || !fileOrBlob.type || fileOrBlob.type.indexOf('image/') !== 0) return;
         var reader = new FileReader();
         reader.onload = function (evt) {
-          addImageFromUrl(evt.target.result);
+          addImageFromUrl(evt.target.result, true);
         };
         reader.readAsDataURL(fileOrBlob);
       }
+
+      function addDetailedImageBlob(fileOrBlob) {
+        if (!fileOrBlob || !fileOrBlob.type || fileOrBlob.type.indexOf('image/') !== 0) return;
+        var reader = new FileReader();
+        reader.onload = function (evt) {
+          addDetailedImageFromUrl(evt.target.result);
+        };
+        reader.readAsDataURL(fileOrBlob);
+      }
+
+      btnAddDetailedPhoto.addEventListener('click', function () {
+        detailedFilePicker.click();
+      });
+
+      detailedFilePicker.addEventListener('change', function () {
+        Array.from(detailedFilePicker.files || []).forEach(addDetailedImageBlob);
+        detailedFilePicker.value = '';
+      });
 
       window.addEventListener('paste', function (e) {
         var clipboardData = e.clipboardData || window.clipboardData;
@@ -3993,9 +4299,11 @@
           mainImage: generatedWebP.main,
           thumbImage: generatedWebP.thumb,
           galleryImages: generatedWebP.gallery,
+          detailedImages: generatedWebP.detailed,
           existingCoverImage: editingModelData ? editingModelData.cover_image : '',
           existingThumbImage: editingModelData ? editingModelData.thumbnail_image : '',
           existingGalleryImages: editingModelData ? editingModelData.gallery_images : [],
+          existingDetailedImages: editingModelData ? editingModelData.detailed_images : [],
           existingAnimation: editingModelData ? editingModelData.animation : '',
           autoDeploy: autoDeployCheckbox.checked
         };

@@ -64,133 +64,141 @@ layout: default
               allowfullscreen
             ></iframe>
           </div>
+          {% if has_gallery_photos or has_any_videos %}
+            <button type="button" class="stage-nav-btn is-prev" id="btn-showcase-prev" aria-label="Previous photo or video">&#8249;</button>
+            <button type="button" class="stage-nav-btn is-next" id="btn-showcase-next" aria-label="Next photo or video">&#8250;</button>
+          {% endif %}
         </figure>
       {% endif %}
 
       {% if has_gallery_photos or has_any_videos %}
-        <div class="model-thumb-strip" role="list" aria-label="Model photos and videos selector">
-          {% if main_img %}
-            <button
-              type="button"
-              class="thumb-selector is-selected"
-              data-media-type="image"
-              data-full-src="{{ main_img | relative_url }}"
-              data-full-alt="{{ page.title }} — main showcase"
-              id="thumb-select-main"
-              aria-label="View main showcase image"
-            >
-              <img
-                src="{{ main_img | relative_url }}"
-                alt="{{ page.title }} main angle thumbnail"
-                width="160"
-                height="160"
-                loading="lazy"
-                decoding="async"
-              >
-            </button>
-          {% endif %}
-
-          {% for img_path in page.gallery_images %}
-            <button
-              type="button"
-              class="thumb-selector"
-              data-media-type="image"
-              data-full-src="{{ img_path | relative_url }}"
-              data-full-alt="{{ page.title }} — gallery angle {{ forloop.index }}"
-              id="thumb-select-angle-{{ forloop.index }}"
-              aria-label="View angle {{ forloop.index }}"
-            >
-              <img
-                src="{{ img_path | relative_url }}"
-                alt="{{ page.title }} — angle {{ forloop.index }}"
-                width="160"
-                height="160"
-                loading="lazy"
-                decoding="async"
-              >
-            </button>
-          {% endfor %}
-
-          {% comment %} 1. YouTube Shorts first {% endcomment %}
-          {% for yt_short in shorts_list %}
-            {% assign clean_short_id = yt_short | strip %}
-            {% if clean_short_id != "" %}
+        <div class="model-thumb-carousel">
+          <button type="button" class="thumb-scroll-btn" id="btn-thumb-scroll-left" aria-label="Scroll thumbnails left">&#8249;</button>
+          <div class="model-thumb-strip" id="model-thumb-strip" role="list" aria-label="Model photos and videos selector">
+            {% if main_img %}
               <button
                 type="button"
-                class="thumb-selector thumb-video-selector is-short-video"
-                data-media-type="video"
-                data-video-id="{{ clean_short_id }}"
-                data-video-kind="short"
-                id="thumb-select-short-{{ forloop.index }}"
-                aria-label="Play YouTube Short {{ forloop.index }}"
+                class="thumb-selector is-selected"
+                data-media-type="image"
+                data-full-src="{{ main_img | relative_url }}"
+                data-full-alt="{{ page.title }} — main showcase"
+                id="thumb-select-main"
+                aria-label="View main showcase image"
               >
                 <img
-                  src="https://i.ytimg.com/vi/{{ clean_short_id }}/hqdefault.jpg"
-                  alt="{{ page.title }} — YouTube Short {{ forloop.index }}"
+                  src="{{ main_img | relative_url }}"
+                  alt="{{ page.title }} main angle thumbnail"
                   width="160"
                   height="160"
                   loading="lazy"
                   decoding="async"
                 >
-                <span class="thumb-play-icon" aria-hidden="true">&#9654;</span>
-                <span class="thumb-video-badge is-short">SHORT</span>
               </button>
             {% endif %}
-          {% endfor %}
 
-          {% comment %} 2. Long-form YouTube Videos after Shorts {% endcomment %}
-          {% for yt_vid in videos_list %}
-            {% assign clean_vid_id = yt_vid | strip %}
-            {% if clean_vid_id != "" %}
+            {% for img_path in page.gallery_images %}
               <button
                 type="button"
-                class="thumb-selector thumb-video-selector"
-                data-media-type="video"
-                data-video-id="{{ clean_vid_id }}"
-                data-video-kind="video"
-                id="thumb-select-video-{{ forloop.index }}"
-                aria-label="Play video {{ forloop.index }}"
+                class="thumb-selector"
+                data-media-type="image"
+                data-full-src="{{ img_path | relative_url }}"
+                data-full-alt="{{ page.title }} — gallery angle {{ forloop.index }}"
+                id="thumb-select-angle-{{ forloop.index }}"
+                aria-label="View angle {{ forloop.index }}"
               >
                 <img
-                  src="https://i.ytimg.com/vi/{{ clean_vid_id }}/hqdefault.jpg"
-                  alt="{{ page.title }} — video {{ forloop.index }}"
+                  src="{{ img_path | relative_url }}"
+                  alt="{{ page.title }} — angle {{ forloop.index }}"
                   width="160"
                   height="160"
                   loading="lazy"
                   decoding="async"
                 >
-                <span class="thumb-play-icon" aria-hidden="true">&#9654;</span>
-                <span class="thumb-video-badge">VIDEO</span>
               </button>
-            {% endif %}
-          {% endfor %}
+            {% endfor %}
 
-          {% comment %} Backwards-compatible fallback if only youtube_id is set {% endcomment %}
-          {% for yt_fallback in fallback_videos %}
-            {% assign clean_fb_id = yt_fallback | strip %}
-            {% if clean_fb_id != "" %}
-              <button
-                type="button"
-                class="thumb-selector thumb-video-selector"
-                data-media-type="video"
-                data-video-id="{{ clean_fb_id }}"
-                data-video-kind="video"
-                id="thumb-select-fallback-video-{{ forloop.index }}"
-                aria-label="Play video"
-              >
-                <img
-                  src="https://i.ytimg.com/vi/{{ clean_fb_id }}/hqdefault.jpg"
-                  alt="{{ page.title }} — video"
-                  width="160"
-                  height="160"
-                  loading="lazy"
-                  decoding="async"
+            {% comment %} 1. YouTube Shorts first {% endcomment %}
+            {% for yt_short in shorts_list %}
+              {% assign clean_short_id = yt_short | strip %}
+              {% if clean_short_id != "" %}
+                <button
+                  type="button"
+                  class="thumb-selector thumb-video-selector is-short-video"
+                  data-media-type="video"
+                  data-video-id="{{ clean_short_id }}"
+                  data-video-kind="short"
+                  id="thumb-select-short-{{ forloop.index }}"
+                  aria-label="Play YouTube Short {{ forloop.index }}"
                 >
-                <span class="thumb-play-icon" aria-hidden="true">&#9654;</span>
-                <span class="thumb-video-badge">VIDEO</span>
-              </button>
-            {% endif %}
-          {% endfor %}
+                  <img
+                    src="https://i.ytimg.com/vi/{{ clean_short_id }}/hqdefault.jpg"
+                    alt="{{ page.title }} — YouTube Short {{ forloop.index }}"
+                    width="160"
+                    height="160"
+                    loading="lazy"
+                    decoding="async"
+                  >
+                  <span class="thumb-play-icon" aria-hidden="true">&#9654;</span>
+                  <span class="thumb-video-badge is-short">SHORT</span>
+                </button>
+              {% endif %}
+            {% endfor %}
+
+            {% comment %} 2. Long-form YouTube Videos after Shorts {% endcomment %}
+            {% for yt_vid in videos_list %}
+              {% assign clean_vid_id = yt_vid | strip %}
+              {% if clean_vid_id != "" %}
+                <button
+                  type="button"
+                  class="thumb-selector thumb-video-selector"
+                  data-media-type="video"
+                  data-video-id="{{ clean_vid_id }}"
+                  data-video-kind="video"
+                  id="thumb-select-video-{{ forloop.index }}"
+                  aria-label="Play video {{ forloop.index }}"
+                >
+                  <img
+                    src="https://i.ytimg.com/vi/{{ clean_vid_id }}/hqdefault.jpg"
+                    alt="{{ page.title }} — video {{ forloop.index }}"
+                    width="160"
+                    height="160"
+                    loading="lazy"
+                    decoding="async"
+                  >
+                  <span class="thumb-play-icon" aria-hidden="true">&#9654;</span>
+                  <span class="thumb-video-badge">VIDEO</span>
+                </button>
+              {% endif %}
+            {% endfor %}
+
+            {% comment %} Backwards-compatible fallback if only youtube_id is set {% endcomment %}
+            {% for yt_fallback in fallback_videos %}
+              {% assign clean_fb_id = yt_fallback | strip %}
+              {% if clean_fb_id != "" %}
+                <button
+                  type="button"
+                  class="thumb-selector thumb-video-selector"
+                  data-media-type="video"
+                  data-video-id="{{ clean_fb_id }}"
+                  data-video-kind="video"
+                  id="thumb-select-fallback-video-{{ forloop.index }}"
+                  aria-label="Play video"
+                >
+                  <img
+                    src="https://i.ytimg.com/vi/{{ clean_fb_id }}/hqdefault.jpg"
+                    alt="{{ page.title }} — video"
+                    width="160"
+                    height="160"
+                    loading="lazy"
+                    decoding="async"
+                  >
+                  <span class="thumb-play-icon" aria-hidden="true">&#9654;</span>
+                  <span class="thumb-video-badge">VIDEO</span>
+                </button>
+              {% endif %}
+            {% endfor %}
+          </div>
+          <button type="button" class="thumb-scroll-btn" id="btn-thumb-scroll-right" aria-label="Scroll thumbnails right">&#8250;</button>
         </div>
       {% endif %}
     </div>
@@ -320,8 +328,12 @@ layout: default
     </section>
   {% endif %}
 
-  <!-- Below-the-Fold Gallery Images (1000x1000px native lazy-loaded) & Optional MP4 Loop -->
-  {% if page.gallery_images and page.gallery_images.size > 0 or page.animation %}
+  <!-- Below-the-Fold Gallery Images (1000x1000px native lazy-loaded), Detailed Views & Optional MP4 Loop -->
+  {% assign has_detailed_photos = false %}
+  {% if page.detailed_images and page.detailed_images.size > 0 %}
+    {% assign has_detailed_photos = true %}
+  {% endif %}
+  {% if page.gallery_images and page.gallery_images.size > 0 or has_detailed_photos or page.animation %}
     <section class="model-gallery-section" aria-labelledby="gallery-heading">
       <div class="section-header">
         <h2 class="section-title" id="gallery-heading">Detailed Views &amp; Print Showcase</h2>
@@ -340,6 +352,21 @@ layout: default
               class="gallery-image"
             >
             <figcaption class="gallery-caption">Angle {{ forloop.index }} &middot; <code>{{ img_path | split: '/' | last }}</code></figcaption>
+          </figure>
+        {% endfor %}
+
+        {% for detail_path in page.detailed_images %}
+          <figure class="gallery-card">
+            <img
+              src="{{ detail_path | relative_url }}"
+              alt="{{ page.title }} — detailed view {{ forloop.index }}"
+              width="1000"
+              height="1000"
+              loading="lazy"
+              decoding="async"
+              class="gallery-image"
+            >
+            <figcaption class="gallery-caption">Detailed View {{ forloop.index }} &middot; <code>{{ detail_path | split: '/' | last }}</code></figcaption>
           </figure>
         {% endfor %}
 
@@ -370,40 +397,82 @@ layout: default
     var mainImg = document.getElementById('active-showcase-image');
     var videoContainer = document.getElementById('active-showcase-video');
     var videoIframe = document.getElementById('active-showcase-iframe');
-    var selectors = document.querySelectorAll('.thumb-selector');
+    var thumbStrip = document.getElementById('model-thumb-strip');
+    var btnPrev = document.getElementById('btn-showcase-prev');
+    var btnNext = document.getElementById('btn-showcase-next');
+    var btnScrollLeft = document.getElementById('btn-thumb-scroll-left');
+    var btnScrollRight = document.getElementById('btn-thumb-scroll-right');
+    var selectors = Array.prototype.slice.call(document.querySelectorAll('.thumb-selector'));
     if (!selectors.length) return;
+
+    function activateSelector(btn) {
+      if (!btn) return;
+      var mediaType = btn.getAttribute('data-media-type') || 'image';
+
+      if (mediaType === 'video') {
+        var videoId = btn.getAttribute('data-video-id');
+        if (videoId && videoContainer && videoIframe) {
+          if (mainImg) mainImg.style.display = 'none';
+          videoContainer.style.display = 'block';
+          var embedUrl = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(videoId) + '?autoplay=1&rel=0';
+          if (videoIframe.getAttribute('src') !== embedUrl) {
+            videoIframe.setAttribute('src', embedUrl);
+          }
+        }
+      } else {
+        var newSrc = btn.getAttribute('data-full-src');
+        var newAlt = btn.getAttribute('data-full-alt');
+        if (videoContainer && videoIframe) {
+          videoIframe.setAttribute('src', '');
+          videoContainer.style.display = 'none';
+        }
+        if (mainImg) {
+          mainImg.style.display = 'block';
+          if (newSrc) mainImg.src = newSrc;
+          if (newAlt) mainImg.alt = newAlt;
+        }
+      }
+
+      selectors.forEach(function (b) { b.classList.remove('is-selected'); });
+      btn.classList.add('is-selected');
+      if (btn.scrollIntoView) {
+        btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+      }
+    }
 
     selectors.forEach(function (btn) {
       btn.addEventListener('click', function () {
-        var mediaType = btn.getAttribute('data-media-type') || 'image';
-
-        if (mediaType === 'video') {
-          var videoId = btn.getAttribute('data-video-id');
-          if (videoId && videoContainer && videoIframe) {
-            if (mainImg) mainImg.style.display = 'none';
-            videoContainer.style.display = 'block';
-            var embedUrl = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(videoId) + '?autoplay=1&rel=0';
-            if (videoIframe.getAttribute('src') !== embedUrl) {
-              videoIframe.setAttribute('src', embedUrl);
-            }
-          }
-        } else {
-          var newSrc = btn.getAttribute('data-full-src');
-          var newAlt = btn.getAttribute('data-full-alt');
-          if (videoContainer && videoIframe) {
-            videoIframe.setAttribute('src', '');
-            videoContainer.style.display = 'none';
-          }
-          if (mainImg) {
-            mainImg.style.display = 'block';
-            if (newSrc) mainImg.src = newSrc;
-            if (newAlt) mainImg.alt = newAlt;
-          }
-        }
-
-        selectors.forEach(function (b) { b.classList.remove('is-selected'); });
-        btn.classList.add('is-selected');
+        activateSelector(btn);
       });
     });
+
+    function stepShowcase(delta) {
+      var curIdx = 0;
+      for (var i = 0; i < selectors.length; i++) {
+        if (selectors[i].classList.contains('is-selected')) {
+          curIdx = i;
+          break;
+        }
+      }
+      var nextIdx = (curIdx + delta + selectors.length) % selectors.length;
+      activateSelector(selectors[nextIdx]);
+    }
+
+    if (btnPrev) {
+      btnPrev.addEventListener('click', function () { stepShowcase(-1); });
+    }
+    if (btnNext) {
+      btnNext.addEventListener('click', function () { stepShowcase(1); });
+    }
+    if (btnScrollLeft && thumbStrip) {
+      btnScrollLeft.addEventListener('click', function () {
+        thumbStrip.scrollBy({ left: -260, behavior: 'smooth' });
+      });
+    }
+    if (btnScrollRight && thumbStrip) {
+      btnScrollRight.addEventListener('click', function () {
+        thumbStrip.scrollBy({ left: 260, behavior: 'smooth' });
+      });
+    }
   });
 </script>
