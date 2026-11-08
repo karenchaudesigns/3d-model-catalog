@@ -707,6 +707,27 @@ a {
   font-size: clamp(1.75rem, 3vw, 2.4rem);
   line-height: 1.18;
   letter-spacing: -0.02em;
+  margin-bottom: 0.45rem;
+}
+
+.model-extended-title {
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  line-height: 1.35;
+  margin-bottom: 0.45rem;
+}
+
+.model-tagline {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+  margin-bottom: 0.85rem;
+}
+
+.model-meta-header {
   margin-bottom: 0.85rem;
 }
 

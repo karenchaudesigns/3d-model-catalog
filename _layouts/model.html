@@ -206,6 +206,12 @@ layout: default
           <span class="category-pill" id="model-category-badge">{{ page.category }}</span>
         {% endif %}
         <h1 class="model-title">{{ page.title }}</h1>
+        {% if page.extended_title and page.extended_title != "" %}
+          <p class="model-extended-title">{{ page.extended_title }}</p>
+        {% endif %}
+        {% if page.tagline and page.tagline != "" %}
+          <p class="model-tagline">{{ page.tagline }}</p>
+        {% endif %}
       </div>
 
       {% if page.tags and page.tags.size > 0 %}

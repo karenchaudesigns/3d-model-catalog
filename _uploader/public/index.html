@@ -715,6 +715,57 @@
       box-shadow: 0 0 0 3px var(--accent-soft);
     }
 
+    .model-extended-title-input {
+      width: 100%;
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 500;
+      line-height: 1.3;
+      color: var(--text-secondary);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 0.4rem 0.7rem;
+      margin-top: 0.5rem;
+      transition: border-color 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .model-extended-title-input::placeholder {
+      color: hsl(24, 8%, 68%);
+      font-weight: 400;
+    }
+
+    .model-extended-title-input:focus {
+      outline: none;
+      border-color: var(--accent-terracotta);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    .model-tagline-input {
+      width: 100%;
+      font-family: var(--font-sans);
+      font-size: 0.92rem;
+      font-weight: 400;
+      line-height: 1.45;
+      color: var(--text-secondary);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 0.42rem 0.7rem;
+      margin-top: 0.5rem;
+      transition: border-color 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .model-tagline-input::placeholder {
+      color: hsl(24, 8%, 68%);
+    }
+
+    .model-tagline-input:focus {
+      outline: none;
+      border-color: var(--accent-terracotta);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
     /* Tag List Block (matches <ul class="tag-list"> in _layouts/model.html) */
     .tag-editor-block {
       margin-bottom: 1.4rem;
@@ -1865,8 +1916,24 @@
               id="model-name"
               class="model-title-input"
               required
-              placeholder="Model Title (e.g., Baby Ducks | Multi-color 3mf)"
+              placeholder="Model Title (e.g., Baby Ducks)"
               aria-label="Model Title"
+            >
+
+            <input
+              type="text"
+              id="model-extended-title"
+              class="model-extended-title-input"
+              placeholder="Extended Title (e.g., Multi-color 3mf | Free to a good home)"
+              aria-label="Extended Title"
+            >
+
+            <input
+              type="text"
+              id="model-tagline"
+              class="model-tagline-input"
+              placeholder="Tagline (auto-filled from Printables summary)..."
+              aria-label="Model Tagline"
             >
           </div>
 
@@ -2129,6 +2196,8 @@
       };
 
       var nameInput = document.getElementById('model-name');
+      var extendedTitleInput = document.getElementById('model-extended-title');
+      var taglineInput = document.getElementById('model-tagline');
       var shortnameInput = document.getElementById('model-shortname');
       var categorySelect = document.getElementById('model-category');
       var hiddenCheckbox = document.getElementById('model-hidden');
@@ -2906,11 +2975,33 @@
             var populatedParts = [];
 
             if (d.title) {
-              nameInput.value = d.title;
+              var rawTitle = String(d.title || '').trim();
+              var mainTitle = rawTitle;
+              var extTitle = String(d.extendedTitle || '').trim();
+              var pipeIdx = rawTitle.indexOf('|');
+              if (pipeIdx !== -1) {
+                mainTitle = rawTitle.slice(0, pipeIdx).trim();
+                var afterPipe = rawTitle.slice(pipeIdx + 1).trim();
+                extTitle = extTitle ? afterPipe + ' | ' + extTitle : afterPipe;
+              }
+              nameInput.value = mainTitle;
+              extendedTitleInput.value = extTitle;
               if (!shortnameManuallyEdited && !editingSlug) {
-                shortnameInput.value = d.shortname || slugifyShortname(d.title);
+                shortnameInput.value = d.shortname || slugifyShortname(mainTitle);
               }
               populatedParts.push('Title');
+              if (extTitle) {
+                populatedParts.push('Extended Title');
+              }
+            } else if (d.extendedTitle) {
+              extendedTitleInput.value = String(d.extendedTitle).trim();
+              populatedParts.push('Extended Title');
+            }
+
+            var importedTagline = String(d.tagline !== undefined ? d.tagline : d.summary || '').trim();
+            if (importedTagline) {
+              taglineInput.value = importedTagline;
+              populatedParts.push('Tagline');
             }
 
             if (d.description) {
@@ -2987,7 +3078,7 @@
         }
       });
 
-      [hiddenCheckbox, descInput, settingsInput, dlMakerworld, dlPrintables, dlThangs, dlCults3d].forEach(
+      [extendedTitleInput, taglineInput, hiddenCheckbox, descInput, settingsInput, dlMakerworld, dlPrintables, dlThangs, dlCults3d].forEach(
         function (el) {
           el.addEventListener('input', function () {
             if (el === descInput || el === settingsInput) {
@@ -3012,6 +3103,8 @@
 
       function updateMarkdownPreview() {
         var title = nameInput.value.trim() || 'Untitled 3D Model';
+        var extendedTitle = extendedTitleInput.value.trim();
+        var tagline = taglineInput.value.trim();
         var shortname = getShortname();
         var category = categorySelect.value;
         var isHidden = Boolean(hiddenCheckbox.checked);
@@ -3027,6 +3120,8 @@
         var lines = [
           '---',
           'title: ' + yamlEscape(title),
+          'extended_title: ' + yamlEscape(extendedTitle),
+          'tagline: ' + yamlEscape(tagline),
           'shortname: ' + yamlEscape(shortname),
           'category: ' + yamlEscape(category),
           'hidden: ' + (isHidden ? 'true' : 'false'),
@@ -3118,6 +3213,8 @@
         activeStageSelection = { type: 'image', index: 0 };
 
         nameInput.value = '';
+        extendedTitleInput.value = '';
+        taglineInput.value = '';
         shortnameInput.value = '';
         categorySelect.value = 'useful-prints';
         hiddenCheckbox.checked = false;
@@ -3175,6 +3272,8 @@
             printablesImportStatus.textContent = '';
 
             nameInput.value = m.title || '';
+            extendedTitleInput.value = m.extended_title || '';
+            taglineInput.value = m.tagline || '';
             shortnameInput.value = m.shortname || m.slug || '';
             categorySelect.value = m.category || 'useful-prints';
             hiddenCheckbox.checked = Boolean(m.hidden);
@@ -3874,6 +3973,8 @@
         var payload = {
           originalSlug: editingSlug,
           title: title,
+          extendedTitle: extendedTitleInput.value.trim(),
+          tagline: taglineInput.value.trim(),
           shortname: shortname,
           category: categorySelect.value,
           hidden: Boolean(hiddenCheckbox.checked),

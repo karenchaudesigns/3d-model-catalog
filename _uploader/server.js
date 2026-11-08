@@ -61,6 +61,21 @@ function yamlUnquote(val) {
 }
 
 /**
+ * Helper: Split a title containing "|" at the first pipe into { title, extendedTitle }
+ */
+function splitTitleOnFirstPipe(rawTitle) {
+  const full = String(rawTitle || '').trim();
+  const pipeIdx = full.indexOf('|');
+  if (pipeIdx === -1) {
+    return { title: full, extendedTitle: '' };
+  }
+  return {
+    title: full.slice(0, pipeIdx).trim(),
+    extendedTitle: full.slice(pipeIdx + 1).trim()
+  };
+}
+
+/**
  * Parse a Jekyll _models/*.md file into structured front matter + description + printSettings
  */
 function parseModelMarkdown(filename) {
@@ -72,6 +87,8 @@ function parseModelMarkdown(filename) {
     filename,
     slug,
     title: slug,
+    extended_title: '',
+    tagline: '',
     shortname: slug,
     category: 'useful-prints',
     hidden: false,
@@ -105,6 +122,7 @@ function parseModelMarkdown(filename) {
   // Line-by-line YAML parser for our model front matter schema
   const lines = fmText.split(/\r?\n/);
   let currentKey = null;
+  let hasExplicitExtendedTitle = false;
 
   for (const line of lines) {
     if (!line.trim() || line.trim().startsWith('#')) continue;
@@ -138,6 +156,10 @@ function parseModelMarkdown(filename) {
       const rawVal = kvMatch[2].trim();
       currentKey = key;
 
+      if (key === 'extended_title') {
+        hasExplicitExtendedTitle = true;
+      }
+
       if (
         key === 'gallery_images' ||
         key === 'tags' ||
@@ -156,6 +178,13 @@ function parseModelMarkdown(filename) {
         result[key] = yamlUnquote(rawVal);
       }
     }
+  }
+
+  // If extended_title wasn't explicitly set in front matter and title has "|", split it automatically
+  if (!hasExplicitExtendedTitle && result.title && result.title.includes('|')) {
+    const split = splitTitleOnFirstPipe(result.title);
+    result.title = split.title;
+    result.extended_title = split.extendedTitle;
   }
 
   // Backwards compatibility: if only youtube_id is present and youtube_shorts/youtube_videos are empty, include it
@@ -261,6 +290,9 @@ function saveAndDeployModel(req, res) {
     const {
       originalSlug = null,
       title,
+      extendedTitle = '',
+      extended_title = '',
+      tagline = '',
       shortname: rawShortname,
       category = 'useful-prints',
       hidden = false,
@@ -287,7 +319,11 @@ function saveAndDeployModel(req, res) {
       return res.status(400).json({ error: 'Model Name (title) is required.' });
     }
 
-    const shortname = toShortname(rawShortname || title);
+    const cleanTitle = String(title).trim();
+    const resolvedExtendedTitle = String(extendedTitle || extended_title || '').trim();
+    const resolvedTagline = String(tagline || '').trim();
+
+    const shortname = toShortname(rawShortname || cleanTitle);
     if (!shortname) {
       return res.status(400).json({ error: 'Could not derive a valid shortname slug.' });
     }
@@ -369,7 +405,9 @@ function saveAndDeployModel(req, res) {
     // 6. Build Jekyll Markdown with YAML Front Matter
     const yamlLines = [
       '---',
-      `title: ${yamlQuote(title)}`,
+      `title: ${yamlQuote(cleanTitle)}`,
+      `extended_title: ${yamlQuote(resolvedExtendedTitle)}`,
+      `tagline: ${yamlQuote(resolvedTagline)}`,
       `shortname: ${yamlQuote(shortname)}`,
       `category: ${yamlQuote(category || 'useful-prints')}`,
       `hidden: ${Boolean(hidden)}`,
@@ -462,7 +500,7 @@ function saveAndDeployModel(req, res) {
         gitLog.push('$ git add .');
 
         const actionVerb = isEdit ? 'Update' : 'Add';
-        const commitMessage = `${actionVerb} ${String(title).trim()}`;
+        const commitMessage = `${actionVerb} ${cleanTitle}`;
         const commitOut = execFileSync('git', ['commit', '-m', commitMessage], {
           cwd: REPO_ROOT,
           encoding: 'utf8'
@@ -504,7 +542,9 @@ function saveAndDeployModel(req, res) {
       isEdit,
       slug: targetSlug,
       shortname,
-      title: String(title).trim(),
+      title: cleanTitle,
+      extendedTitle: resolvedExtendedTitle,
+      tagline: resolvedTagline,
       hidden: Boolean(hidden),
       markdownPath: mdWebPath,
       markdownContent,
@@ -542,6 +582,8 @@ app.patch('/api/models/:slug/visibility', (req, res) => {
     req.body = {
       originalSlug: slug,
       title: existing.title,
+      extendedTitle: existing.extended_title,
+      tagline: existing.tagline,
       shortname: existing.shortname,
       category: existing.category,
       hidden: nextHidden,
@@ -965,7 +1007,7 @@ app.post('/api/import/printables', async (req, res) => {
             }
           }
 
-          if (!descriptionHtml && !summary) {
+          if (!summary) {
             const ogDesc = html.match(/<meta[^>]+property=["']og:description["'][^>]+content=["']([^"']+)["']/i);
             if (ogDesc) {
               summary = decodeHtmlEntities(ogDesc[1]).trim();
@@ -990,7 +1032,11 @@ app.post('/api/import/printables', async (req, res) => {
       });
     }
 
-    const descriptionMarkdown = htmlToMarkdown(descriptionHtml || summary);
+    const descriptionMarkdown = htmlToMarkdown(descriptionHtml);
+    const decodedFullTitle = decodeHtmlEntities(title).trim();
+    const { title: splitMainTitle, extendedTitle: splitExtendedTitle } =
+      splitTitleOnFirstPipe(decodedFullTitle);
+    const cleanTagline = decodeHtmlEntities(summary).trim();
 
     // Extract all YouTube links inside the description HTML/Markdown and classify Shorts vs long videos
     const { youtubeShorts, youtubeVideos, youtubeId } = await extractAndClassifyYoutubeVideos(
@@ -998,7 +1044,7 @@ app.post('/api/import/printables', async (req, res) => {
     );
 
     // Guess best matching catalog category if possible
-    const combinedText = `${title} ${tags.join(' ')} ${categoryPath.join(' ')}`.toLowerCase();
+    const combinedText = `${decodedFullTitle} ${tags.join(' ')} ${categoryPath.join(' ')}`.toLowerCase();
     let suggestedCategory = null;
     if (/(christmas|halloween|autumn|fall|pumpkin|easter|valentine|holiday|seasonal|ornament|winter|thanksgiving)/.test(combinedText)) {
       suggestedCategory = 'seasonal';
@@ -1014,10 +1060,12 @@ app.post('/api/import/printables', async (req, res) => {
       success: true,
       modelId,
       url: rawUrl,
-      title: decodeHtmlEntities(title).trim(),
-      shortname: toShortname(title),
+      title: splitMainTitle,
+      extendedTitle: splitExtendedTitle,
+      tagline: cleanTagline,
+      shortname: toShortname(splitMainTitle),
       description: descriptionMarkdown,
-      summary: decodeHtmlEntities(summary).trim(),
+      summary: cleanTagline,
       tags,
       youtubeShorts,
       youtubeVideos,
