@@ -5,7 +5,8 @@ category: "useful-prints"
 hidden: false
 thumbnail_image: "/images/models/washi-tape-holder-travel-stationery-organizer/3d-model-washi-tape-holder-travel-stationery-organizer-thumb.webp"
 cover_image: "/images/models/washi-tape-holder-travel-stationery-organizer/3d-model-washi-tape-holder-travel-stationery-organizer-main.webp"
-gallery_images: []
+gallery_images:
+  - "/images/models/washi-tape-holder-travel-stationery-organizer/3d-model-washi-tape-holder-travel-stationery-organizer-angle1.webp"
 tags:
   - "organizer"
   - "holder"
