@@ -647,12 +647,46 @@
     }
 
     .tag-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
       font-family: var(--font-mono);
       font-size: 0.76rem;
       color: var(--text-secondary);
       background-color: var(--bg-subtle);
-      padding: 0.2rem 0.6rem;
+      padding: 0.2rem 0.45rem 0.2rem 0.6rem;
       border-radius: 6px;
+      border: 1px solid transparent;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .tag-badge:hover {
+      border-color: var(--border-strong);
+    }
+
+    .tag-remove-btn {
+      appearance: none;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: var(--font-sans);
+      font-size: 0.88rem;
+      font-weight: 700;
+      line-height: 1;
+      width: 1.15rem;
+      height: 1.15rem;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: 0;
+      transition: background-color 0.14s ease, color 0.14s ease;
+    }
+
+    .tag-remove-btn:hover {
+      background-color: hsla(0, 68%, 48%, 0.14);
+      color: var(--danger);
     }
 
     .tag-input-inline {
@@ -1949,6 +1983,14 @@
         updateMarkdownPreview();
       });
 
+      function escapeHtmlText(str) {
+        return String(str || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
       function renderTagPills() {
         var tags = tagsInput.value
           .split(',')
@@ -1959,9 +2001,33 @@
           return;
         }
         tagPreviewRow.innerHTML = tags
-          .map(function (t) { return '<li class="tag-badge">#' + t + '</li>'; })
+          .map(function (t, idx) {
+            var safeTag = escapeHtmlText(t);
+            return (
+              '<li class="tag-badge">' +
+              '<span>#' + safeTag + '</span>' +
+              '<button type="button" class="tag-remove-btn" data-tag-idx="' + idx + '" title="Remove tag #' + safeTag + '" aria-label="Remove tag ' + safeTag + '">&times;</button>' +
+              '</li>'
+            );
+          })
           .join('');
       }
+
+      tagPreviewRow.addEventListener('click', function (e) {
+        var removeBtn = e.target.closest('.tag-remove-btn');
+        if (!removeBtn) return;
+        var idx = parseInt(removeBtn.getAttribute('data-tag-idx'), 10);
+        var tags = tagsInput.value
+          .split(',')
+          .map(function (t) { return t.trim(); })
+          .filter(Boolean);
+        if (!isNaN(idx) && idx >= 0 && idx < tags.length) {
+          tags.splice(idx, 1);
+          tagsInput.value = tags.join(', ');
+          renderTagPills();
+          updateMarkdownPreview();
+        }
+      });
 
       tagsInput.addEventListener('input', function () {
         renderTagPills();
