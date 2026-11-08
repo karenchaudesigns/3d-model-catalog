@@ -42,8 +42,6 @@ youtube_videos:
 
 #### See it in action!
 
-####
-
 #### FEATURES
 
 - a big heart
@@ -62,36 +60,9 @@ youtube_videos:
 
 - I printed one at 200% scale and used ribbon to tie it to the handle of the gift bag.
 
-**Using them in a different way? **
-
-- I'd love to know how you're using my design! Share your makes!
-
-#### PRINT SETTINGS
-
-This is what I used:
+### Recommended Print Settings
 
 - No supports; no brim
 - Nozzle size: 0.4mm
 - Layer height: 0.2mm
 - Infill: 15%
-
-####
-
-### CONNECT WITH ME
-
-❤  **LIKE & FOLLOW** if you want to see more from me
-
-📷 **SHARE YOUR MAKES** and let me know what you think
-
-🤑 **WANT TO SELL MY DESIGNS?** Check out the [club](https://www.printables.com/@karenchaudesigns#join:1074) options!
-
-*THANKS FOR ALL YOUR SUPPORT!  ❤ KAREN CHAU*
-
-[**Connect with me!** ](linktr.ee/karenchaudesigns)
-
-- [Twitter](https://twitter.com/karenchau_x)
-- [Instagram](https://www.instagram.com/karenchaudesigns/)
-- [Threads](https://www.threads.net/@karenchaudesigns)
-- [YouTube](https://www.youtube.com/@karenchaudesigns)
-- [Twitch](twitch.tv/karenchaudesigns)
-- [TikTok](https://www.tiktok.com/@karenchaudesigns)
