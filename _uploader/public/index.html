@@ -767,14 +767,33 @@
     .btn-thangs { background-color: var(--color-thangs); }
     .btn-cults3d { background-color: var(--color-cults3d); }
 
-    /* Prose / Markdown Description & Print Settings (matches .model-description.prose in _layouts/model.html) */
+    /* Below-the-Fold Section: Prose / Markdown Description & Print Settings */
+    .model-description-section {
+      padding-top: 2.25rem;
+      border-top: 1px solid var(--border-subtle);
+      margin-bottom: 2.75rem;
+    }
+
+    .model-description-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+    }
+
+    @media (min-width: 860px) {
+      .model-description-grid {
+        grid-template-columns: 1.25fr 1fr;
+      }
+    }
+
     .model-description-editor {
       background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-md);
-      padding: 1.15rem;
-      margin-bottom: 1.25rem;
+      padding: 1.25rem;
       box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
     }
 
     .prose-field-header {
@@ -782,7 +801,7 @@
       align-items: center;
       justify-content: space-between;
       gap: 0.5rem;
-      margin-bottom: 0.4rem;
+      margin-bottom: 0.55rem;
     }
 
     .prose-field-label {
@@ -794,15 +813,17 @@
 
     .prose-textarea {
       width: 100%;
+      flex: 1;
       font-family: var(--font-sans);
       font-size: 0.92rem;
       color: var(--text-primary);
       background: var(--bg-primary);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-sm);
-      padding: 0.65rem 0.8rem;
-      line-height: 1.55;
+      padding: 0.75rem 0.85rem;
+      line-height: 1.6;
       resize: vertical;
+      min-height: 180px;
     }
 
     .prose-textarea:focus {
@@ -1372,31 +1393,6 @@
             </div>
           </section>
 
-          <!-- Markdown Description & Print Settings matching .model-description.prose in _layouts/model.html -->
-          <div class="model-description-editor">
-            <div class="prose-field-header">
-              <label for="model-description" class="prose-field-label">Model Description</label>
-              <span style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-muted);">Markdown body</span>
-            </div>
-            <textarea
-              id="model-description"
-              class="prose-textarea"
-              rows="4"
-              placeholder="Write the model overview, printing notes, or assembly tips..."
-            ></textarea>
-
-            <div class="prose-field-header" style="margin-top: 1rem;">
-              <label for="model-print-settings" class="prose-field-label">Recommended Print Settings</label>
-              <button type="button" class="btn-ghost" id="btn-fill-settings" style="font-size:0.74rem;padding:0.22rem 0.6rem;">+ Insert Default Template</button>
-            </div>
-            <textarea
-              id="model-print-settings"
-              class="prose-textarea"
-              rows="4"
-              placeholder="- **Supports:** None&#10;- **Layer Height:** 0.20 mm&#10;- **Infill:** 15% Gyroid"
-            ></textarea>
-          </div>
-
           <!-- Save & Deploy Action Bar -->
           <div class="info-submit-panel">
             <label style="display:inline-flex;align-items:center;gap:0.5rem;font-size:0.84rem;font-weight:500;cursor:pointer;">
@@ -1416,7 +1412,45 @@
         </div>
       </div>
 
-      <!-- Below-the-Fold Section 1: Detailed Views & Print Showcase (matches .model-gallery-section in _layouts/model.html) -->
+      <!-- Below-the-Fold Section 1: Model Description & Recommended Print Settings -->
+      <section class="model-description-section" aria-labelledby="description-heading">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title" id="description-heading">Model Description &amp; Print Settings</h2>
+            <p class="section-subtitle">Markdown body content rendered in the model page description</p>
+          </div>
+        </div>
+
+        <div class="model-description-grid">
+          <div class="model-description-editor">
+            <div class="prose-field-header">
+              <label for="model-description" class="prose-field-label">Model Description</label>
+              <span style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-muted);">Markdown body</span>
+            </div>
+            <textarea
+              id="model-description"
+              class="prose-textarea"
+              rows="7"
+              placeholder="Write the model overview, printing notes, or assembly tips..."
+            ></textarea>
+          </div>
+
+          <div class="model-description-editor">
+            <div class="prose-field-header">
+              <label for="model-print-settings" class="prose-field-label">Recommended Print Settings</label>
+              <button type="button" class="btn-ghost" id="btn-fill-settings" style="font-size:0.74rem;padding:0.22rem 0.6rem;">+ Insert Default Template</button>
+            </div>
+            <textarea
+              id="model-print-settings"
+              class="prose-textarea"
+              rows="7"
+              placeholder="- **Supports:** None&#10;- **Layer Height:** 0.20 mm&#10;- **Infill:** 15% Gyroid"
+            ></textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- Below-the-Fold Section 2: Detailed Views & Print Showcase (matches .model-gallery-section in _layouts/model.html) -->
       <section class="model-gallery-section" aria-labelledby="gallery-heading">
         <div class="section-header">
           <div>
