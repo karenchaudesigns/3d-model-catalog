@@ -31,6 +31,8 @@ downloads:
   thangs: ""
   cults3d: ""
 youtube_id: "bCoseiuAyY8"
+youtube_shorts:
+  - "bCoseiuAyY8"
 ---
 Tear your washi tape into fun shapes!
 

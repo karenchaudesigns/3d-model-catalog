@@ -86,6 +86,8 @@ function parseModelMarkdown(filename) {
       thangs: '',
       cults3d: ''
     },
+    youtube_shorts: [],
+    youtube_videos: [],
     youtube_id: '',
     description: '',
     printSettings: ''
@@ -107,9 +109,15 @@ function parseModelMarkdown(filename) {
   for (const line of lines) {
     if (!line.trim() || line.trim().startsWith('#')) continue;
 
-    // List item under gallery_images or tags
+    // List item under gallery_images, tags, youtube_shorts, or youtube_videos
     const listMatch = line.match(/^\s+-\s+(.*)$/);
-    if (listMatch && (currentKey === 'gallery_images' || currentKey === 'tags')) {
+    if (
+      listMatch &&
+      (currentKey === 'gallery_images' ||
+        currentKey === 'tags' ||
+        currentKey === 'youtube_shorts' ||
+        currentKey === 'youtube_videos')
+    ) {
       result[currentKey].push(yamlUnquote(listMatch[1]));
       continue;
     }
@@ -130,7 +138,12 @@ function parseModelMarkdown(filename) {
       const rawVal = kvMatch[2].trim();
       currentKey = key;
 
-      if (key === 'gallery_images' || key === 'tags') {
+      if (
+        key === 'gallery_images' ||
+        key === 'tags' ||
+        key === 'youtube_shorts' ||
+        key === 'youtube_videos'
+      ) {
         if (rawVal === '[]') {
           result[key] = [];
         }
@@ -143,6 +156,15 @@ function parseModelMarkdown(filename) {
         result[key] = yamlUnquote(rawVal);
       }
     }
+  }
+
+  // Backwards compatibility: if only youtube_id is present and youtube_shorts/youtube_videos are empty, include it
+  if (
+    result.youtube_shorts.length === 0 &&
+    result.youtube_videos.length === 0 &&
+    result.youtube_id
+  ) {
+    result.youtube_videos = [result.youtube_id];
   }
 
   // Split Markdown body into description and ### Recommended Print Settings (if present)
@@ -210,6 +232,28 @@ app.get('/api/models/:slug', (req, res) => {
 });
 
 /**
+ * Normalize an array or comma-separated string of YouTube URLs/IDs into clean 11-char IDs
+ */
+function normalizeYoutubeIdList(input) {
+  const rawList = Array.isArray(input)
+    ? input
+    : String(input || '')
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+  const seen = new Set();
+  const out = [];
+  rawList.forEach((item) => {
+    const id = cleanYoutubeId(item);
+    if (id && !seen.has(id)) {
+      seen.add(id);
+      out.push(id);
+    }
+  });
+  return out;
+}
+
+/**
  * Shared handler for creating or updating a model
  */
 function saveAndDeployModel(req, res) {
@@ -223,6 +267,8 @@ function saveAndDeployModel(req, res) {
       description = '',
       printSettings = '',
       tags = '',
+      youtubeShorts = [],
+      youtubeVideos = [],
       youtubeId = '',
       downloads = {},
       mainImage = null,
@@ -310,7 +356,15 @@ function saveAndDeployModel(req, res) {
           .map((t) => t.trim())
           .filter(Boolean);
 
-    const parsedYoutubeId = cleanYoutubeId(youtubeId);
+    const parsedShorts = normalizeYoutubeIdList(youtubeShorts);
+    let parsedVideos = normalizeYoutubeIdList(youtubeVideos).filter(
+      (id) => !parsedShorts.includes(id)
+    );
+    const singleFallbackId = cleanYoutubeId(youtubeId);
+    if (parsedShorts.length === 0 && parsedVideos.length === 0 && singleFallbackId) {
+      parsedVideos = [singleFallbackId];
+    }
+    const primaryYoutubeId = parsedShorts[0] || parsedVideos[0] || '';
 
     // 6. Build Jekyll Markdown with YAML Front Matter
     const yamlLines = [
@@ -350,7 +404,26 @@ function saveAndDeployModel(req, res) {
     yamlLines.push(`  printables: ${yamlQuote(downloads.printables || '')}`);
     yamlLines.push(`  thangs: ${yamlQuote(downloads.thangs || '')}`);
     yamlLines.push(`  cults3d: ${yamlQuote(downloads.cults3d || '')}`);
-    yamlLines.push(`youtube_id: ${yamlQuote(parsedYoutubeId)}`);
+
+    if (parsedShorts.length > 0) {
+      yamlLines.push('youtube_shorts:');
+      parsedShorts.forEach((id) => {
+        yamlLines.push(`  - ${yamlQuote(id)}`);
+      });
+    } else {
+      yamlLines.push('youtube_shorts: []');
+    }
+
+    if (parsedVideos.length > 0) {
+      yamlLines.push('youtube_videos:');
+      parsedVideos.forEach((id) => {
+        yamlLines.push(`  - ${yamlQuote(id)}`);
+      });
+    } else {
+      yamlLines.push('youtube_videos: []');
+    }
+
+    yamlLines.push(`youtube_id: ${yamlQuote(primaryYoutubeId)}`);
     yamlLines.push('---');
     yamlLines.push('');
 
@@ -475,6 +548,8 @@ app.patch('/api/models/:slug/visibility', (req, res) => {
       description: existing.description,
       printSettings: existing.printSettings,
       tags: existing.tags,
+      youtubeShorts: existing.youtube_shorts,
+      youtubeVideos: existing.youtube_videos,
       youtubeId: existing.youtube_id,
       downloads: existing.downloads,
       existingCoverImage: existing.cover_image,
@@ -742,11 +817,10 @@ app.post('/api/import/printables', async (req, res) => {
 
     const descriptionMarkdown = htmlToMarkdown(descriptionHtml || summary);
 
-    // Check if there is a YouTube link inside the description HTML/Markdown
-    const ytMatch = (descriptionHtml + ' ' + descriptionMarkdown).match(
-      /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/
+    // Extract all YouTube links inside the description HTML/Markdown and classify Shorts vs long videos
+    const { youtubeShorts, youtubeVideos, youtubeId } = await extractAndClassifyYoutubeVideos(
+      `${descriptionHtml} ${descriptionMarkdown}`
     );
-    const youtubeId = ytMatch ? ytMatch[1] : '';
 
     // Guess best matching catalog category if possible
     const combinedText = `${title} ${tags.join(' ')} ${categoryPath.join(' ')}`.toLowerCase();
@@ -770,6 +844,8 @@ app.post('/api/import/printables', async (req, res) => {
       description: descriptionMarkdown,
       summary: decodeHtmlEntities(summary).trim(),
       tags,
+      youtubeShorts,
+      youtubeVideos,
       youtubeId,
       suggestedCategory,
       imageUrls: imageUrls.slice(0, 8)
@@ -777,6 +853,102 @@ app.post('/api/import/printables', async (req, res) => {
   } catch (err) {
     console.error('Printables import error:', err);
     return res.status(500).json({ error: `Failed to import from Printables: ${err.message}` });
+  }
+});
+
+/**
+ * Determine whether a YouTube video ID is a YouTube Short (9:16 vertical short) vs a standard long-form video
+ */
+async function checkIsYoutubeShort(videoId, rawUrlHint = '') {
+  if (!videoId) return false;
+  if (/youtube\.com\/shorts\//i.test(String(rawUrlHint || ''))) {
+    return true;
+  }
+  try {
+    const headRes = await fetch(`https://www.youtube.com/shorts/${encodeURIComponent(videoId)}`, {
+      method: 'HEAD',
+      redirect: 'manual',
+      headers: {
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+      }
+    });
+    // YouTube returns 200 OK on /shorts/<id> for true Shorts, and 303 Redirect to /watch?v=<id> for regular videos
+    if (headRes.status === 200) {
+      return true;
+    }
+  } catch (e) {
+    // ignore network error and fall back to false
+  }
+  return false;
+}
+
+/**
+ * Extract all unique YouTube video IDs from text/HTML and classify into youtubeShorts and youtubeVideos
+ */
+async function extractAndClassifyYoutubeVideos(text) {
+  const raw = String(text || '');
+  const regex = /(https?:\/\/(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11}))/gi;
+  const entries = [];
+  const seen = new Set();
+
+  let match;
+  while ((match = regex.exec(raw)) !== null) {
+    const fullUrl = match[1];
+    const vid = match[2];
+    if (vid && !seen.has(vid)) {
+      seen.add(vid);
+      entries.push({ id: vid, url: fullUrl });
+    }
+  }
+
+  // Also support bare 11-char IDs if separated by commas/spaces when called from /api/youtube/classify
+  if (entries.length === 0) {
+    raw
+      .split(/[\s,]+/)
+      .map((t) => t.trim())
+      .filter(Boolean)
+      .forEach((token) => {
+        const id = cleanYoutubeId(token);
+        if (id && /^[A-Za-z0-9_-]{11}$/.test(id) && !seen.has(id)) {
+          seen.add(id);
+          entries.push({ id, url: token });
+        }
+      });
+  }
+
+  const youtubeShorts = [];
+  const youtubeVideos = [];
+
+  for (const item of entries) {
+    const isShort = await checkIsYoutubeShort(item.id, item.url);
+    if (isShort) {
+      youtubeShorts.push(item.id);
+    } else {
+      youtubeVideos.push(item.id);
+    }
+  }
+
+  return {
+    youtubeShorts,
+    youtubeVideos,
+    youtubeId: youtubeShorts[0] || youtubeVideos[0] || ''
+  };
+}
+
+/**
+ * POST /api/youtube/classify — Classify one or more YouTube URLs/IDs into Shorts vs Long Videos
+ */
+app.post('/api/youtube/classify', async (req, res) => {
+  try {
+    const input = String(req.body.input || '').trim();
+    if (!input) {
+      return res.json({ youtubeShorts: [], youtubeVideos: [] });
+    }
+    const result = await extractAndClassifyYoutubeVideos(input);
+    return res.json(result);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
   }
 });
 

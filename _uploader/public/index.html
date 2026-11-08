@@ -369,11 +369,31 @@
       display: none;
     }
 
+    .model-stage-video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      display: none;
+    }
+
+    .model-stage-video iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
     .model-main-stage.has-image .model-cover-image {
       display: block;
     }
 
-    .model-main-stage.has-image .stage-empty-prompt {
+    .model-main-stage.has-video .model-stage-video {
+      display: block;
+    }
+
+    .model-main-stage.has-image .stage-empty-prompt,
+    .model-main-stage.has-video .stage-empty-prompt {
       display: none;
     }
 
@@ -388,9 +408,11 @@
       justify-content: space-between;
       gap: 0.5rem;
       pointer-events: none;
+      z-index: 4;
     }
 
-    .model-main-stage.has-image .stage-overlay-bar {
+    .model-main-stage.has-image .stage-overlay-bar,
+    .model-main-stage.has-video .stage-overlay-bar {
       display: flex;
     }
 
@@ -408,6 +430,10 @@
 
     .stage-role-pill.is-primary {
       background: var(--accent-terracotta);
+    }
+
+    .stage-role-pill.is-short {
+      background: hsl(352, 78%, 48%);
     }
 
     .stage-overlay-actions {
@@ -480,21 +506,45 @@
       object-fit: cover;
     }
 
+    .thumb-play-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -58%);
+      width: 1.8rem;
+      height: 1.8rem;
+      border-radius: 50%;
+      background: hsla(24, 18%, 12%, 0.78);
+      color: #fff;
+      font-size: 0.7rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding-left: 0.1rem;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+      pointer-events: none;
+    }
+
     .thumb-mini-tag {
       position: absolute;
       bottom: 0;
       left: 0;
       right: 0;
-      background: hsla(24, 18%, 14%, 0.78);
+      background: hsla(24, 18%, 14%, 0.82);
       color: #fff;
       font-family: var(--font-mono);
-      font-size: 0.62rem;
+      font-size: 0.6rem;
+      font-weight: 600;
       text-align: center;
       padding: 0.1rem 0.2rem;
     }
 
     .thumb-selector.is-main-thumb .thumb-mini-tag {
       background: var(--accent-terracotta);
+    }
+
+    .thumb-selector.is-short-thumb .thumb-mini-tag {
+      background: hsl(352, 78%, 48%);
     }
 
     .thumb-add-btn {
@@ -535,6 +585,38 @@
       border-radius: var(--radius-sm);
       font-size: 0.8rem;
       color: var(--text-secondary);
+    }
+
+    /* Video Adder Bar at the end of the Photo Section */
+    .video-adder-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-top: 0.6rem;
+      padding: 0.55rem 0.75rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-card);
+    }
+
+    .video-adder-bar input {
+      flex: 1;
+      min-width: 170px;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      padding: 0.38rem 0.6rem;
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+    }
+
+    .video-adder-bar input:focus {
+      outline: none;
+      border-color: var(--accent-terracotta);
+      background: #fff;
     }
 
     /* ==========================================================================
@@ -1292,11 +1374,23 @@
               alt="Active model showcase preview"
             >
 
-            <!-- Floating Controls when an image is loaded -->
+            <!-- Active Video Player inside 1:1 Main Stage -->
+            <div class="model-stage-video" id="active-stage-video">
+              <iframe
+                id="active-stage-iframe"
+                src=""
+                title="Active model video preview"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen
+              ></iframe>
+            </div>
+
+            <!-- Floating Controls when an image or video is loaded -->
             <div class="stage-overlay-bar">
               <span class="stage-role-pill is-primary" id="active-stage-badge">MAIN SHOWCASE (1200&times;1200)</span>
               <div class="stage-overlay-actions">
                 <button type="button" class="btn-stage-overlay" id="btn-stage-set-main" style="display:none;">Set as Main Cover</button>
+                <button type="button" class="btn-stage-overlay" id="btn-stage-toggle-video-kind" style="display:none;">Switch to Short</button>
                 <button type="button" class="btn-stage-overlay" id="btn-stage-add-more">+ Add Photo</button>
                 <button type="button" class="btn-stage-overlay is-danger" id="btn-stage-remove">Remove</button>
               </div>
@@ -1305,8 +1399,8 @@
             <input type="file" id="file-picker" accept="image/*" multiple style="display:none">
           </div>
 
-          <!-- Thumbnail Strip matching .model-thumb-strip in _layouts/model.html -->
-          <div class="model-thumb-strip" id="source-images-list" role="list" aria-label="Model angles selector"></div>
+          <!-- Thumbnail Strip matching .model-thumb-strip in _layouts/model.html (Photos -> Shorts -> Long Videos) -->
+          <div class="model-thumb-strip" id="source-images-list" role="list" aria-label="Model photos and videos selector"></div>
 
           <!-- Square Framing Mode -->
           <div class="fit-mode-bar">
@@ -1320,9 +1414,20 @@
               <span>1:1 Center Crop</span>
             </label>
           </div>
+
+          <!-- Add YouTube Short / Video to the End of the Photo Strip -->
+          <div class="video-adder-bar">
+            <input
+              type="text"
+              id="model-youtube-input"
+              placeholder="Paste YouTube Short or Video URL / ID (Shorts auto-sort before long videos)..."
+              aria-label="YouTube Short or Video URL"
+            >
+            <button type="button" class="btn-ghost" id="btn-add-youtube">+ Add Video</button>
+          </div>
         </div>
 
-        <!-- RIGHT COLUMN: Category Pill, Title, Tags, Download Panel, Description & Print Settings -->
+        <!-- RIGHT COLUMN: Category Pill, Title, Tags, Download Panel, Save Action Bar -->
         <div class="model-info-column">
           <div class="model-meta-header">
             <div class="meta-pills-row">
@@ -1388,7 +1493,7 @@
                   <button
                     type="button"
                     id="btn-autofill-printables"
-                    title="Fetch Model Title, Description, Tags, and Photos from this Printables URL"
+                    title="Fetch Model Title, Description, Tags, Photos, and Videos from this Printables URL"
                     style="appearance:none;border:1px solid rgba(255,255,255,0.55);background:rgba(0,0,0,0.22);color:#fff;font-family:var(--font-sans);font-size:0.71rem;font-weight:700;padding:0.18rem 0.52rem;border-radius:999px;cursor:pointer;"
                   >
                     &#10024; Auto-Fill Page
@@ -1491,31 +1596,6 @@
         </div>
         <div class="model-gallery-grid" id="webp-output-list"></div>
       </section>
-
-      <!-- Below-the-Fold Section 2: Build & Assembly Video (matches .model-video-section in _layouts/model.html) -->
-      <section class="model-video-section" aria-labelledby="video-heading">
-        <div class="section-header">
-          <h2 class="section-title" id="video-heading">Build &amp; Assembly Video</h2>
-          <p class="section-subtitle">Optional YouTube embed rendered at the bottom of the model page</p>
-        </div>
-        <div class="youtube-input-bar">
-          <label for="model-youtube-id">YouTube Video ID or URL:</label>
-          <input
-            type="text"
-            id="model-youtube-id"
-            placeholder="e.g., M7lc1UVf-VE or https://www.youtube.com/watch?v=M7lc1UVf-VE"
-          >
-        </div>
-        <div class="video-embed-wrapper" id="youtube-preview-wrapper">
-          <iframe
-            id="youtube-preview-iframe"
-            src=""
-            title="YouTube video preview"
-            loading="lazy"
-            allowfullscreen
-          ></iframe>
-        </div>
-      </section>
     </form>
 
     <!-- Below-the-Fold Section 3: Existing Catalog Models Library -->
@@ -1557,9 +1637,8 @@
       var settingsInput = document.getElementById('model-print-settings');
       var tagsInput = document.getElementById('model-tags');
       var tagPreviewRow = document.getElementById('tag-preview-row');
-      var youtubeInput = document.getElementById('model-youtube-id');
-      var youtubePreviewWrapper = document.getElementById('youtube-preview-wrapper');
-      var youtubePreviewIframe = document.getElementById('youtube-preview-iframe');
+      var youtubeAddInput = document.getElementById('model-youtube-input');
+      var btnAddYoutube = document.getElementById('btn-add-youtube');
 
       var dlMakerworld = document.getElementById('dl-makerworld');
       var dlPrintables = document.getElementById('dl-printables');
@@ -1572,8 +1651,11 @@
 
       var pasteZone = document.getElementById('paste-zone');
       var activeStageImage = document.getElementById('active-stage-image');
+      var activeStageVideo = document.getElementById('active-stage-video');
+      var activeStageIframe = document.getElementById('active-stage-iframe');
       var activeStageBadge = document.getElementById('active-stage-badge');
       var btnStageSetMain = document.getElementById('btn-stage-set-main');
+      var btnStageToggleVideoKind = document.getElementById('btn-stage-toggle-video-kind');
       var btnStageAddMore = document.getElementById('btn-stage-add-more');
       var btnStageRemove = document.getElementById('btn-stage-remove');
       var filePicker = document.getElementById('file-picker');
@@ -1617,7 +1699,12 @@
 
       // Array of { id, imgElement, originalUrl }
       var sourceImages = [];
-      var selectedStageIndex = 0;
+      // YouTube Shorts (rendered first after photos) and Long Videos (rendered after Shorts)
+      var youtubeShorts = [];
+      var youtubeVideos = [];
+      // Stage selection: { type: 'image', index: 0 } or { type: 'short', id: '...' } or { type: 'video', id: '...' }
+      var activeStageSelection = { type: 'image', index: 0 };
+
       var generatedWebP = {
         main: null,
         thumb: null,
@@ -1704,50 +1791,86 @@
         });
       }
 
-      function syncYoutubePreview() {
-        var ytId = extractYoutubeId(youtubeInput.value);
-        if (ytId && /^[A-Za-z0-9_-]{6,15}$/.test(ytId)) {
-          var embedUrl = 'https://www.youtube-nocookie.com/embed/' + ytId;
-          if (youtubePreviewIframe.getAttribute('src') !== embedUrl) {
-            youtubePreviewIframe.setAttribute('src', embedUrl);
-          }
-          youtubePreviewWrapper.classList.add('is-visible');
-        } else {
-          youtubePreviewIframe.setAttribute('src', '');
-          youtubePreviewWrapper.classList.remove('is-visible');
-        }
-      }
-
       function syncBreadcrumbs() {
         breadcrumbCategoryLabel.textContent = CATEGORY_LABELS[categorySelect.value] || categorySelect.value;
         breadcrumbTitleLabel.textContent = nameInput.value.trim() || (editingSlug ? editingSlug : 'New 3D Model');
       }
 
       function updateMainStageDisplay() {
+        // Check if active selection is a video (Short or Long Video)
+        if (activeStageSelection.type === 'short' || activeStageSelection.type === 'video') {
+          var vidId = activeStageSelection.id;
+          var isShort = youtubeShorts.indexOf(vidId) !== -1;
+          var isLong = youtubeVideos.indexOf(vidId) !== -1;
+          if (vidId && (isShort || isLong)) {
+            activeStageSelection.type = isShort ? 'short' : 'video';
+            pasteZone.classList.remove('is-empty');
+            pasteZone.classList.remove('has-image');
+            pasteZone.classList.add('has-video');
+            activeStageImage.removeAttribute('src');
+
+            var embedUrl = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(vidId) + '?rel=0';
+            if (activeStageIframe.getAttribute('src') !== embedUrl) {
+              activeStageIframe.setAttribute('src', embedUrl);
+            }
+
+            if (isShort) {
+              activeStageBadge.textContent = 'YOUTUBE SHORT (' + vidId + ')';
+              activeStageBadge.className = 'stage-role-pill is-short';
+              btnStageToggleVideoKind.textContent = 'Move to Long Videos';
+            } else {
+              activeStageBadge.textContent = 'YOUTUBE VIDEO (' + vidId + ')';
+              activeStageBadge.className = 'stage-role-pill';
+              btnStageToggleVideoKind.textContent = 'Mark as Short';
+            }
+            btnStageSetMain.style.display = 'none';
+            btnStageToggleVideoKind.style.display = 'inline-block';
+            return;
+          }
+        }
+
+        // Otherwise display an image (or fallback if no images)
+        activeStageIframe.setAttribute('src', '');
+        pasteZone.classList.remove('has-video');
+        btnStageToggleVideoKind.style.display = 'none';
+
         if (sourceImages.length === 0) {
+          // If there are no photos yet, but there is a video, show the first Short or Video
+          if (youtubeShorts.length > 0) {
+            activeStageSelection = { type: 'short', id: youtubeShorts[0] };
+            updateMainStageDisplay();
+            return;
+          }
+          if (youtubeVideos.length > 0) {
+            activeStageSelection = { type: 'video', id: youtubeVideos[0] };
+            updateMainStageDisplay();
+            return;
+          }
           pasteZone.classList.add('is-empty');
           pasteZone.classList.remove('has-image');
           activeStageImage.removeAttribute('src');
           return;
         }
 
-        if (selectedStageIndex >= sourceImages.length) {
-          selectedStageIndex = 0;
+        var imgIdx = activeStageSelection.type === 'image' ? activeStageSelection.index : 0;
+        if (imgIdx < 0 || imgIdx >= sourceImages.length) {
+          imgIdx = 0;
         }
+        activeStageSelection = { type: 'image', index: imgIdx };
 
         pasteZone.classList.remove('is-empty');
         pasteZone.classList.add('has-image');
 
-        if (selectedStageIndex === 0) {
+        if (imgIdx === 0) {
           activeStageImage.src = generatedWebP.main || sourceImages[0].originalUrl;
           activeStageBadge.textContent = 'MAIN SHOWCASE (1200×1200 + 600×600 THUMB)';
-          activeStageBadge.classList.add('is-primary');
+          activeStageBadge.className = 'stage-role-pill is-primary';
           btnStageSetMain.style.display = 'none';
         } else {
-          var galleryIdx = selectedStageIndex - 1;
-          activeStageImage.src = generatedWebP.gallery[galleryIdx] || sourceImages[selectedStageIndex].originalUrl;
-          activeStageBadge.textContent = 'GALLERY ANGLE ' + selectedStageIndex + ' (1000×1000 WebP)';
-          activeStageBadge.classList.remove('is-primary');
+          var galleryIdx = imgIdx - 1;
+          activeStageImage.src = generatedWebP.gallery[galleryIdx] || sourceImages[imgIdx].originalUrl;
+          activeStageBadge.textContent = 'GALLERY ANGLE ' + imgIdx + ' (1000×1000 WebP)';
+          activeStageBadge.className = 'stage-role-pill';
           btnStageSetMain.style.display = 'inline-block';
         }
       }
@@ -1815,13 +1938,17 @@
 
       function renderSourceCards() {
         sourceListEl.innerHTML = '';
+
+        // 1. Photo Thumbnails (Main + Angles)
         sourceImages.forEach(function (item, idx) {
+          var isSelected = activeStageSelection.type === 'image' && activeStageSelection.index === idx;
           var btn = document.createElement('button');
           btn.type = 'button';
           btn.className =
             'thumb-selector' +
-            (idx === selectedStageIndex ? ' is-selected' : '') +
+            (isSelected ? ' is-selected' : '') +
             (idx === 0 ? ' is-main-thumb' : '');
+          btn.setAttribute('data-media-type', 'image');
           btn.setAttribute('data-idx', String(idx));
           btn.innerHTML =
             '<img src="' + item.originalUrl + '" alt="Angle ' + idx + '">' +
@@ -1829,13 +1956,45 @@
           sourceListEl.appendChild(btn);
         });
 
-        // Always append a "+ Add Angle" button in the thumbnail strip matching the model page strip
+        // "+ Add Angle" button right after the photos
         var addTile = document.createElement('button');
         addTile.type = 'button';
         addTile.className = 'thumb-add-btn';
         addTile.id = 'btn-strip-add';
-        addTile.innerHTML = '<span style="font-size:1.15rem;line-height:1;">+</span><span>Add Angle</span>';
+        addTile.innerHTML = '<span style="font-size:1.15rem;line-height:1;">+</span><span>Add Photo</span>';
         sourceListEl.appendChild(addTile);
+
+        // 2. YouTube Shorts Thumbnails (always before Long Videos)
+        youtubeShorts.forEach(function (shortId, sIdx) {
+          var isSelected = activeStageSelection.type === 'short' && activeStageSelection.id === shortId;
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'thumb-selector is-short-thumb' + (isSelected ? ' is-selected' : '');
+          btn.setAttribute('data-media-type', 'short');
+          btn.setAttribute('data-video-id', shortId);
+          btn.title = 'YouTube Short (' + shortId + ') — click to play in stage';
+          btn.innerHTML =
+            '<img src="https://i.ytimg.com/vi/' + encodeURIComponent(shortId) + '/hqdefault.jpg" alt="Short ' + (sIdx + 1) + '">' +
+            '<span class="thumb-play-icon" aria-hidden="true">&#9654;</span>' +
+            '<span class="thumb-mini-tag">SHORT' + (youtubeShorts.length > 1 ? ' ' + (sIdx + 1) : '') + '</span>';
+          sourceListEl.appendChild(btn);
+        });
+
+        // 3. Long-Form YouTube Video Thumbnails (after Shorts)
+        youtubeVideos.forEach(function (vidId, vIdx) {
+          var isSelected = activeStageSelection.type === 'video' && activeStageSelection.id === vidId;
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'thumb-selector' + (isSelected ? ' is-selected' : '');
+          btn.setAttribute('data-media-type', 'video');
+          btn.setAttribute('data-video-id', vidId);
+          btn.title = 'YouTube Video (' + vidId + ') — click to play in stage';
+          btn.innerHTML =
+            '<img src="https://i.ytimg.com/vi/' + encodeURIComponent(vidId) + '/hqdefault.jpg" alt="Video ' + (vIdx + 1) + '">' +
+            '<span class="thumb-play-icon" aria-hidden="true">&#9654;</span>' +
+            '<span class="thumb-mini-tag">VIDEO' + (youtubeVideos.length > 1 ? ' ' + (vIdx + 1) : '') + '</span>';
+          sourceListEl.appendChild(btn);
+        });
 
         rebuildWebPAssets();
       }
@@ -1848,21 +2007,54 @@
         }
         var thumbBtn = e.target.closest('.thumb-selector');
         if (!thumbBtn) return;
+
+        var mediaType = thumbBtn.getAttribute('data-media-type') || 'image';
+        if (mediaType === 'short' || mediaType === 'video') {
+          var vidId = thumbBtn.getAttribute('data-video-id');
+          if (vidId) {
+            activeStageSelection = { type: mediaType, id: vidId };
+            renderSourceCards();
+          }
+          return;
+        }
+
         var idx = parseInt(thumbBtn.getAttribute('data-idx'), 10);
         if (!isNaN(idx) && idx >= 0 && idx < sourceImages.length) {
-          selectedStageIndex = idx;
+          activeStageSelection = { type: 'image', index: idx };
           renderSourceCards();
         }
       });
 
       btnStageSetMain.addEventListener('click', function (e) {
         e.stopPropagation();
-        if (selectedStageIndex > 0 && selectedStageIndex < sourceImages.length) {
-          var chosen = sourceImages.splice(selectedStageIndex, 1)[0];
+        if (
+          activeStageSelection.type === 'image' &&
+          activeStageSelection.index > 0 &&
+          activeStageSelection.index < sourceImages.length
+        ) {
+          var chosen = sourceImages.splice(activeStageSelection.index, 1)[0];
           sourceImages.unshift(chosen);
-          selectedStageIndex = 0;
+          activeStageSelection = { type: 'image', index: 0 };
           renderSourceCards();
         }
+      });
+
+      btnStageToggleVideoKind.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (activeStageSelection.type !== 'short' && activeStageSelection.type !== 'video') return;
+        var vidId = activeStageSelection.id;
+        var sIdx = youtubeShorts.indexOf(vidId);
+        var vIdx = youtubeVideos.indexOf(vidId);
+        if (sIdx !== -1) {
+          youtubeShorts.splice(sIdx, 1);
+          if (youtubeVideos.indexOf(vidId) === -1) youtubeVideos.push(vidId);
+          activeStageSelection = { type: 'video', id: vidId };
+        } else if (vIdx !== -1) {
+          youtubeVideos.splice(vIdx, 1);
+          if (youtubeShorts.indexOf(vidId) === -1) youtubeShorts.push(vidId);
+          activeStageSelection = { type: 'short', id: vidId };
+        }
+        renderSourceCards();
       });
 
       btnStageAddMore.addEventListener('click', function (e) {
@@ -1872,13 +2064,109 @@
 
       btnStageRemove.addEventListener('click', function (e) {
         e.stopPropagation();
-        if (selectedStageIndex >= 0 && selectedStageIndex < sourceImages.length) {
-          sourceImages.splice(selectedStageIndex, 1);
-          if (selectedStageIndex >= sourceImages.length) {
-            selectedStageIndex = Math.max(0, sourceImages.length - 1);
-          }
+        if (activeStageSelection.type === 'short' || activeStageSelection.type === 'video') {
+          var vidId = activeStageSelection.id;
+          youtubeShorts = youtubeShorts.filter(function (id) { return id !== vidId; });
+          youtubeVideos = youtubeVideos.filter(function (id) { return id !== vidId; });
+          activeStageSelection = { type: 'image', index: 0 };
+          renderSourceCards();
+          return;
+        }
+
+        var idx = activeStageSelection.index;
+        if (idx >= 0 && idx < sourceImages.length) {
+          sourceImages.splice(idx, 1);
+          var nextIdx = idx >= sourceImages.length ? Math.max(0, sourceImages.length - 1) : idx;
+          activeStageSelection = { type: 'image', index: nextIdx };
           renderSourceCards();
         }
+      });
+
+      function addYoutubeVideosFromInput(rawInput, selectNewVideo) {
+        var text = String(rawInput || '').trim();
+        if (!text) return;
+
+        btnAddYoutube.disabled = true;
+        btnAddYoutube.textContent = 'Adding...';
+
+        fetch('/api/youtube/classify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ input: text })
+        })
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            btnAddYoutube.disabled = false;
+            btnAddYoutube.textContent = '+ Add Video';
+
+            var addedAny = false;
+            var lastAdded = null;
+
+            (data.youtubeShorts || []).forEach(function (id) {
+              if (youtubeShorts.indexOf(id) === -1 && youtubeVideos.indexOf(id) === -1) {
+                youtubeShorts.push(id);
+                addedAny = true;
+                lastAdded = { type: 'short', id: id };
+              }
+            });
+
+            (data.youtubeVideos || []).forEach(function (id) {
+              if (youtubeShorts.indexOf(id) === -1 && youtubeVideos.indexOf(id) === -1) {
+                youtubeVideos.push(id);
+                addedAny = true;
+                lastAdded = { type: 'video', id: id };
+              }
+            });
+
+            if (addedAny) {
+              youtubeAddInput.value = '';
+              if (selectNewVideo && lastAdded) {
+                activeStageSelection = lastAdded;
+              }
+              renderSourceCards();
+            }
+          })
+          .catch(function () {
+            btnAddYoutube.disabled = false;
+            btnAddYoutube.textContent = '+ Add Video';
+            // Fallback local extraction if offline
+            var fallbackId = extractYoutubeId(text);
+            if (fallbackId && /^[A-Za-z0-9_-]{11}$/.test(fallbackId)) {
+              var isShortLocal = /youtube\.com\/shorts\//i.test(text);
+              if (isShortLocal) {
+                if (youtubeShorts.indexOf(fallbackId) === -1 && youtubeVideos.indexOf(fallbackId) === -1) {
+                  youtubeShorts.push(fallbackId);
+                }
+                activeStageSelection = { type: 'short', id: fallbackId };
+              } else {
+                if (youtubeShorts.indexOf(fallbackId) === -1 && youtubeVideos.indexOf(fallbackId) === -1) {
+                  youtubeVideos.push(fallbackId);
+                }
+                activeStageSelection = { type: 'video', id: fallbackId };
+              }
+              youtubeAddInput.value = '';
+              renderSourceCards();
+            }
+          });
+      }
+
+      btnAddYoutube.addEventListener('click', function () {
+        addYoutubeVideosFromInput(youtubeAddInput.value, true);
+      });
+
+      youtubeAddInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          addYoutubeVideosFromInput(youtubeAddInput.value, true);
+        }
+      });
+
+      youtubeAddInput.addEventListener('paste', function () {
+        setTimeout(function () {
+          if (youtubeAddInput.value.trim()) {
+            addYoutubeVideosFromInput(youtubeAddInput.value, true);
+          }
+        }, 50);
       });
 
       function addImageFromUrl(url) {
@@ -1891,7 +2179,7 @@
             imgElement: img,
             originalUrl: url
           });
-          selectedStageIndex = sourceImages.length - 1;
+          activeStageSelection = { type: 'image', index: sourceImages.length - 1 };
           renderSourceCards();
         };
         img.src = url;
@@ -1931,7 +2219,7 @@
       });
 
       pasteZone.addEventListener('click', function (e) {
-        if (sourceImages.length === 0 && e.target !== btnBrowse) {
+        if (sourceImages.length === 0 && youtubeShorts.length === 0 && youtubeVideos.length === 0 && e.target !== btnBrowse) {
           filePicker.click();
         }
       });
@@ -2074,7 +2362,7 @@
         btnAutofillPrintables.disabled = true;
         btnAutofillPrintables.textContent = 'Fetching...';
         printablesImportStatus.style.display = 'block';
-        printablesImportStatus.textContent = 'Fetching title, description, tags & photos from Printables...';
+        printablesImportStatus.textContent = 'Fetching title, description, tags, photos & videos from Printables...';
 
         fetch('/api/import/printables', {
           method: 'POST',
@@ -2123,11 +2411,26 @@
               populatedParts.push('Category');
             }
 
-            if (d.youtubeId && !youtubeInput.value.trim()) {
-              youtubeInput.value = d.youtubeId;
-              syncYoutubePreview();
-              populatedParts.push('YouTube Video');
+            var addedShorts = 0;
+            var addedVideos = 0;
+            if (Array.isArray(d.youtubeShorts)) {
+              d.youtubeShorts.forEach(function (id) {
+                if (youtubeShorts.indexOf(id) === -1 && youtubeVideos.indexOf(id) === -1) {
+                  youtubeShorts.push(id);
+                  addedShorts++;
+                }
+              });
             }
+            if (Array.isArray(d.youtubeVideos)) {
+              d.youtubeVideos.forEach(function (id) {
+                if (youtubeShorts.indexOf(id) === -1 && youtubeVideos.indexOf(id) === -1) {
+                  youtubeVideos.push(id);
+                  addedVideos++;
+                }
+              });
+            }
+            if (addedShorts > 0) populatedParts.push(addedShorts + (addedShorts === 1 ? ' Short' : ' Shorts'));
+            if (addedVideos > 0) populatedParts.push(addedVideos + (addedVideos === 1 ? ' Video' : ' Videos'));
 
             // If no images are currently in the showcase stage and Printables returned images, load them via proxy
             if (sourceImages.length === 0 && Array.isArray(d.imageUrls) && d.imageUrls.length > 0) {
@@ -2139,7 +2442,7 @@
             }
 
             syncBreadcrumbs();
-            rebuildWebPAssets();
+            renderSourceCards();
             updateMarkdownPreview();
 
             printablesImportStatus.textContent =
@@ -2165,14 +2468,13 @@
         }
       });
 
-      [hiddenCheckbox, descInput, settingsInput, youtubeInput, dlMakerworld, dlPrintables, dlThangs, dlCults3d].forEach(
+      [hiddenCheckbox, descInput, settingsInput, dlMakerworld, dlPrintables, dlThangs, dlCults3d].forEach(
         function (el) {
           el.addEventListener('input', function () {
             if (el === descInput || el === settingsInput) {
               autoExpandTextarea(el);
             }
             syncDownloadButtonHighlights();
-            syncYoutubePreview();
             updateMarkdownPreview();
           });
           el.addEventListener('change', function () {
@@ -2180,7 +2482,6 @@
               autoExpandTextarea(el);
             }
             syncDownloadButtonHighlights();
-            syncYoutubePreview();
             updateMarkdownPreview();
           });
         }
@@ -2251,7 +2552,27 @@
         lines.push('  printables: ' + yamlEscape(dlPrintables.value));
         lines.push('  thangs: ' + yamlEscape(dlThangs.value));
         lines.push('  cults3d: ' + yamlEscape(dlCults3d.value));
-        lines.push('youtube_id: ' + yamlEscape(extractYoutubeId(youtubeInput.value)));
+
+        if (youtubeShorts.length > 0) {
+          lines.push('youtube_shorts:');
+          youtubeShorts.forEach(function (id) {
+            lines.push('  - ' + yamlEscape(id));
+          });
+        } else {
+          lines.push('youtube_shorts: []');
+        }
+
+        if (youtubeVideos.length > 0) {
+          lines.push('youtube_videos:');
+          youtubeVideos.forEach(function (id) {
+            lines.push('  - ' + yamlEscape(id));
+          });
+        } else {
+          lines.push('youtube_videos: []');
+        }
+
+        var primaryYt = youtubeShorts[0] || youtubeVideos[0] || '';
+        lines.push('youtube_id: ' + yamlEscape(primaryYt));
         lines.push('---');
         lines.push('');
 
@@ -2275,7 +2596,7 @@
         editingSlug = null;
         editingModelData = null;
         shortnameManuallyEdited = false;
-        selectedStageIndex = 0;
+        activeStageSelection = { type: 'image', index: 0 };
 
         nameInput.value = '';
         shortnameInput.value = '';
@@ -2284,7 +2605,7 @@
         descInput.value = '';
         settingsInput.value = '';
         tagsInput.value = '';
-        youtubeInput.value = '';
+        youtubeAddInput.value = '';
         dlMakerworld.value = '';
         dlPrintables.value = '';
         dlThangs.value = '';
@@ -2292,6 +2613,8 @@
         autoExpandAllProse();
 
         sourceImages = [];
+        youtubeShorts = [];
+        youtubeVideos = [];
         editBanner.classList.remove('is-visible');
         statusBox.className = 'status-box';
         statusBox.innerHTML = '';
@@ -2311,7 +2634,6 @@
         renderTagPills();
         syncBreadcrumbs();
         syncDownloadButtonHighlights();
-        syncYoutubePreview();
         renderSourceCards();
         renderExistingModelsList();
       }
@@ -2325,7 +2647,7 @@
             editingSlug = m.slug;
             editingModelData = m;
             shortnameManuallyEdited = true;
-            selectedStageIndex = 0;
+            activeStageSelection = { type: 'image', index: 0 };
 
             postUploadCard.classList.remove('is-visible');
             statusBox.className = 'status-box';
@@ -2341,7 +2663,13 @@
             settingsInput.value = m.printSettings || '';
             autoExpandAllProse();
             tagsInput.value = Array.isArray(m.tags) ? m.tags.join(', ') : '';
-            youtubeInput.value = m.youtube_id || '';
+            youtubeAddInput.value = '';
+            youtubeShorts = Array.isArray(m.youtube_shorts) ? m.youtube_shorts.slice() : [];
+            youtubeVideos = Array.isArray(m.youtube_videos) ? m.youtube_videos.slice() : [];
+            if (youtubeShorts.length === 0 && youtubeVideos.length === 0 && m.youtube_id) {
+              youtubeVideos = [m.youtube_id];
+            }
+
             dlMakerworld.value = (m.downloads && m.downloads.makerworld) || '';
             dlPrintables.value = (m.downloads && m.downloads.printables) || '';
             dlThangs.value = (m.downloads && m.downloads.thangs) || '';
@@ -2350,7 +2678,6 @@
             renderTagPills();
             syncBreadcrumbs();
             syncDownloadButtonHighlights();
-            syncYoutubePreview();
 
             editBannerTitle.textContent = m.title;
             editBannerFile.textContent = '_models/' + m.filename;
@@ -2376,7 +2703,7 @@
                   imgElement: img,
                   originalUrl: u
                 });
-                selectedStageIndex = 0;
+                activeStageSelection = { type: 'image', index: 0 };
                 renderSourceCards();
               };
               img.src = u;
@@ -2566,7 +2893,9 @@
           description: descInput.value,
           printSettings: settingsInput.value,
           tags: tagsInput.value,
-          youtubeId: youtubeInput.value,
+          youtubeShorts: youtubeShorts,
+          youtubeVideos: youtubeVideos,
+          youtubeId: youtubeShorts[0] || youtubeVideos[0] || '',
           downloads: {
             makerworld: dlMakerworld.value.trim(),
             printables: dlPrintables.value.trim(),

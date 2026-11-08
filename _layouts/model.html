@@ -8,6 +8,22 @@ layout: default
   {% assign main_img = '/images/models/' | append: page.shortname | append: '/3d-model-' | append: page.shortname | append: '-main.webp' %}
 {% endif %}
 
+{% assign shorts_list = page.youtube_shorts | default: empty %}
+{% assign videos_list = page.youtube_videos | default: empty %}
+{% if shorts_list.size == 0 and videos_list.size == 0 and page.youtube_id and page.youtube_id != "" %}
+  {% assign fallback_videos = page.youtube_id | split: "," %}
+{% else %}
+  {% assign fallback_videos = empty %}
+{% endif %}
+{% assign has_gallery_photos = false %}
+{% if page.gallery_images and page.gallery_images.size > 0 %}
+  {% assign has_gallery_photos = true %}
+{% endif %}
+{% assign has_any_videos = false %}
+{% if shorts_list.size > 0 or videos_list.size > 0 or fallback_videos.size > 0 %}
+  {% assign has_any_videos = true %}
+{% endif %}
+
 <article class="model-detail container" id="model-detail-{{ page.slug }}">
   <nav class="breadcrumb" aria-label="Breadcrumb">
     <a href="{{ '/' | relative_url }}" id="breadcrumb-home">Catalog</a>
@@ -23,29 +39,41 @@ layout: default
   </nav>
 
   <div class="model-hero-grid">
-    <!-- Left Column: Main Showcase Image & Thumbnail Strip -->
+    <!-- Left Column: Main Showcase Stage & Thumbnail Strip (Photos + Shorts + Long Videos) -->
     <div class="model-media-column">
-      {% if main_img %}
+      {% if main_img or has_any_videos %}
         <figure class="model-main-stage" id="model-main-stage">
-          <img
-            id="active-showcase-image"
-            src="{{ main_img | relative_url }}"
-            alt="{{ page.title }} — 3D printed model main showcase"
-            width="1200"
-            height="1200"
-            decoding="async"
-            fetchpriority="high"
-            class="model-cover-image"
-          >
+          {% if main_img %}
+            <img
+              id="active-showcase-image"
+              src="{{ main_img | relative_url }}"
+              alt="{{ page.title }} — 3D printed model main showcase"
+              width="1200"
+              height="1200"
+              decoding="async"
+              fetchpriority="high"
+              class="model-cover-image"
+            >
+          {% endif %}
+          <div class="model-stage-video" id="active-showcase-video" style="display: none;">
+            <iframe
+              id="active-showcase-iframe"
+              src=""
+              title="{{ page.title }} — video player"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen
+            ></iframe>
+          </div>
         </figure>
       {% endif %}
 
-      {% if page.gallery_images and page.gallery_images.size > 0 %}
-        <div class="model-thumb-strip" role="list" aria-label="Model angles selector">
+      {% if has_gallery_photos or has_any_videos %}
+        <div class="model-thumb-strip" role="list" aria-label="Model photos and videos selector">
           {% if main_img %}
             <button
               type="button"
               class="thumb-selector is-selected"
+              data-media-type="image"
               data-full-src="{{ main_img | relative_url }}"
               data-full-alt="{{ page.title }} — main showcase"
               id="thumb-select-main"
@@ -61,10 +89,12 @@ layout: default
               >
             </button>
           {% endif %}
+
           {% for img_path in page.gallery_images %}
             <button
               type="button"
               class="thumb-selector"
+              data-media-type="image"
               data-full-src="{{ img_path | relative_url }}"
               data-full-alt="{{ page.title }} — gallery angle {{ forloop.index }}"
               id="thumb-select-angle-{{ forloop.index }}"
@@ -79,6 +109,87 @@ layout: default
                 decoding="async"
               >
             </button>
+          {% endfor %}
+
+          {% comment %} 1. YouTube Shorts first {% endcomment %}
+          {% for yt_short in shorts_list %}
+            {% assign clean_short_id = yt_short | strip %}
+            {% if clean_short_id != "" %}
+              <button
+                type="button"
+                class="thumb-selector thumb-video-selector is-short-video"
+                data-media-type="video"
+                data-video-id="{{ clean_short_id }}"
+                data-video-kind="short"
+                id="thumb-select-short-{{ forloop.index }}"
+                aria-label="Play YouTube Short {{ forloop.index }}"
+              >
+                <img
+                  src="https://i.ytimg.com/vi/{{ clean_short_id }}/hqdefault.jpg"
+                  alt="{{ page.title }} — YouTube Short {{ forloop.index }}"
+                  width="160"
+                  height="160"
+                  loading="lazy"
+                  decoding="async"
+                >
+                <span class="thumb-play-icon" aria-hidden="true">&#9654;</span>
+                <span class="thumb-video-badge is-short">SHORT</span>
+              </button>
+            {% endif %}
+          {% endfor %}
+
+          {% comment %} 2. Long-form YouTube Videos after Shorts {% endcomment %}
+          {% for yt_vid in videos_list %}
+            {% assign clean_vid_id = yt_vid | strip %}
+            {% if clean_vid_id != "" %}
+              <button
+                type="button"
+                class="thumb-selector thumb-video-selector"
+                data-media-type="video"
+                data-video-id="{{ clean_vid_id }}"
+                data-video-kind="video"
+                id="thumb-select-video-{{ forloop.index }}"
+                aria-label="Play video {{ forloop.index }}"
+              >
+                <img
+                  src="https://i.ytimg.com/vi/{{ clean_vid_id }}/hqdefault.jpg"
+                  alt="{{ page.title }} — video {{ forloop.index }}"
+                  width="160"
+                  height="160"
+                  loading="lazy"
+                  decoding="async"
+                >
+                <span class="thumb-play-icon" aria-hidden="true">&#9654;</span>
+                <span class="thumb-video-badge">VIDEO</span>
+              </button>
+            {% endif %}
+          {% endfor %}
+
+          {% comment %} Backwards-compatible fallback if only youtube_id is set {% endcomment %}
+          {% for yt_fallback in fallback_videos %}
+            {% assign clean_fb_id = yt_fallback | strip %}
+            {% if clean_fb_id != "" %}
+              <button
+                type="button"
+                class="thumb-selector thumb-video-selector"
+                data-media-type="video"
+                data-video-id="{{ clean_fb_id }}"
+                data-video-kind="video"
+                id="thumb-select-fallback-video-{{ forloop.index }}"
+                aria-label="Play video"
+              >
+                <img
+                  src="https://i.ytimg.com/vi/{{ clean_fb_id }}/hqdefault.jpg"
+                  alt="{{ page.title }} — video"
+                  width="160"
+                  height="160"
+                  loading="lazy"
+                  decoding="async"
+                >
+                <span class="thumb-play-icon" aria-hidden="true">&#9654;</span>
+                <span class="thumb-video-badge">VIDEO</span>
+              </button>
+            {% endif %}
           {% endfor %}
         </div>
       {% endif %}
@@ -246,40 +357,44 @@ layout: default
       </div>
     </section>
   {% endif %}
-
-  <!-- Conditional YouTube Embed -->
-  {% if page.youtube_id and page.youtube_id != "" %}
-    <section class="model-video-section" aria-labelledby="video-heading">
-      <div class="section-header">
-        <h2 class="section-title" id="video-heading">Build &amp; Assembly Video</h2>
-      </div>
-      <div class="video-embed-wrapper">
-        <iframe
-          src="https://www.youtube-nocookie.com/embed/{{ page.youtube_id }}"
-          title="{{ page.title }} — YouTube video player"
-          loading="lazy"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          allowfullscreen
-        ></iframe>
-      </div>
-    </section>
-  {% endif %}
 </article>
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     var mainImg = document.getElementById('active-showcase-image');
+    var videoContainer = document.getElementById('active-showcase-video');
+    var videoIframe = document.getElementById('active-showcase-iframe');
     var selectors = document.querySelectorAll('.thumb-selector');
-    if (!mainImg || !selectors.length) return;
+    if (!selectors.length) return;
 
     selectors.forEach(function (btn) {
       btn.addEventListener('click', function () {
-        var newSrc = btn.getAttribute('data-full-src');
-        var newAlt = btn.getAttribute('data-full-alt');
-        if (newSrc) {
-          mainImg.src = newSrc;
-          if (newAlt) mainImg.alt = newAlt;
+        var mediaType = btn.getAttribute('data-media-type') || 'image';
+
+        if (mediaType === 'video') {
+          var videoId = btn.getAttribute('data-video-id');
+          if (videoId && videoContainer && videoIframe) {
+            if (mainImg) mainImg.style.display = 'none';
+            videoContainer.style.display = 'block';
+            var embedUrl = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(videoId) + '?autoplay=1&rel=0';
+            if (videoIframe.getAttribute('src') !== embedUrl) {
+              videoIframe.setAttribute('src', embedUrl);
+            }
+          }
+        } else {
+          var newSrc = btn.getAttribute('data-full-src');
+          var newAlt = btn.getAttribute('data-full-alt');
+          if (videoContainer && videoIframe) {
+            videoIframe.setAttribute('src', '');
+            videoContainer.style.display = 'none';
+          }
+          if (mainImg) {
+            mainImg.style.display = 'block';
+            if (newSrc) mainImg.src = newSrc;
+            if (newAlt) mainImg.alt = newAlt;
+          }
         }
+
         selectors.forEach(function (b) { b.classList.remove('is-selected'); });
         btn.classList.add('is-selected');
       });
