@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>3D Model Catalog — Local Uploader & Git Publisher</title>
+  <title>3D Model Catalog — Local Uploader &amp; Model Editor</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -18,9 +18,11 @@
       --accent: hsl(16, 62%, 46%);
       --accent-hover: hsl(16, 66%, 38%);
       --accent-soft: hsl(16, 55%, 94%);
+      --edit-blue: hsl(214, 72%, 44%);
+      --edit-blue-soft: hsl(214, 80%, 95%);
       --border: hsl(32, 18%, 86%);
       --border-strong: hsl(28, 16%, 72%);
-      --success: hsl(150, 75%, 30%);
+      --success: hsl(150, 75%, 28%);
       --success-bg: hsl(150, 55%, 94%);
       --danger: hsl(0, 70%, 48%);
       --radius-sm: 8px;
@@ -48,7 +50,7 @@
     .topbar {
       background: var(--bg-card);
       border-bottom: 1px solid var(--border);
-      padding: 0.9rem 1.75rem;
+      padding: 0.85rem 1.75rem;
       position: sticky;
       top: 0;
       z-index: 30;
@@ -75,14 +77,35 @@
       clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);
     }
 
-    .topbar-badge {
-      font-family: var(--font-mono);
-      font-size: 0.75rem;
-      background: var(--accent-soft);
-      color: var(--accent);
-      padding: 0.25rem 0.65rem;
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-top {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: var(--bg-page);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      font-size: 0.83rem;
+      font-weight: 600;
+      padding: 0.45rem 0.9rem;
       border-radius: 999px;
-      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.16s ease;
+    }
+
+    .btn-top:hover {
+      border-color: var(--text-main);
+    }
+
+    .btn-top.is-active {
+      background: var(--text-main);
+      color: #fff;
+      border-color: var(--text-main);
     }
 
     .workspace {
@@ -120,6 +143,75 @@
       font-size: 0.86rem;
       color: var(--text-secondary);
       margin-bottom: 1.25rem;
+    }
+
+    /* Edit Mode Banner */
+    .edit-mode-banner {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      background: var(--edit-blue-soft);
+      border: 1px solid var(--edit-blue);
+      color: var(--text-main);
+      padding: 0.9rem 1.15rem;
+      border-radius: var(--radius-md);
+      margin-bottom: 1.25rem;
+    }
+
+    .edit-mode-banner.is-visible {
+      display: flex;
+    }
+
+    .edit-banner-label {
+      font-size: 0.88rem;
+    }
+
+    .edit-banner-label code {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      background: #fff;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+    }
+
+    /* Post-Upload Success Card */
+    .post-upload-card {
+      display: none;
+      background: var(--success-bg);
+      border: 2px solid var(--success);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 6px 20px -4px hsla(150, 60%, 20%, 0.12);
+    }
+
+    .post-upload-card.is-visible {
+      display: block;
+    }
+
+    .post-upload-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    .post-upload-title {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      color: var(--success);
+      margin-bottom: 0.25rem;
+    }
+
+    .post-upload-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      margin-top: 1rem;
     }
 
     .form-grid {
@@ -210,11 +302,10 @@
       border: 2px dashed var(--border-strong);
       border-radius: var(--radius-md);
       background: var(--bg-page);
-      padding: 2rem 1.25rem;
+      padding: 1.75rem 1.25rem;
       text-align: center;
       cursor: pointer;
       transition: border-color 0.18s ease, background-color 0.18s ease;
-      position: relative;
     }
 
     .paste-zone:hover,
@@ -244,7 +335,6 @@
       border: 1px solid var(--border);
       padding: 0.15rem 0.45rem;
       border-radius: 4px;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     }
 
     .fit-mode-bar {
@@ -400,9 +490,9 @@
       background: var(--accent);
       color: #fff;
       font-family: var(--font-sans);
-      font-size: 0.96rem;
+      font-size: 0.94rem;
       font-weight: 700;
-      padding: 0.8rem 1.5rem;
+      padding: 0.78rem 1.4rem;
       border-radius: var(--radius-sm);
       cursor: pointer;
       transition: background-color 0.16s ease, transform 0.16s ease;
@@ -418,22 +508,34 @@
       cursor: not-allowed;
     }
 
+    .btn-secondary {
+      appearance: none;
+      border: 1px solid var(--text-main);
+      background: var(--text-main);
+      color: #fff;
+      font-family: var(--font-sans);
+      font-size: 0.86rem;
+      font-weight: 600;
+      padding: 0.6rem 1.1rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+    }
+
     .btn-ghost {
       appearance: none;
       border: 1px solid var(--border);
       background: #fff;
-      color: var(--text-secondary);
+      color: var(--text-main);
       font-family: var(--font-sans);
-      font-size: 0.8rem;
+      font-size: 0.82rem;
       font-weight: 600;
-      padding: 0.3rem 0.65rem;
+      padding: 0.45rem 0.85rem;
       border-radius: 6px;
       cursor: pointer;
     }
 
     .btn-ghost:hover {
       border-color: var(--text-main);
-      color: var(--text-main);
     }
 
     .code-preview {
@@ -446,7 +548,7 @@
       overflow-x: auto;
       white-space: pre-wrap;
       word-break: break-word;
-      max-height: 360px;
+      max-height: 340px;
       overflow-y: auto;
     }
 
@@ -458,13 +560,6 @@
       font-size: 0.88rem;
     }
 
-    .status-box.is-success {
-      display: block;
-      background: var(--success-bg);
-      border: 1px solid var(--success);
-      color: var(--text-main);
-    }
-
     .status-box.is-error {
       display: block;
       background: hsl(0, 75%, 96%);
@@ -472,29 +567,58 @@
       color: var(--danger);
     }
 
-    .existing-models-list {
-      list-style: none;
+    /* Existing Models Cards List */
+    .existing-models-grid {
       display: flex;
       flex-direction: column;
-      gap: 0.45rem;
+      gap: 0.75rem;
     }
 
-    .existing-models-list li {
-      font-size: 0.83rem;
-      padding: 0.5rem 0.7rem;
-      background: var(--bg-page);
-      border: 1px solid var(--border);
-      border-radius: 6px;
+    .existing-model-card {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 0.5rem;
+      gap: 0.85rem;
+      padding: 0.7rem;
+      background: var(--bg-page);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      transition: border-color 0.16s ease, box-shadow 0.16s ease;
     }
 
-    .existing-models-list code {
+    .existing-model-card.is-editing {
+      border-color: var(--edit-blue);
+      background: var(--edit-blue-soft);
+    }
+
+    .existing-model-thumb {
+      width: 60px;
+      height: 60px;
+      border-radius: 6px;
+      object-fit: cover;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .existing-model-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .existing-model-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .existing-model-meta {
       font-family: var(--font-mono);
-      font-size: 0.74rem;
-      color: var(--accent);
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      margin-top: 0.15rem;
     }
   </style>
 </head>
@@ -504,206 +628,251 @@
       <span class="brand-hex" aria-hidden="true"></span>
       <span>Karen Chau Designs &mdash; 3D Model Catalog Admin</span>
     </div>
-    <span class="topbar-badge">Local Express + Canvas WebP + Auto Git Push</span>
+    <div class="topbar-actions">
+      <button type="button" class="btn-top is-active" id="btn-nav-new">+ Upload New Model</button>
+      <button type="button" class="btn-top" id="btn-nav-library">Existing Models (<span id="nav-model-count">0</span>)</button>
+    </div>
   </header>
 
   <main class="workspace">
-    <!-- Left Column: Model Metadata & Clipboard Image Paste Form -->
-    <form id="uploader-form" novalidate>
-      <!-- Section 1: Core Model Metadata -->
-      <section class="panel">
-        <h1 class="panel-title">1. Model Details &amp; Categorization</h1>
-        <p class="panel-subtitle">Enter the model title, category, description, and print settings.</p>
-
-        <div class="form-grid">
-          <div class="field">
-            <label for="model-name">
-              <span>Model Name *</span>
-              <span class="field-hint">YAML: title</span>
-            </label>
-            <input
-              type="text"
-              id="model-name"
-              required
-              placeholder="e.g., Baby Ducks | Multi-color 3mf | Free to a good home"
-            >
+    <!-- Left Column: Success Banner, Edit Banner, and Form -->
+    <div>
+      <!-- Post-Upload / Post-Update Success Card -->
+      <section class="post-upload-card" id="post-upload-card" aria-live="polite">
+        <div class="post-upload-header">
+          <div>
+            <h2 class="post-upload-title" id="post-upload-title">Model Published &amp; Pushed to GitHub!</h2>
+            <p style="font-size:0.9rem;color:var(--text-main);" id="post-upload-subtitle"></p>
           </div>
+        </div>
+        <div id="post-upload-files" style="font-family:var(--font-mono);font-size:0.76rem;margin-bottom:0.75rem;"></div>
+        <pre class="code-preview" id="post-upload-gitlog" style="max-height:160px;"></pre>
 
-          <div class="form-grid form-grid-2">
+        <div class="post-upload-actions">
+          <button type="button" class="btn-primary" id="btn-upload-another">+ Upload Another Model</button>
+          <button type="button" class="btn-secondary" id="btn-edit-just-saved">Edit This Model</button>
+          <button type="button" class="btn-ghost" id="btn-jump-existing">Browse Existing Models &darr;</button>
+        </div>
+      </section>
+
+      <!-- Edit Mode Indicator Banner -->
+      <div class="edit-mode-banner" id="edit-mode-banner">
+        <div class="edit-banner-label">
+          <strong>Editing Existing Model:</strong> <span id="edit-banner-title"></span>
+          <code id="edit-banner-file"></code>
+        </div>
+        <button type="button" class="btn-ghost" id="btn-cancel-edit">+ Switch to Upload New Model</button>
+      </div>
+
+      <form id="uploader-form" novalidate>
+        <!-- Section 1: Core Model Metadata -->
+        <section class="panel">
+          <h1 class="panel-title" id="form-main-heading">1. Upload a New 3D Model</h1>
+          <p class="panel-subtitle" id="form-main-subheading">Enter the model title, category, description, and print settings.</p>
+
+          <div class="form-grid">
             <div class="field">
-              <label for="model-shortname">
-                <span>Model Shortname (SEO Slug) *</span>
-                <span class="field-hint">Used in filenames</span>
+              <label for="model-name">
+                <span>Model Name *</span>
+                <span class="field-hint">YAML: title</span>
               </label>
               <input
                 type="text"
-                id="model-shortname"
-                class="mono-input"
+                id="model-name"
                 required
-                placeholder="e.g., baby-ducks"
+                placeholder="e.g., Baby Ducks | Multi-color 3mf | Free to a good home"
               >
             </div>
 
+            <div class="form-grid form-grid-2">
+              <div class="field">
+                <label for="model-shortname">
+                  <span>Model Shortname (SEO Slug) *</span>
+                  <span class="field-hint">Used in filenames</span>
+                </label>
+                <input
+                  type="text"
+                  id="model-shortname"
+                  class="mono-input"
+                  required
+                  placeholder="e.g., baby-ducks"
+                >
+              </div>
+
+              <div class="field">
+                <label for="model-category">
+                  <span>Catalog Category *</span>
+                  <span class="field-hint">YAML: category</span>
+                </label>
+                <select id="model-category">
+                  <option value="useful-prints">Useful Prints (useful-prints)</option>
+                  <option value="gifts-decor">Gifts &amp; Decor (gifts-decor)</option>
+                  <option value="seasonal">Seasonal (seasonal)</option>
+                  <option value="fan-favorites">Fan Favorites (fan-favorites)</option>
+                </select>
+              </div>
+            </div>
+
             <div class="field">
-              <label for="model-category">
-                <span>Catalog Category *</span>
-                <span class="field-hint">YAML: category</span>
+              <label for="model-description">
+                <span>Description (Markdown supported)</span>
+                <span class="field-hint">Markdown body</span>
               </label>
-              <select id="model-category">
-                <option value="useful-prints">Useful Prints (useful-prints)</option>
-                <option value="gifts-decor">Gifts &amp; Decor (gifts-decor)</option>
-                <option value="seasonal">Seasonal (seasonal)</option>
-                <option value="fan-favorites">Fan Favorites (fan-favorites)</option>
-              </select>
+              <textarea
+                id="model-description"
+                rows="4"
+                placeholder="Describe the model, how it prints, and any special features..."
+              ></textarea>
+            </div>
+
+            <div class="field">
+              <label for="model-print-settings">
+                <span>Print Settings</span>
+                <button type="button" class="btn-ghost" id="btn-fill-settings">+ Insert Default Template</button>
+              </label>
+              <textarea
+                id="model-print-settings"
+                rows="4"
+                placeholder="- **Supports:** None&#10;- **Layer Height:** 0.20 mm&#10;- **Infill:** 15% Gyroid"
+              ></textarea>
+            </div>
+
+            <div class="field">
+              <label for="model-tags">
+                <span>Tags (comma-separated)</span>
+                <span class="field-hint">YAML: tags list</span>
+              </label>
+              <input
+                type="text"
+                id="model-tags"
+                placeholder="e.g., duck, rubber duck, decor, yellow, multicolor, cute"
+              >
+              <div class="tag-preview-row" id="tag-preview-row"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section 2: Clipboard Image Paste Zone & Canvas WebP Generator -->
+        <section class="panel">
+          <h2 class="panel-title">2. Clipboard Image Paste-Zone (Auto WebP)</h2>
+          <p class="panel-subtitle" id="image-section-subtitle">
+            Copy any image and press <span class="kbd-pill">Ctrl+V</span> / <span class="kbd-pill">&#8984;+V</span> anywhere on this page (or click/drop files below). The first/main image generates the <strong>1200&times;1200px Main</strong> and <strong>600&times;600px Thumbnail</strong> WebP files; additional images generate <strong>1000&times;1000px Gallery Angle</strong> WebP files.
+          </p>
+
+          <div
+            class="paste-zone"
+            id="paste-zone"
+            tabindex="0"
+            role="button"
+            aria-label="Paste image from clipboard or click to select image files"
+          >
+            <p class="paste-zone-title">Paste Image from Clipboard (<span class="kbd-pill">Ctrl+V</span> / <span class="kbd-pill">&#8984;+V</span>)</p>
+            <p class="paste-zone-desc">Or drag &amp; drop images here, or click to browse files from disk</p>
+            <input type="file" id="file-picker" accept="image/*" multiple style="display:none">
+            <button type="button" class="btn-ghost" id="btn-browse-files">Choose Image Files&hellip;</button>
+          </div>
+
+          <div class="fit-mode-bar">
+            <span><strong>Square Framing Mode:</strong></span>
+            <label style="display:inline-flex;align-items:center;gap:0.4rem;cursor:pointer;">
+              <input type="radio" name="fit-mode" value="contain-blur" checked>
+              <span>Preserve Full Image + Ambient Blur Backdrop (No cropping)</span>
+            </label>
+            <label style="display:inline-flex;align-items:center;gap:0.4rem;cursor:pointer;">
+              <input type="radio" name="fit-mode" value="cover">
+              <span>1:1 Center Crop (Fill square)</span>
+            </label>
+          </div>
+
+          <div class="source-list" id="source-images-list"></div>
+        </section>
+
+        <!-- Section 3: Download Links & YouTube Embed -->
+        <section class="panel">
+          <h2 class="panel-title">3. Download Links &amp; YouTube Video</h2>
+          <p class="panel-subtitle">Only platforms with links provided will render download buttons on the model page.</p>
+
+          <div class="form-grid form-grid-2">
+            <div class="field">
+              <label for="dl-makerworld">
+                <span>MakerWorld URL</span>
+                <span class="field-hint">downloads.makerworld</span>
+              </label>
+              <input type="url" id="dl-makerworld" placeholder="https://makerworld.com/en/models/...">
+            </div>
+
+            <div class="field">
+              <label for="dl-printables">
+                <span>Printables URL</span>
+                <span class="field-hint">downloads.printables</span>
+              </label>
+              <input type="url" id="dl-printables" placeholder="https://www.printables.com/model/...">
+            </div>
+
+            <div class="field">
+              <label for="dl-thangs">
+                <span>Thangs URL</span>
+                <span class="field-hint">downloads.thangs</span>
+              </label>
+              <input type="url" id="dl-thangs" placeholder="https://thangs.com/designer/...">
+            </div>
+
+            <div class="field">
+              <label for="dl-cults3d">
+                <span>Cults3D URL</span>
+                <span class="field-hint">downloads.cults3d</span>
+              </label>
+              <input type="url" id="dl-cults3d" placeholder="https://cults3d.com/en/3d-model/...">
             </div>
           </div>
 
-          <div class="field">
-            <label for="model-description">
-              <span>Description (Markdown supported)</span>
-              <span class="field-hint">Markdown body</span>
-            </label>
-            <textarea
-              id="model-description"
-              rows="4"
-              placeholder="Describe the model, how it prints, and any special features..."
-            ></textarea>
-          </div>
-
-          <div class="field">
-            <label for="model-print-settings">
-              <span>Print Settings</span>
-              <button type="button" class="btn-ghost" id="btn-fill-settings">+ Insert Default Template</button>
-            </label>
-            <textarea
-              id="model-print-settings"
-              rows="4"
-              placeholder="- **Supports:** None&#10;- **Layer Height:** 0.20 mm&#10;- **Infill:** 15% Gyroid"
-            ></textarea>
-          </div>
-
-          <div class="field">
-            <label for="model-tags">
-              <span>Tags (comma-separated)</span>
-              <span class="field-hint">YAML: tags list</span>
+          <div class="field" style="margin-top: 1rem;">
+            <label for="model-youtube-id">
+              <span>YouTube Video ID (or full YouTube URL)</span>
+              <span class="field-hint">YAML: youtube_id</span>
             </label>
             <input
               type="text"
-              id="model-tags"
-              placeholder="e.g., duck, rubber duck, decor, yellow, multicolor, cute"
+              id="model-youtube-id"
+              placeholder="e.g., M7lc1UVf-VE or https://www.youtube.com/watch?v=M7lc1UVf-VE"
             >
-            <div class="tag-preview-row" id="tag-preview-row"></div>
           </div>
-        </div>
-      </section>
 
-      <!-- Section 2: Clipboard Image Paste Zone & Canvas WebP Generator -->
-      <section class="panel">
-        <h2 class="panel-title">2. Clipboard Image Paste-Zone (Auto WebP)</h2>
-        <p class="panel-subtitle">
-          Copy any image and press <span class="kbd-pill">Ctrl+V</span> / <span class="kbd-pill">&#8984;+V</span> anywhere on this page (or click/drop files below). The first/main image generates the <strong>1200&times;1200px Main</strong> and <strong>600&times;600px Thumbnail</strong> WebP files; additional images generate <strong>1000&times;1000px Gallery Angle</strong> WebP files.
-        </p>
-
-        <div
-          class="paste-zone"
-          id="paste-zone"
-          tabindex="0"
-          role="button"
-          aria-label="Paste image from clipboard or click to select image files"
-        >
-          <p class="paste-zone-title">Paste Image from Clipboard (<span class="kbd-pill">Ctrl+V</span> / <span class="kbd-pill">&#8984;+V</span>)</p>
-          <p class="paste-zone-desc">Or drag &amp; drop images here, or click to browse files from disk</p>
-          <input type="file" id="file-picker" accept="image/*" multiple style="display:none">
-          <button type="button" class="btn-ghost" id="btn-browse-files">Choose Image Files&hellip;</button>
-        </div>
-
-        <div class="fit-mode-bar">
-          <span><strong>Square Framing Mode:</strong></span>
-          <label style="display:inline-flex;align-items:center;gap:0.4rem;cursor:pointer;">
-            <input type="radio" name="fit-mode" value="contain-blur" checked>
-            <span>Preserve Full Image + Ambient Blur Backdrop (No cropping)</span>
-          </label>
-          <label style="display:inline-flex;align-items:center;gap:0.4rem;cursor:pointer;">
-            <input type="radio" name="fit-mode" value="cover">
-            <span>1:1 Center Crop (Fill square)</span>
-          </label>
-        </div>
-
-        <div class="source-list" id="source-images-list"></div>
-      </section>
-
-      <!-- Section 3: Download Links & YouTube Embed -->
-      <section class="panel">
-        <h2 class="panel-title">3. Download Links &amp; YouTube Video</h2>
-        <p class="panel-subtitle">Only platforms with links provided will render download buttons on the model page.</p>
-
-        <div class="form-grid form-grid-2">
-          <div class="field">
-            <label for="dl-makerworld">
-              <span>MakerWorld URL</span>
-              <span class="field-hint">downloads.makerworld</span>
+          <div class="submit-row">
+            <label style="display:inline-flex;align-items:center;gap:0.5rem;font-size:0.88rem;font-weight:500;cursor:pointer;">
+              <input type="checkbox" id="auto-deploy-checkbox" checked>
+              <span>Auto-run <code>git add .</code>, <code>git commit</code>, and <code>git push</code></span>
             </label>
-            <input type="url" id="dl-makerworld" placeholder="https://makerworld.com/en/models/...">
+
+            <div style="display:flex;gap:0.65rem;flex-wrap:wrap;">
+              <button type="button" class="btn-ghost" id="btn-reset-form">Clear / Reset Form</button>
+              <button type="submit" class="btn-primary" id="btn-submit-model">
+                Save Model &amp; Push to GitHub &rarr;
+              </button>
+            </div>
           </div>
 
-          <div class="field">
-            <label for="dl-printables">
-              <span>Printables URL</span>
-              <span class="field-hint">downloads.printables</span>
-            </label>
-            <input type="url" id="dl-printables" placeholder="https://www.printables.com/model/...">
-          </div>
+          <div class="status-box" id="status-box"></div>
+        </section>
+      </form>
+    </div>
 
-          <div class="field">
-            <label for="dl-thangs">
-              <span>Thangs URL</span>
-              <span class="field-hint">downloads.thangs</span>
-            </label>
-            <input type="url" id="dl-thangs" placeholder="https://thangs.com/designer/...">
-          </div>
-
-          <div class="field">
-            <label for="dl-cults3d">
-              <span>Cults3D URL</span>
-              <span class="field-hint">downloads.cults3d</span>
-            </label>
-            <input type="url" id="dl-cults3d" placeholder="https://cults3d.com/en/3d-model/...">
-          </div>
-        </div>
-
-        <div class="field" style="margin-top: 1rem;">
-          <label for="model-youtube-id">
-            <span>YouTube Video ID (or full YouTube URL)</span>
-            <span class="field-hint">YAML: youtube_id</span>
-          </label>
-          <input
-            type="text"
-            id="model-youtube-id"
-            placeholder="e.g., M7lc1UVf-VE or https://www.youtube.com/watch?v=M7lc1UVf-VE"
-          >
-        </div>
-
-        <div class="submit-row">
-          <label style="display:inline-flex;align-items:center;gap:0.5rem;font-size:0.88rem;font-weight:500;cursor:pointer;">
-            <input type="checkbox" id="auto-deploy-checkbox" checked>
-            <span>Auto-run <code>git add .</code>, <code>git commit -m "Add [model name]"</code>, and <code>git push</code></span>
-          </label>
-
-          <button type="submit" class="btn-primary" id="btn-submit-model">
-            Save Model &amp; Push to GitHub &rarr;
-          </button>
-        </div>
-
-        <div class="status-box" id="status-box"></div>
-      </section>
-    </form>
-
-    <!-- Right Column: Live WebP Outputs & Generated Jekyll Markdown Preview -->
+    <!-- Right Column: Existing Models Library, WebP Preview, & Live Markdown Preview -->
     <aside>
+      <!-- Existing Models Library with Edit Buttons -->
+      <section class="panel" id="existing-models-section">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.25rem;">
+          <h2 class="panel-title">Existing Catalog Models (<code>_models/</code>)</h2>
+          <button type="button" class="btn-ghost" id="btn-new-from-library" style="font-size:0.76rem;padding:0.28rem 0.65rem;">+ New Model</button>
+        </div>
+        <p class="panel-subtitle">Click <strong>Edit</strong> on any model to load its details, links, tags, and images into the editor:</p>
+        <div class="existing-models-grid" id="existing-models-list"></div>
+      </section>
+
       <section class="panel">
         <h2 class="panel-title">Generated WebP Assets Preview</h2>
         <p class="panel-subtitle">
-          Client-side Canvas WebP conversions ready to save into <code id="target-folder-label">/images/models/[shortname]/</code>:
+          Target directory: <code id="target-folder-label">/images/models/[shortname]/</code>
         </p>
         <div class="webp-output-list" id="webp-output-list">
           <p style="font-size:0.85rem;color:var(--text-muted);">Paste or select an image to preview the 1200&times;1200, 600&times;600, and 1000&times;1000 WebP outputs.</p>
@@ -714,12 +883,6 @@
         <h2 class="panel-title">Live Jekyll Markdown Preview</h2>
         <p class="panel-subtitle">Target file: <code id="target-md-label">/_models/[shortname].md</code></p>
         <pre class="code-preview" id="markdown-live-preview"></pre>
-      </section>
-
-      <section class="panel">
-        <h2 class="panel-title">Existing Catalog Models (<code>_models/</code>)</h2>
-        <p class="panel-subtitle">Currently published Markdown files in your repository:</p>
-        <ul class="existing-models-list" id="existing-models-list"></ul>
       </section>
     </aside>
   </main>
@@ -751,13 +914,38 @@
       var mdPreviewEl = document.getElementById('markdown-live-preview');
       var formEl = document.getElementById('uploader-form');
       var submitBtn = document.getElementById('btn-submit-model');
+      var resetBtn = document.getElementById('btn-reset-form');
       var statusBox = document.getElementById('status-box');
       var existingModelsList = document.getElementById('existing-models-list');
+      var navModelCount = document.getElementById('nav-model-count');
+
+      var postUploadCard = document.getElementById('post-upload-card');
+      var postUploadTitle = document.getElementById('post-upload-title');
+      var postUploadSubtitle = document.getElementById('post-upload-subtitle');
+      var postUploadFiles = document.getElementById('post-upload-files');
+      var postUploadGitlog = document.getElementById('post-upload-gitlog');
+      var btnUploadAnother = document.getElementById('btn-upload-another');
+      var btnEditJustSaved = document.getElementById('btn-edit-just-saved');
+      var btnJumpExisting = document.getElementById('btn-jump-existing');
+
+      var editBanner = document.getElementById('edit-mode-banner');
+      var editBannerTitle = document.getElementById('edit-banner-title');
+      var editBannerFile = document.getElementById('edit-banner-file');
+      var btnCancelEdit = document.getElementById('btn-cancel-edit');
+      var btnNavNew = document.getElementById('btn-nav-new');
+      var btnNavLibrary = document.getElementById('btn-nav-library');
+      var btnNewFromLibrary = document.getElementById('btn-new-from-library');
+      var formMainHeading = document.getElementById('form-main-heading');
+      var formMainSubheading = document.getElementById('form-main-subheading');
 
       var shortnameManuallyEdited = false;
-      // Array of { id, imgElement, originalUrl, width, height }
+      var editingSlug = null;
+      var editingModelData = null;
+      var lastSavedSlug = null;
+      var catalogModelsCache = [];
+
+      // Array of { id, imgElement, originalUrl }
       var sourceImages = [];
-      // Processed WebP data URLs
       var generatedWebP = {
         main: null,
         thumb: null,
@@ -790,10 +978,6 @@
         return checked ? checked.value : 'contain-blur';
       }
 
-      /**
-       * Convert an HTMLImageElement to a square WebP dataURL of targetSize x targetSize
-       * using the browser Canvas API
-       */
       function renderSquareWebP(imgEl, targetSize, quality, fitMode) {
         var canvas = document.createElement('canvas');
         canvas.width = targetSize;
@@ -804,38 +988,30 @@
         var srcH = imgEl.naturalHeight || imgEl.height;
 
         if (fitMode === 'cover' || srcW === srcH) {
-          // 1:1 Center Crop
           var scale = Math.max(targetSize / srcW, targetSize / srcH);
           var drawW = srcW * scale;
           var drawH = srcH * scale;
-          var offsetX = (targetSize - drawW) / 2;
-          var offsetY = (targetSize - drawH) / 2;
-          ctx.drawImage(imgEl, offsetX, offsetY, drawW, drawH);
+          ctx.drawImage(imgEl, (targetSize - drawW) / 2, (targetSize - drawH) / 2, drawW, drawH);
         } else {
-          // Contain + Ambient Blurred Backdrop (preserves entire non-square photo)
           ctx.save();
           var bgScale = Math.max(targetSize / srcW, targetSize / srcH) * 1.12;
           var bgW = srcW * bgScale;
           var bgH = srcH * bgScale;
-          var bgX = (targetSize - bgW) / 2;
-          var bgY = (targetSize - bgH) / 2;
           ctx.filter = 'blur(' + Math.round(targetSize * 0.025) + 'px) brightness(0.92)';
-          ctx.drawImage(imgEl, bgX, bgY, bgW, bgH);
+          ctx.drawImage(imgEl, (targetSize - bgW) / 2, (targetSize - bgH) / 2, bgW, bgH);
           ctx.restore();
 
           var fgScale = Math.min(targetSize / srcW, targetSize / srcH);
           var fgW = srcW * fgScale;
           var fgH = srcH * fgScale;
-          var fgX = (targetSize - fgW) / 2;
-          var fgY = (targetSize - fgH) / 2;
-          ctx.drawImage(imgEl, fgX, fgY, fgW, fgH);
+          ctx.drawImage(imgEl, (targetSize - fgW) / 2, (targetSize - fgH) / 2, fgW, fgH);
         }
 
         return canvas.toDataURL('image/webp', quality);
       }
 
       function approxKilobytes(dataUrl) {
-        if (!dataUrl) return 0;
+        if (!dataUrl || dataUrl.indexOf(',') === -1) return 0;
         var base64Length = dataUrl.split(',')[1].length;
         var byteLength = (base64Length * 3) / 4;
         return Math.round(byteLength / 102.4) / 10;
@@ -845,29 +1021,42 @@
         var shortname = getShortname();
         var fitMode = getFitMode();
         targetFolderLabel.textContent = '/images/models/' + shortname + '/';
-        targetMdLabel.textContent = '/_models/' + shortname + '.md';
+        targetMdLabel.textContent = '/_models/' + (editingSlug || shortname) + '.md';
 
         if (sourceImages.length === 0) {
           generatedWebP.main = null;
           generatedWebP.thumb = null;
           generatedWebP.gallery = [];
-          webpOutputListEl.innerHTML =
-            '<p style="font-size:0.85rem;color:var(--text-muted);">Paste or select an image to preview the 1200&times;1200, 600&times;600, and 1000&times;1000 WebP outputs.</p>';
+
+          if (editingModelData && editingModelData.cover_image) {
+            webpOutputListEl.innerHTML =
+              '<div class="webp-item">' +
+              '<img src="' + editingModelData.cover_image + '" alt="Current cover">' +
+              '<div class="webp-item-meta">' +
+              '<div class="webp-item-path">' + editingModelData.cover_image + '</div>' +
+              '<div class="webp-item-spec">Current Main Image (Kept unless you paste a replacement)</div>' +
+              '</div></div>' +
+              '<div class="webp-item">' +
+              '<img src="' + (editingModelData.thumbnail_image || editingModelData.cover_image) + '" alt="Current thumb">' +
+              '<div class="webp-item-meta">' +
+              '<div class="webp-item-path">' + (editingModelData.thumbnail_image || '') + '</div>' +
+              '<div class="webp-item-spec">Current 600&times;600 Thumbnail</div>' +
+              '</div></div>';
+          } else {
+            webpOutputListEl.innerHTML =
+              '<p style="font-size:0.85rem;color:var(--text-muted);">Paste or select an image to preview the 1200&times;1200, 600&times;600, and 1000&times;1000 WebP outputs.</p>';
+          }
           updateMarkdownPreview();
           return;
         }
 
-        // First image is Main Showcase (1200x1200) + Model Thumbnail (600x600)
         var primary = sourceImages[0].imgElement;
         generatedWebP.main = renderSquareWebP(primary, 1200, 0.88, fitMode);
         generatedWebP.thumb = renderSquareWebP(primary, 600, 0.85, fitMode);
-
-        // Additional images (index >= 1) become 1000x1000 Gallery Angles
         generatedWebP.gallery = sourceImages.slice(1).map(function (item) {
           return renderSquareWebP(item.imgElement, 1000, 0.86, fitMode);
         });
 
-        // Render preview cards
         var itemsHtml = '';
         itemsHtml +=
           '<div class="webp-item">' +
@@ -875,8 +1064,7 @@
           '<div class="webp-item-meta">' +
           '<div class="webp-item-path">/images/models/' + shortname + '/3d-model-' + shortname + '-main.webp</div>' +
           '<div class="webp-item-spec">Main Showcase &middot; <strong>1200&times;1200px</strong> WebP &middot; ~' + approxKilobytes(generatedWebP.main) + ' KB</div>' +
-          '</div>' +
-          '</div>';
+          '</div></div>';
 
         itemsHtml +=
           '<div class="webp-item">' +
@@ -884,8 +1072,7 @@
           '<div class="webp-item-meta">' +
           '<div class="webp-item-path">/images/models/' + shortname + '/3d-model-' + shortname + '-thumb.webp</div>' +
           '<div class="webp-item-spec">Model Thumbnail &middot; <strong>600&times;600px</strong> WebP &middot; ~' + approxKilobytes(generatedWebP.thumb) + ' KB</div>' +
-          '</div>' +
-          '</div>';
+          '</div></div>';
 
         generatedWebP.gallery.forEach(function (gDataUrl, idx) {
           var angleNum = idx + 1;
@@ -895,8 +1082,7 @@
             '<div class="webp-item-meta">' +
             '<div class="webp-item-path">/images/models/' + shortname + '/3d-model-' + shortname + '-angle' + angleNum + '.webp</div>' +
             '<div class="webp-item-spec">Gallery Angle ' + angleNum + ' &middot; <strong>1000&times;1000px</strong> WebP &middot; ~' + approxKilobytes(gDataUrl) + ' KB</div>' +
-            '</div>' +
-            '</div>';
+            '</div></div>';
         });
 
         webpOutputListEl.innerHTML = itemsHtml;
@@ -943,28 +1129,30 @@
         }
       });
 
+      function addImageFromUrl(url) {
+        if (!url) return;
+        var img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = function () {
+          sourceImages.push({
+            id: Date.now() + '-' + Math.random(),
+            imgElement: img,
+            originalUrl: url
+          });
+          renderSourceCards();
+        };
+        img.src = url;
+      }
+
       function addImageBlob(fileOrBlob) {
         if (!fileOrBlob || !fileOrBlob.type || fileOrBlob.type.indexOf('image/') !== 0) return;
         var reader = new FileReader();
         reader.onload = function (evt) {
-          var dataUrl = evt.target.result;
-          var img = new Image();
-          img.onload = function () {
-            sourceImages.push({
-              id: Date.now() + '-' + Math.random(),
-              imgElement: img,
-              originalUrl: dataUrl,
-              width: img.naturalWidth,
-              height: img.naturalHeight
-            });
-            renderSourceCards();
-          };
-          img.src = dataUrl;
+          addImageFromUrl(evt.target.result);
         };
         reader.readAsDataURL(fileOrBlob);
       }
 
-      // Listen for Clipboard Paste anywhere on the window
       window.addEventListener('paste', function (e) {
         var clipboardData = e.clipboardData || window.clipboardData;
         if (!clipboardData || !clipboardData.items) return;
@@ -984,7 +1172,6 @@
         }
       });
 
-      // Drag and drop & file picker support on pasteZone
       btnBrowse.addEventListener('click', function (e) {
         e.stopPropagation();
         filePicker.click();
@@ -1017,7 +1204,7 @@
       });
 
       nameInput.addEventListener('input', function () {
-        if (!shortnameManuallyEdited) {
+        if (!shortnameManuallyEdited && !editingSlug) {
           shortnameInput.value = slugifyShortname(nameInput.value);
         }
         rebuildWebPAssets();
@@ -1028,7 +1215,7 @@
         rebuildWebPAssets();
       });
 
-      tagsInput.addEventListener('input', function () {
+      function renderTagPills() {
         var tags = tagsInput.value
           .split(',')
           .map(function (t) { return t.trim(); })
@@ -1036,6 +1223,10 @@
         tagPreviewRow.innerHTML = tags
           .map(function (t) { return '<span class="tag-chip">#' + t + '</span>'; })
           .join('');
+      }
+
+      tagsInput.addEventListener('input', function () {
+        renderTagPills();
         updateMarkdownPreview();
       });
 
@@ -1067,8 +1258,14 @@
         var title = nameInput.value.trim() || 'Untitled 3D Model';
         var shortname = getShortname();
         var category = categorySelect.value;
-        var thumbPath = '/images/models/' + shortname + '/3d-model-' + shortname + '-thumb.webp';
-        var mainPath = '/images/models/' + shortname + '/3d-model-' + shortname + '-main.webp';
+        var thumbPath =
+          !generatedWebP.thumb && editingModelData && editingModelData.thumbnail_image
+            ? editingModelData.thumbnail_image
+            : '/images/models/' + shortname + '/3d-model-' + shortname + '-thumb.webp';
+        var mainPath =
+          !generatedWebP.main && editingModelData && editingModelData.cover_image
+            ? editingModelData.cover_image
+            : '/images/models/' + shortname + '/3d-model-' + shortname + '-main.webp';
 
         var lines = [
           '---',
@@ -1079,12 +1276,19 @@
           'cover_image: ' + yamlEscape(mainPath)
         ];
 
+        var galleryPaths = [];
         if (generatedWebP.gallery.length > 0) {
-          lines.push('gallery_images:');
           generatedWebP.gallery.forEach(function (_, idx) {
-            lines.push(
-              '  - ' + yamlEscape('/images/models/' + shortname + '/3d-model-' + shortname + '-angle' + (idx + 1) + '.webp')
-            );
+            galleryPaths.push('/images/models/' + shortname + '/3d-model-' + shortname + '-angle' + (idx + 1) + '.webp');
+          });
+        } else if (sourceImages.length === 0 && editingModelData && Array.isArray(editingModelData.gallery_images)) {
+          galleryPaths = editingModelData.gallery_images;
+        }
+
+        if (galleryPaths.length > 0) {
+          lines.push('gallery_images:');
+          galleryPaths.forEach(function (p) {
+            lines.push('  - ' + yamlEscape(p));
           });
         } else {
           lines.push('gallery_images: []');
@@ -1129,28 +1333,197 @@
         mdPreviewEl.textContent = lines.join('\n');
       }
 
-      function fetchExistingModels() {
+      /**
+       * Reset form to fresh "Upload New Model" state
+       */
+      function resetToNewModel(hideSuccessCard) {
+        editingSlug = null;
+        editingModelData = null;
+        shortnameManuallyEdited = false;
+
+        nameInput.value = '';
+        shortnameInput.value = '';
+        categorySelect.value = 'useful-prints';
+        descInput.value = '';
+        settingsInput.value = '';
+        tagsInput.value = '';
+        youtubeInput.value = '';
+        dlMakerworld.value = '';
+        dlPrintables.value = '';
+        dlThangs.value = '';
+        dlCults3d.value = '';
+        tagPreviewRow.innerHTML = '';
+
+        sourceImages = [];
+        editBanner.classList.remove('is-visible');
+        statusBox.className = 'status-box';
+        statusBox.innerHTML = '';
+
+        if (hideSuccessCard !== false) {
+          postUploadCard.classList.remove('is-visible');
+        }
+
+        formMainHeading.textContent = '1. Upload a New 3D Model';
+        formMainSubheading.textContent = 'Enter the model title, category, description, and print settings.';
+        submitBtn.textContent = 'Save Model & Push to GitHub →';
+
+        if (window.history && window.history.replaceState) {
+          window.history.replaceState({}, '', window.location.pathname);
+        }
+
+        renderSourceCards();
+        renderExistingModelsList();
+      }
+
+      /**
+       * Load an existing model into Edit Mode
+       */
+      function openEditModel(slug) {
+        fetch('/api/models/' + encodeURIComponent(slug))
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            if (!data.model) return;
+            var m = data.model;
+            editingSlug = m.slug;
+            editingModelData = m;
+            shortnameManuallyEdited = true;
+
+            postUploadCard.classList.remove('is-visible');
+            statusBox.className = 'status-box';
+            statusBox.innerHTML = '';
+
+            nameInput.value = m.title || '';
+            shortnameInput.value = m.shortname || m.slug || '';
+            categorySelect.value = m.category || 'useful-prints';
+            descInput.value = m.description || '';
+            settingsInput.value = m.printSettings || '';
+            tagsInput.value = Array.isArray(m.tags) ? m.tags.join(', ') : '';
+            youtubeInput.value = m.youtube_id || '';
+            dlMakerworld.value = (m.downloads && m.downloads.makerworld) || '';
+            dlPrintables.value = (m.downloads && m.downloads.printables) || '';
+            dlThangs.value = (m.downloads && m.downloads.thangs) || '';
+            dlCults3d.value = (m.downloads && m.downloads.cults3d) || '';
+
+            renderTagPills();
+
+            editBannerTitle.textContent = m.title;
+            editBannerFile.textContent = '_models/' + m.filename;
+            editBanner.classList.add('is-visible');
+
+            formMainHeading.textContent = '1. Edit Model: ' + m.title;
+            formMainSubheading.textContent = 'Modify any details below and click "Save Changes & Push Update to GitHub".';
+            submitBtn.textContent = 'Save Changes & Push Update to GitHub →';
+
+            // Load existing cover image + gallery images into the editor so the user can view/reorder/add/replace them
+            sourceImages = [];
+            renderSourceCards();
+            if (m.cover_image) {
+              addImageFromUrl(m.cover_image);
+            }
+            if (Array.isArray(m.gallery_images)) {
+              m.gallery_images.forEach(function (gPath) {
+                addImageFromUrl(gPath);
+              });
+            }
+
+            if (window.history && window.history.replaceState) {
+              window.history.replaceState({}, '', '?edit=' + encodeURIComponent(m.slug));
+            }
+
+            renderExistingModelsList();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          })
+          .catch(function (err) {
+            statusBox.className = 'status-box is-error';
+            statusBox.textContent = 'Could not load model for editing: ' + err.message;
+          });
+      }
+
+      function renderExistingModelsList() {
+        navModelCount.textContent = catalogModelsCache.length;
+        if (!catalogModelsCache.length) {
+          existingModelsList.innerHTML = '<p style="font-size:0.84rem;color:var(--text-muted);">No models found in <code>_models/</code>.</p>';
+          return;
+        }
+
+        existingModelsList.innerHTML = catalogModelsCache
+          .map(function (m) {
+            var isCurrentEdit = editingSlug === m.slug;
+            var thumbUrl = m.thumbnail_image || m.cover_image || '';
+            return (
+              '<div class="existing-model-card' + (isCurrentEdit ? ' is-editing' : '') + '">' +
+              (thumbUrl
+                ? '<img src="' + thumbUrl + '" class="existing-model-thumb" alt="' + (m.title || m.slug) + '">'
+                : '<div class="existing-model-thumb"></div>') +
+              '<div class="existing-model-info">' +
+              '<div class="existing-model-title" title="' + (m.title || '') + '">' + (m.title || m.slug) + '</div>' +
+              '<div class="existing-model-meta"><code>_models/' + m.filename + '</code> &middot; ' + (m.category || 'useful-prints') + '</div>' +
+              '</div>' +
+              '<button type="button" class="btn-ghost btn-edit-model" data-slug="' + m.slug + '">' +
+              (isCurrentEdit ? 'Editing&hellip;' : 'Edit Model') +
+              '</button>' +
+              '</div>'
+            );
+          })
+          .join('');
+      }
+
+      existingModelsList.addEventListener('click', function (e) {
+        var btn = e.target.closest('.btn-edit-model');
+        if (!btn) return;
+        var slug = btn.getAttribute('data-slug');
+        if (slug) openEditModel(slug);
+      });
+
+      function fetchExistingModels(cb) {
         fetch('/api/models')
           .then(function (r) { return r.json(); })
           .then(function (data) {
-            if (!data.models || !data.models.length) {
-              existingModelsList.innerHTML = '<li>No models found.</li>';
-              return;
-            }
-            existingModelsList.innerHTML = data.models
-              .map(function (m) {
-                return (
-                  '<li><span>' +
-                  m.title +
-                  '</span><code>_models/' +
-                  m.filename +
-                  '</code></li>'
-                );
-              })
-              .join('');
+            catalogModelsCache = data.models || [];
+            renderExistingModelsList();
+            if (typeof cb === 'function') cb();
           })
           .catch(function () {});
       }
+
+      btnUploadAnother.addEventListener('click', function () {
+        resetToNewModel(true);
+        nameInput.focus();
+      });
+
+      btnEditJustSaved.addEventListener('click', function () {
+        if (lastSavedSlug) {
+          openEditModel(lastSavedSlug);
+        }
+      });
+
+      btnJumpExisting.addEventListener('click', function () {
+        document.getElementById('existing-models-section').scrollIntoView({ behavior: 'smooth' });
+      });
+
+      btnCancelEdit.addEventListener('click', function () {
+        resetToNewModel(true);
+      });
+
+      resetBtn.addEventListener('click', function () {
+        resetToNewModel(true);
+      });
+
+      btnNewFromLibrary.addEventListener('click', function () {
+        resetToNewModel(true);
+        nameInput.focus();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+
+      btnNavNew.addEventListener('click', function () {
+        resetToNewModel(true);
+        nameInput.focus();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+
+      btnNavLibrary.addEventListener('click', function () {
+        document.getElementById('existing-models-section').scrollIntoView({ behavior: 'smooth' });
+      });
 
       formEl.addEventListener('submit', function (e) {
         e.preventDefault();
@@ -1165,16 +1538,17 @@
           statusBox.textContent = 'Please enter a Model Name.';
           return;
         }
-        if (!generatedWebP.main || !generatedWebP.thumb) {
+        if (!generatedWebP.main && !(editingModelData && editingModelData.cover_image)) {
           statusBox.className = 'status-box is-error';
           statusBox.textContent = 'Please paste or select at least one image first.';
           return;
         }
 
         submitBtn.disabled = true;
-        submitBtn.textContent = 'Saving WebP & Pushing to GitHub...';
+        submitBtn.textContent = editingSlug ? 'Saving Changes & Pushing Update...' : 'Saving WebP & Pushing to GitHub...';
 
         var payload = {
+          originalSlug: editingSlug,
           title: title,
           shortname: shortname,
           category: categorySelect.value,
@@ -1191,11 +1565,18 @@
           mainImage: generatedWebP.main,
           thumbImage: generatedWebP.thumb,
           galleryImages: generatedWebP.gallery,
+          existingCoverImage: editingModelData ? editingModelData.cover_image : '',
+          existingThumbImage: editingModelData ? editingModelData.thumbnail_image : '',
+          existingGalleryImages: editingModelData ? editingModelData.gallery_images : [],
+          existingAnimation: editingModelData ? editingModelData.animation : '',
           autoDeploy: autoDeployCheckbox.checked
         };
 
-        fetch('/api/models', {
-          method: 'POST',
+        var endpoint = editingSlug ? '/api/models/' + encodeURIComponent(editingSlug) : '/api/models';
+        var method = editingSlug ? 'PUT' : 'POST';
+
+        fetch(endpoint, {
+          method: method,
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         })
@@ -1206,7 +1587,9 @@
           })
           .then(function (result) {
             submitBtn.disabled = false;
-            submitBtn.textContent = 'Save Model & Push to GitHub →';
+            submitBtn.textContent = editingSlug
+              ? 'Save Changes & Push Update to GitHub →'
+              : 'Save Model & Push to GitHub →';
 
             if (!result.ok) {
               statusBox.className = 'status-box is-error';
@@ -1215,32 +1598,44 @@
             }
 
             var b = result.body;
-            statusBox.className = 'status-box is-success';
-            statusBox.innerHTML =
-              '<strong>Model saved' +
-              (b.deployed ? ' and pushed to GitHub!' : ' locally!') +
-              '</strong>' +
-              '<div style="margin-top:0.5rem;font-family:var(--font-mono);font-size:0.76rem;">' +
-              b.savedFiles.map(function (f) { return '&bull; ' + f; }).join('<br>') +
-              '</div>' +
-              (b.gitLog
-                ? '<pre class="code-preview" style="margin-top:0.65rem;max-height:180px;">' +
-                  b.gitLog.replace(/</g, '&lt;') +
-                  '</pre>'
-                : '');
+            lastSavedSlug = b.slug || b.shortname;
 
+            // Show Post-Upload Success Card and reset form for next upload
+            postUploadTitle.textContent = b.isEdit
+              ? 'Model Updated & Pushed to GitHub!'
+              : 'New Model Published & Pushed to GitHub!';
+            postUploadSubtitle.textContent =
+              '"' + b.title + '" has been saved to ' + b.markdownPath + (b.deployed ? ' and pushed to origin/main.' : '.');
+            postUploadFiles.innerHTML = (b.savedFiles || [])
+              .map(function (f) { return '&bull; ' + f; })
+              .join('<br>');
+            postUploadGitlog.textContent = b.gitLog || 'Saved locally.';
+            postUploadCard.classList.add('is-visible');
+
+            // Reset form underneath so user can immediately start another model or click "Edit This Model"
+            resetToNewModel(false);
             fetchExistingModels();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
           })
           .catch(function (err) {
             submitBtn.disabled = false;
-            submitBtn.textContent = 'Save Model & Push to GitHub →';
+            submitBtn.textContent = editingSlug
+              ? 'Save Changes & Push Update to GitHub →'
+              : 'Save Model & Push to GitHub →';
             statusBox.className = 'status-box is-error';
             statusBox.textContent = 'Network error: ' + err.message;
           });
       });
 
       updateMarkdownPreview();
-      fetchExistingModels();
+      fetchExistingModels(function () {
+        // Check if URL has ?edit=<slug>
+        var params = new URLSearchParams(window.location.search);
+        var editParam = params.get('edit');
+        if (editParam) {
+          openEditModel(editParam);
+        }
+      });
     })();
   </script>
 </body>

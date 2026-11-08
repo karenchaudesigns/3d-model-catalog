@@ -13,6 +13,8 @@ const IMAGES_MODELS_DIR = path.join(REPO_ROOT, 'images', 'models');
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
+// Serve repository /images so existing model thumbnails & gallery WebP files display in the UI
+app.use('/images', express.static(path.join(REPO_ROOT, 'images')));
 
 /**
  * Helper: Slugify a string into a clean SEO shortname
@@ -48,6 +50,115 @@ function yamlQuote(str) {
 }
 
 /**
+ * Unquote a YAML scalar value
+ */
+function yamlUnquote(val) {
+  const s = String(val || '').trim();
+  if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
+    return s.slice(1, -1).replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+  }
+  return s;
+}
+
+/**
+ * Parse a Jekyll _models/*.md file into structured front matter + description + printSettings
+ */
+function parseModelMarkdown(filename) {
+  const fullPath = path.join(MODELS_DIR, filename);
+  const raw = fs.readFileSync(fullPath, 'utf8');
+  const slug = filename.replace(/\.md$/, '');
+
+  const result = {
+    filename,
+    slug,
+    title: slug,
+    shortname: slug,
+    category: 'useful-prints',
+    thumbnail_image: '',
+    cover_image: '',
+    gallery_images: [],
+    animation: '',
+    tags: [],
+    downloads: {
+      makerworld: '',
+      printables: '',
+      thangs: '',
+      cults3d: ''
+    },
+    youtube_id: '',
+    description: '',
+    printSettings: ''
+  };
+
+  const fmMatch = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
+  if (!fmMatch) {
+    result.description = raw.trim();
+    return result;
+  }
+
+  const fmText = fmMatch[1];
+  const bodyText = fmMatch[2] || '';
+
+  // Line-by-line YAML parser for our model front matter schema
+  const lines = fmText.split(/\r?\n/);
+  let currentKey = null;
+
+  for (const line of lines) {
+    if (!line.trim() || line.trim().startsWith('#')) continue;
+
+    // List item under gallery_images or tags
+    const listMatch = line.match(/^\s+-\s+(.*)$/);
+    if (listMatch && (currentKey === 'gallery_images' || currentKey === 'tags')) {
+      result[currentKey].push(yamlUnquote(listMatch[1]));
+      continue;
+    }
+
+    // Nested dictionary item under downloads
+    const nestedMatch = line.match(/^\s+([a-zA-Z0-9_]+):\s*(.*)$/);
+    if (nestedMatch && currentKey === 'downloads') {
+      const subKey = nestedMatch[1];
+      const subVal = yamlUnquote(nestedMatch[2]);
+      result.downloads[subKey] = subVal;
+      continue;
+    }
+
+    // Top-level key: value
+    const kvMatch = line.match(/^([a-zA-Z0-9_]+):\s*(.*)$/);
+    if (kvMatch) {
+      const key = kvMatch[1];
+      const rawVal = kvMatch[2].trim();
+      currentKey = key;
+
+      if (key === 'gallery_images' || key === 'tags') {
+        if (rawVal === '[]') {
+          result[key] = [];
+        }
+      } else if (key === 'downloads') {
+        // subsequent indented lines populate downloads
+      } else if (key in result) {
+        result[key] = yamlUnquote(rawVal);
+      }
+    }
+  }
+
+  // Split Markdown body into description and ### Recommended Print Settings (if present)
+  const settingsHeaderRegex = /\n?(###\s+Recommended Print Settings\s*\r?\n[\s\S]*)$/i;
+  const settingsMatch = bodyText.match(settingsHeaderRegex);
+  if (settingsMatch) {
+    const fullSettingsBlock = settingsMatch[1].trim();
+    result.description = bodyText.slice(0, settingsMatch.index).trim();
+    result.printSettings = fullSettingsBlock
+      .replace(/^###\s+Recommended Print Settings\s*\r?\n+/i, '')
+      .trim();
+  } else {
+    result.description = bodyText.trim();
+    result.printSettings = '';
+  }
+
+  return result;
+}
+
+/**
  * Decode a data:image/webp;base64,... string into a Buffer
  */
 function decodeBase64WebP(dataUrl) {
@@ -59,39 +170,48 @@ function decodeBase64WebP(dataUrl) {
 }
 
 /**
- * GET /api/models — List existing models in _models/
+ * GET /api/models — List all existing models in _models/ with full metadata
  */
 app.get('/api/models', (req, res) => {
   try {
     if (!fs.existsSync(MODELS_DIR)) {
       return res.json({ models: [] });
     }
-    const files = fs
+    const models = fs
       .readdirSync(MODELS_DIR)
       .filter((f) => f.endsWith('.md'))
-      .map((filename) => {
-        const content = fs.readFileSync(path.join(MODELS_DIR, filename), 'utf8');
-        const titleMatch = content.match(/^title:\s*["']?(.+?)["']?\s*$/m);
-        const catMatch = content.match(/^category:\s*["']?(.+?)["']?\s*$/m);
-        return {
-          filename,
-          slug: filename.replace(/\.md$/, ''),
-          title: titleMatch ? titleMatch[1] : filename,
-          category: catMatch ? catMatch[1] : 'useful-prints'
-        };
-      });
-    res.json({ models: files });
+      .map((filename) => parseModelMarkdown(filename));
+    res.json({ models });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
 /**
- * POST /api/models — Save WebP images, generate Jekyll Markdown, and auto-deploy via Git
+ * GET /api/models/:slug — Fetch a single model's full data for editing
  */
-app.post('/api/models', (req, res) => {
+app.get('/api/models/:slug', (req, res) => {
+  try {
+    const slug = String(req.params.slug || '').replace(/\.md$/, '');
+    const filename = `${slug}.md`;
+    const fullPath = path.join(MODELS_DIR, filename);
+    if (!fs.existsSync(fullPath)) {
+      return res.status(404).json({ error: `Model "${slug}" not found in _models/.` });
+    }
+    const model = parseModelMarkdown(filename);
+    res.json({ model });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * Shared handler for creating or updating a model
+ */
+function saveAndDeployModel(req, res) {
   try {
     const {
+      originalSlug = null,
       title,
       shortname: rawShortname,
       category = 'useful-prints',
@@ -100,11 +220,17 @@ app.post('/api/models', (req, res) => {
       tags = '',
       youtubeId = '',
       downloads = {},
-      mainImage,
-      thumbImage,
-      galleryImages = [],
+      mainImage = null,
+      thumbImage = null,
+      galleryImages = null,
+      existingCoverImage = '',
+      existingThumbImage = '',
+      existingGalleryImages = [],
+      existingAnimation = '',
       autoDeploy = true
     } = req.body;
+
+    const isEdit = Boolean(originalSlug);
 
     if (!title || !String(title).trim()) {
       return res.status(400).json({ error: 'Model Name (title) is required.' });
@@ -115,44 +241,59 @@ app.post('/api/models', (req, res) => {
       return res.status(400).json({ error: 'Could not derive a valid shortname slug.' });
     }
 
-    if (!mainImage || !thumbImage) {
+    // Require either new mainImage+thumbImage OR existingCoverImage+existingThumbImage when editing
+    if (!mainImage && !existingCoverImage) {
       return res.status(400).json({
-        error: 'At least one image must be pasted to generate the 1200x1200 main and 600x600 thumbnail WebP files.'
+        error: 'At least one image must be provided to generate the 1200x1200 main and 600x600 thumbnail WebP files.'
       });
     }
 
-    // 1. Create /images/models/[model-shortname]/ directory
+    // 1. Ensure /images/models/[model-shortname]/ and /_models/ exist
     const modelImageDir = path.join(IMAGES_MODELS_DIR, shortname);
     fs.mkdirSync(modelImageDir, { recursive: true });
     fs.mkdirSync(MODELS_DIR, { recursive: true });
 
     const savedFiles = [];
 
-    // 2. Save Main Showcase Image (1200x1200px): 3d-model-[shortname]-main.webp
-    const mainFilename = `3d-model-${shortname}-main.webp`;
-    const mainDiskPath = path.join(modelImageDir, mainFilename);
-    const mainWebPath = `/images/models/${shortname}/${mainFilename}`;
-    fs.writeFileSync(mainDiskPath, decodeBase64WebP(mainImage));
-    savedFiles.push(mainWebPath);
+    // 2. Main Showcase Image (1200x1200px): 3d-model-[shortname]-main.webp
+    let mainWebPath = existingCoverImage || `/images/models/${shortname}/3d-model-${shortname}-main.webp`;
+    if (mainImage && mainImage.startsWith('data:image/')) {
+      const mainFilename = `3d-model-${shortname}-main.webp`;
+      const mainDiskPath = path.join(modelImageDir, mainFilename);
+      mainWebPath = `/images/models/${shortname}/${mainFilename}`;
+      fs.writeFileSync(mainDiskPath, decodeBase64WebP(mainImage));
+      savedFiles.push(mainWebPath);
+    }
 
-    // 3. Save Model Thumbnail (600x600px): 3d-model-[shortname]-thumb.webp
-    const thumbFilename = `3d-model-${shortname}-thumb.webp`;
-    const thumbDiskPath = path.join(modelImageDir, thumbFilename);
-    const thumbWebPath = `/images/models/${shortname}/${thumbFilename}`;
-    fs.writeFileSync(thumbDiskPath, decodeBase64WebP(thumbImage));
-    savedFiles.push(thumbWebPath);
+    // 3. Model Thumbnail (600x600px): 3d-model-[shortname]-thumb.webp
+    let thumbWebPath = existingThumbImage || `/images/models/${shortname}/3d-model-${shortname}-thumb.webp`;
+    if (thumbImage && thumbImage.startsWith('data:image/')) {
+      const thumbFilename = `3d-model-${shortname}-thumb.webp`;
+      const thumbDiskPath = path.join(modelImageDir, thumbFilename);
+      thumbWebPath = `/images/models/${shortname}/${thumbFilename}`;
+      fs.writeFileSync(thumbDiskPath, decodeBase64WebP(thumbImage));
+      savedFiles.push(thumbWebPath);
+    }
 
-    // 4. Save Additional Gallery Images (1000x1000px): 3d-model-[shortname]-angle1.webp, angle2.webp, ...
+    // 4. Additional Gallery Images (1000x1000px): 3d-model-[shortname]-angle1.webp, angle2.webp, ...
+    // Each entry in galleryImages can be either a new base64 dataUrl OR an existing /images/... path
     const galleryWebPaths = [];
-    if (Array.isArray(galleryImages)) {
-      galleryImages.forEach((dataUrl, idx) => {
-        if (!dataUrl) return;
+    const inputGallery = Array.isArray(galleryImages) ? galleryImages : existingGalleryImages;
+    if (Array.isArray(inputGallery)) {
+      inputGallery.forEach((item, idx) => {
+        if (!item) return;
         const angleFilename = `3d-model-${shortname}-angle${idx + 1}.webp`;
         const angleDiskPath = path.join(modelImageDir, angleFilename);
         const angleWebPath = `/images/models/${shortname}/${angleFilename}`;
-        fs.writeFileSync(angleDiskPath, decodeBase64WebP(dataUrl));
-        galleryWebPaths.push(angleWebPath);
-        savedFiles.push(angleWebPath);
+
+        if (typeof item === 'string' && item.startsWith('data:image/')) {
+          fs.writeFileSync(angleDiskPath, decodeBase64WebP(item));
+          galleryWebPaths.push(angleWebPath);
+          savedFiles.push(angleWebPath);
+        } else if (typeof item === 'string') {
+          // Existing path kept
+          galleryWebPaths.push(item);
+        }
       });
     }
 
@@ -183,6 +324,10 @@ app.post('/api/models', (req, res) => {
       });
     } else {
       yamlLines.push('gallery_images: []');
+    }
+
+    if (existingAnimation) {
+      yamlLines.push(`animation: ${yamlQuote(existingAnimation)}`);
     }
 
     if (parsedTags.length > 0) {
@@ -217,14 +362,17 @@ app.post('/api/models', (req, res) => {
     }
 
     const markdownContent = yamlLines.join('\n') + bodySections.join('\n\n') + '\n';
-    const mdFilename = `${shortname}.md`;
+
+    // Determine target markdown filename (if editing, preserve originalSlug filename unless shortname was explicitly changed)
+    const targetSlug = isEdit && originalSlug ? originalSlug : shortname;
+    const mdFilename = `${targetSlug}.md`;
     const mdDiskPath = path.join(MODELS_DIR, mdFilename);
     const mdWebPath = `/_models/${mdFilename}`;
 
     fs.writeFileSync(mdDiskPath, markdownContent, 'utf8');
     savedFiles.push(mdWebPath);
 
-    // 7. Auto-Deploy: git add ., git commit -m "Add [model name]", git push
+    // 7. Auto-Deploy: git add ., git commit -m "Add/Update [model name]", git push
     const gitLog = [];
     let deployed = false;
     let gitError = null;
@@ -234,7 +382,8 @@ app.post('/api/models', (req, res) => {
         execFileSync('git', ['add', '.'], { cwd: REPO_ROOT, encoding: 'utf8' });
         gitLog.push('$ git add .');
 
-        const commitMessage = `Add ${String(title).trim()}`;
+        const actionVerb = isEdit ? 'Update' : 'Add';
+        const commitMessage = `${actionVerb} ${String(title).trim()}`;
         const commitOut = execFileSync('git', ['commit', '-m', commitMessage], {
           cwd: REPO_ROOT,
           encoding: 'utf8'
@@ -258,7 +407,10 @@ app.post('/api/models', (req, res) => {
 
     return res.json({
       success: true,
+      isEdit,
+      slug: targetSlug,
       shortname,
+      title: String(title).trim(),
       markdownPath: mdWebPath,
       markdownContent,
       savedFiles,
@@ -267,9 +419,15 @@ app.post('/api/models', (req, res) => {
       gitLog: gitLog.join('\n\n')
     });
   } catch (err) {
-    console.error('Upload error:', err);
+    console.error('Upload/Edit error:', err);
     return res.status(500).json({ error: err.message || 'Internal server error' });
   }
+}
+
+app.post('/api/models', saveAndDeployModel);
+app.put('/api/models/:slug', (req, res) => {
+  req.body.originalSlug = req.params.slug;
+  return saveAndDeployModel(req, res);
 });
 
 app.listen(PORT, () => {
