@@ -390,12 +390,27 @@ function saveAndDeployModel(req, res) {
         });
         gitLog.push(`$ git commit -m "${commitMessage}"\n${commitOut.trim()}`);
 
-        const pushOut = execFileSync('git', ['push'], {
-          cwd: REPO_ROOT,
-          encoding: 'utf8',
-          stdio: ['pipe', 'pipe', 'pipe']
-        });
-        gitLog.push(`$ git push\n${(pushOut || 'Pushed to remote origin.').trim()}`);
+        try {
+          const pushOut = execFileSync('git', ['push'], {
+            cwd: REPO_ROOT,
+            encoding: 'utf8',
+            stdio: ['pipe', 'pipe', 'pipe']
+          });
+          gitLog.push(`$ git push\n${(pushOut || 'Pushed to remote origin.').trim()}`);
+        } catch (pushErr) {
+          // If remote has newer commits, rebase automatically and push again
+          execFileSync('git', ['pull', '--rebase'], {
+            cwd: REPO_ROOT,
+            encoding: 'utf8',
+            stdio: ['pipe', 'pipe', 'pipe']
+          });
+          const retryPushOut = execFileSync('git', ['push'], {
+            cwd: REPO_ROOT,
+            encoding: 'utf8',
+            stdio: ['pipe', 'pipe', 'pipe']
+          });
+          gitLog.push(`$ git pull --rebase && git push\n${(retryPushOut || 'Rebased and pushed to remote origin.').trim()}`);
+        }
         deployed = true;
       } catch (gitErr) {
         const stderr = gitErr.stderr ? gitErr.stderr.toString() : '';
