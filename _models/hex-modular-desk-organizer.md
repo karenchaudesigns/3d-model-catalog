@@ -2,6 +2,7 @@
 title: "Hexagonal Modular Desk Organizer"
 shortname: "hex-organizer"
 category: "useful-prints"
+hidden: true
 thumbnail_image: "/images/models/hex-organizer/3d-model-hex-organizer-thumb.webp"
 cover_image: "/images/models/hex-organizer/3d-model-hex-organizer-main.webp"
 gallery_images:
@@ -21,10 +22,7 @@ downloads:
   cults3d: "https://cults3d.com/en/3d-model/home/hexagonal-modular-desk-organizer"
 youtube_id: "M7lc1UVf-VE"
 ---
-
 A clean, infinitely expandable **Hexagonal Modular Desk Organizer** engineered specifically for support-free FDM 3D printing. Each hexagonal module locks securely to its neighbors using concealed snap-fit dovetail keys, allowing you to mix tall pen cups, smartphone docks, and shallow paperclip trays in any colorway.
-
-### Recommended Print Settings
 
 - **Material:** Matte PLA or PETG (pictured in Matte Terracotta & Warm Ivory PLA)
 - **Layer Height:** `0.20 mm` standard (`0.16 mm` for ultra-clean outer walls)
