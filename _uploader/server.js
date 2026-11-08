@@ -74,6 +74,7 @@ function parseModelMarkdown(filename) {
     title: slug,
     shortname: slug,
     category: 'useful-prints',
+    hidden: false,
     thumbnail_image: '',
     cover_image: '',
     gallery_images: [],
@@ -135,6 +136,9 @@ function parseModelMarkdown(filename) {
         }
       } else if (key === 'downloads') {
         // subsequent indented lines populate downloads
+      } else if (key === 'hidden') {
+        const unquoted = yamlUnquote(rawVal).toLowerCase();
+        result.hidden = unquoted === 'true' || unquoted === 'yes';
       } else if (key in result) {
         result[key] = yamlUnquote(rawVal);
       }
@@ -215,6 +219,7 @@ function saveAndDeployModel(req, res) {
       title,
       shortname: rawShortname,
       category = 'useful-prints',
+      hidden = false,
       description = '',
       printSettings = '',
       tags = '',
@@ -313,6 +318,7 @@ function saveAndDeployModel(req, res) {
       `title: ${yamlQuote(title)}`,
       `shortname: ${yamlQuote(shortname)}`,
       `category: ${yamlQuote(category || 'useful-prints')}`,
+      `hidden: ${Boolean(hidden)}`,
       `thumbnail_image: ${yamlQuote(thumbWebPath)}`,
       `cover_image: ${yamlQuote(mainWebPath)}`
     ];
@@ -426,6 +432,7 @@ function saveAndDeployModel(req, res) {
       slug: targetSlug,
       shortname,
       title: String(title).trim(),
+      hidden: Boolean(hidden),
       markdownPath: mdWebPath,
       markdownContent,
       savedFiles,
@@ -443,6 +450,43 @@ app.post('/api/models', saveAndDeployModel);
 app.put('/api/models/:slug', (req, res) => {
   req.body.originalSlug = req.params.slug;
   return saveAndDeployModel(req, res);
+});
+
+/**
+ * PATCH /api/models/:slug/visibility — Quick toggle for hidden: true / false
+ */
+app.patch('/api/models/:slug/visibility', (req, res) => {
+  try {
+    const slug = String(req.params.slug || '').replace(/\.md$/, '');
+    const filename = `${slug}.md`;
+    const fullPath = path.join(MODELS_DIR, filename);
+    if (!fs.existsSync(fullPath)) {
+      return res.status(404).json({ error: `Model "${slug}" not found in _models/.` });
+    }
+    const existing = parseModelMarkdown(filename);
+    const nextHidden = typeof req.body.hidden === 'boolean' ? req.body.hidden : !existing.hidden;
+
+    req.body = {
+      originalSlug: slug,
+      title: existing.title,
+      shortname: existing.shortname,
+      category: existing.category,
+      hidden: nextHidden,
+      description: existing.description,
+      printSettings: existing.printSettings,
+      tags: existing.tags,
+      youtubeId: existing.youtube_id,
+      downloads: existing.downloads,
+      existingCoverImage: existing.cover_image,
+      existingThumbImage: existing.thumbnail_image,
+      existingGalleryImages: existing.gallery_images,
+      existingAnimation: existing.animation,
+      autoDeploy: req.body.autoDeploy !== false
+    };
+    return saveAndDeployModel(req, res);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
 });
 
 app.listen(PORT, () => {

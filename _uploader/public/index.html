@@ -892,6 +892,7 @@
       var nameInput = document.getElementById('model-name');
       var shortnameInput = document.getElementById('model-shortname');
       var categorySelect = document.getElementById('model-category');
+      var hiddenCheckbox = document.getElementById('model-hidden');
       var descInput = document.getElementById('model-description');
       var settingsInput = document.getElementById('model-print-settings');
       var tagsInput = document.getElementById('model-tags');
@@ -1243,7 +1244,7 @@
         updateMarkdownPreview();
       });
 
-      [categorySelect, descInput, settingsInput, youtubeInput, dlMakerworld, dlPrintables, dlThangs, dlCults3d].forEach(
+      [categorySelect, hiddenCheckbox, descInput, settingsInput, youtubeInput, dlMakerworld, dlPrintables, dlThangs, dlCults3d].forEach(
         function (el) {
           el.addEventListener('input', updateMarkdownPreview);
           el.addEventListener('change', updateMarkdownPreview);
@@ -1258,6 +1259,7 @@
         var title = nameInput.value.trim() || 'Untitled 3D Model';
         var shortname = getShortname();
         var category = categorySelect.value;
+        var isHidden = Boolean(hiddenCheckbox.checked);
         var thumbPath =
           !generatedWebP.thumb && editingModelData && editingModelData.thumbnail_image
             ? editingModelData.thumbnail_image
@@ -1272,6 +1274,7 @@
           'title: ' + yamlEscape(title),
           'shortname: ' + yamlEscape(shortname),
           'category: ' + yamlEscape(category),
+          'hidden: ' + (isHidden ? 'true' : 'false'),
           'thumbnail_image: ' + yamlEscape(thumbPath),
           'cover_image: ' + yamlEscape(mainPath)
         ];
@@ -1344,6 +1347,7 @@
         nameInput.value = '';
         shortnameInput.value = '';
         categorySelect.value = 'useful-prints';
+        hiddenCheckbox.checked = false;
         descInput.value = '';
         settingsInput.value = '';
         tagsInput.value = '';
@@ -1395,6 +1399,7 @@
             nameInput.value = m.title || '';
             shortnameInput.value = m.shortname || m.slug || '';
             categorySelect.value = m.category || 'useful-prints';
+            hiddenCheckbox.checked = Boolean(m.hidden);
             descInput.value = m.description || '';
             settingsInput.value = m.printSettings || '';
             tagsInput.value = Array.isArray(m.tags) ? m.tags.join(', ') : '';
@@ -1439,6 +1444,32 @@
           });
       }
 
+      function toggleModelVisibility(slug, targetHidden) {
+        fetch('/api/models/' + encodeURIComponent(slug) + '/visibility', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ hidden: targetHidden, autoDeploy: autoDeployCheckbox.checked })
+        })
+          .then(function (r) { return r.json(); })
+          .then(function (b) {
+            if (b.error) {
+              statusBox.className = 'status-box is-error';
+              statusBox.textContent = b.error;
+              return;
+            }
+            if (editingSlug === slug) {
+              hiddenCheckbox.checked = Boolean(b.hidden);
+              if (editingModelData) editingModelData.hidden = Boolean(b.hidden);
+              updateMarkdownPreview();
+            }
+            fetchExistingModels();
+          })
+          .catch(function (err) {
+            statusBox.className = 'status-box is-error';
+            statusBox.textContent = 'Failed to toggle visibility: ' + err.message;
+          });
+      }
+
       function renderExistingModelsList() {
         navModelCount.textContent = catalogModelsCache.length;
         if (!catalogModelsCache.length) {
@@ -1450,18 +1481,26 @@
           .map(function (m) {
             var isCurrentEdit = editingSlug === m.slug;
             var thumbUrl = m.thumbnail_image || m.cover_image || '';
+            var hiddenBadge = m.hidden
+              ? '<span style="font-family:var(--font-mono);font-size:0.68rem;background:hsl(0,75%,93%);color:var(--danger);padding:0.1rem 0.4rem;border-radius:4px;margin-left:0.4rem;">HIDDEN</span>'
+              : '';
             return (
-              '<div class="existing-model-card' + (isCurrentEdit ? ' is-editing' : '') + '">' +
+              '<div class="existing-model-card' + (isCurrentEdit ? ' is-editing' : '') + '" style="' + (m.hidden ? 'opacity:0.78;' : '') + '">' +
               (thumbUrl
                 ? '<img src="' + thumbUrl + '" class="existing-model-thumb" alt="' + (m.title || m.slug) + '">'
                 : '<div class="existing-model-thumb"></div>') +
               '<div class="existing-model-info">' +
-              '<div class="existing-model-title" title="' + (m.title || '') + '">' + (m.title || m.slug) + '</div>' +
+              '<div class="existing-model-title" title="' + (m.title || '') + '">' + (m.title || m.slug) + hiddenBadge + '</div>' +
               '<div class="existing-model-meta"><code>_models/' + m.filename + '</code> &middot; ' + (m.category || 'useful-prints') + '</div>' +
               '</div>' +
+              '<div style="display:flex;gap:0.35rem;flex-shrink:0;">' +
+              '<button type="button" class="btn-ghost btn-toggle-hidden" data-slug="' + m.slug + '" data-hidden="' + (m.hidden ? 'true' : 'false') + '" title="Toggle visibility in catalog">' +
+              (m.hidden ? 'Unhide' : 'Hide') +
+              '</button>' +
               '<button type="button" class="btn-ghost btn-edit-model" data-slug="' + m.slug + '">' +
               (isCurrentEdit ? 'Editing&hellip;' : 'Edit Model') +
               '</button>' +
+              '</div>' +
               '</div>'
             );
           })
@@ -1469,6 +1508,15 @@
       }
 
       existingModelsList.addEventListener('click', function (e) {
+        var toggleBtn = e.target.closest('.btn-toggle-hidden');
+        if (toggleBtn) {
+          var tSlug = toggleBtn.getAttribute('data-slug');
+          var currentlyHidden = toggleBtn.getAttribute('data-hidden') === 'true';
+          toggleBtn.disabled = true;
+          toggleBtn.textContent = currentlyHidden ? 'Unhiding...' : 'Hiding...';
+          toggleModelVisibility(tSlug, !currentlyHidden);
+          return;
+        }
         var btn = e.target.closest('.btn-edit-model');
         if (!btn) return;
         var slug = btn.getAttribute('data-slug');
@@ -1552,6 +1600,7 @@
           title: title,
           shortname: shortname,
           category: categorySelect.value,
+          hidden: Boolean(hiddenCheckbox.checked),
           description: descInput.value,
           printSettings: settingsInput.value,
           tags: tagsInput.value,

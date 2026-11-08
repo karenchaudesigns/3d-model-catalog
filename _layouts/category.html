@@ -3,7 +3,8 @@ layout: default
 ---
 {% assign current_slug = page.category_slug | default: page.slug %}
 {% assign category_meta = site.catalog_categories | where: "slug", current_slug | first %}
-{% assign category_models = site.models | where: "category", current_slug %}
+{% assign visible_models = site.models | where_exp: "item", "item.hidden != true" %}
+{% assign category_models = visible_models | where: "category", current_slug %}
 
 <section class="category-page container" id="category-page-{{ current_slug }}">
   <nav class="breadcrumb" aria-label="Breadcrumb">

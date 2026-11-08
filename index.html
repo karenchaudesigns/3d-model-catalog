@@ -14,6 +14,8 @@ description: "Browse original 3D printable models by category—Useful Prints, G
   </div>
 </section>
 
+{% assign visible_models = site.models | where_exp: "item", "item.hidden != true" %}
+
 <!-- Product Categories Grid (800x800px Category Thumbnails: category-[name]-3dmodels.webp) -->
 <section class="categories-showcase container" id="categories-section" aria-labelledby="categories-heading">
   <div class="section-header">
@@ -23,7 +25,7 @@ description: "Browse original 3D printable models by category—Useful Prints, G
 
   <div class="category-grid">
     {% for cat in site.catalog_categories %}
-      {% assign cat_models = site.models | where: "category", cat.slug %}
+      {% assign cat_models = visible_models | where: "category", cat.slug %}
       <a href="{{ cat.url | relative_url }}" class="category-card" id="category-card-{{ cat.slug }}">
         <div class="category-card-media">
           <img
@@ -53,11 +55,11 @@ description: "Browse original 3D printable models by category—Useful Prints, G
 <section class="all-models-section container" id="all-models-section" aria-labelledby="all-models-heading">
   <div class="section-header">
     <h2 class="section-title" id="all-models-heading">Featured &amp; Recent Models</h2>
-    <p class="section-subtitle">Filter across all {{ site.models.size }} catalog designs by tag</p>
+    <p class="section-subtitle">Filter across all {{ visible_models.size }} catalog designs by tag</p>
   </div>
 
   {% assign all_tags = "" | split: "" %}
-  {% for model in site.models %}
+  {% for model in visible_models %}
     {% for t in model.tags %}
       {% unless all_tags contains t %}
         {% assign all_tags = all_tags | push: t %}
@@ -80,7 +82,7 @@ description: "Browse original 3D printable models by category—Useful Prints, G
   {% endif %}
 
   <div class="model-thumbnail-grid" id="home-model-grid">
-    {% for model in site.models %}
+    {% for model in visible_models %}
       {% assign cat_info = site.catalog_categories | where: "slug", model.category | first %}
       {% if model.thumbnail_image %}
         {% assign thumb_src = model.thumbnail_image %}
