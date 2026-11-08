@@ -187,13 +187,21 @@ layout: default
           </section>
         {% endif %}
       {% endif %}
+    </div>
+  </div>
 
-      <!-- Markdown Description Body -->
+  <!-- Below-the-Fold Model Description & Print Settings -->
+  {% assign stripped_content = content | strip %}
+  {% if stripped_content != "" %}
+    <section class="model-description-section" aria-labelledby="description-heading">
+      <div class="section-header">
+        <h2 class="section-title" id="description-heading">Model Overview &amp; Print Settings</h2>
+      </div>
       <div class="model-description prose">
         {{ content }}
       </div>
-    </div>
-  </div>
+    </section>
+  {% endif %}
 
   <!-- Below-the-Fold Gallery Images (1000x1000px native lazy-loaded) & Optional MP4 Loop -->
   {% if page.gallery_images and page.gallery_images.size > 0 or page.animation %}

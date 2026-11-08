@@ -755,11 +755,33 @@ a {
   background-color: var(--color-cults3d);
 }
 
-/* Prose / Markdown Content */
+/* Prose / Markdown Content (Below the Fold) */
+.model-description-section {
+  padding-top: 2.5rem;
+  border-top: 1px solid var(--border-subtle);
+  margin-bottom: 3rem;
+}
+
+.model-description {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 1.5rem 1.75rem;
+  box-shadow: var(--shadow-card);
+}
+
 .prose h3 {
   font-family: var(--font-display);
   font-size: 1.2rem;
   margin: 1.5rem 0 0.6rem;
+}
+
+.prose > :first-child {
+  margin-top: 0;
+}
+
+.prose > :last-child {
+  margin-bottom: 0;
 }
 
 .prose p {
