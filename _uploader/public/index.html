@@ -2418,6 +2418,32 @@
       cursor: not-allowed;
     }
 
+    .catalog-export-photo-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      cursor: pointer;
+      user-select: none;
+      padding: 0.2rem 0.4rem;
+      border-radius: 6px;
+      transition: color 0.15s ease;
+    }
+
+    .catalog-export-photo-label:hover {
+      color: var(--text-primary);
+    }
+
+    .catalog-export-photo-checkbox {
+      accent-color: var(--accent-terracotta);
+      width: 0.92rem;
+      height: 0.92rem;
+      cursor: pointer;
+      margin: 0;
+    }
+
     .btn-open-columns {
       appearance: none;
       border: none;
@@ -2899,7 +2925,11 @@
           >
           <button type="button" class="btn-catalog-action" id="btn-select-all-models">Select All</button>
           <button type="button" class="btn-catalog-action" id="btn-deselect-all-models" style="display:none;">Deselect All</button>
-          <button type="button" class="btn-catalog-action" id="btn-export-csv" title="Export selected models to CSV (title, extended title, tagline, description, tags)">Export CSV (<span id="export-csv-count">0</span>)</button>
+          <button type="button" class="btn-catalog-action" id="btn-export-csv" title="Export selected models to CSV (title, extended title, tagline, description, tags)">Export (<span id="export-csv-count">0</span>)</button>
+          <label class="catalog-export-photo-label" title="Include all photos for selected models in separate folders as JPGs with cover.jpg">
+            <input type="checkbox" id="chk-export-include-photos" class="catalog-export-photo-checkbox">
+            <span>Include photos</span>
+          </label>
           <span style="font-size:0.78rem;font-weight:600;color:var(--text-muted);" id="catalog-selection-count">0 selected</span>
         </div>
         <div class="catalog-toolbar-right">
@@ -3152,6 +3182,7 @@
       var btnDeselectAllModels = document.getElementById('btn-deselect-all-models');
       var btnExportCsv = document.getElementById('btn-export-csv');
       var exportCsvCount = document.getElementById('export-csv-count');
+      var chkExportIncludePhotos = document.getElementById('chk-export-include-photos');
       var catalogSelectionCount = document.getElementById('catalog-selection-count');
       var btnOpenColumnsTable = document.getElementById('btn-open-columns-table');
 
@@ -5468,10 +5499,16 @@
           exportCsvCount.textContent = count;
         }
         if (btnExportCsv) {
+          var includePhotos = Boolean(chkExportIncludePhotos && chkExportIncludePhotos.checked);
           btnExportCsv.disabled = count === 0;
           btnExportCsv.title = count === 0
-            ? 'Select one or more models to export CSV'
-            : 'Export ' + count + ' selected model' + (count === 1 ? '' : 's') + ' to CSV';
+            ? 'Select one or more models to export'
+            : (includePhotos
+                ? 'Export ' + count + ' selected model' + (count === 1 ? '' : 's') + ' with photos (ZIP)'
+                : 'Export ' + count + ' selected model' + (count === 1 ? '' : 's') + ' to CSV');
+        }
+        if (chkExportIncludePhotos) {
+          chkExportIncludePhotos.disabled = count === 0;
         }
         if (btnSelectAllModels && btnDeselectAllModels) {
           btnDeselectAllModels.style.display = count > 0 ? 'inline-block' : 'none';
@@ -6030,6 +6067,7 @@
           return;
         }
 
+        var slugArr = Array.from(catalogSelectedSlugs);
         var selectedModels = catalogModelsCache.filter(function (m) {
           return catalogSelectedSlugs.has(m.slug);
         });
@@ -6039,6 +6077,61 @@
           return;
         }
 
+        var includePhotos = Boolean(chkExportIncludePhotos && chkExportIncludePhotos.checked);
+
+        if (includePhotos) {
+          // Export with photos as ZIP archive
+          var origText = btnExportCsv ? btnExportCsv.innerHTML : '';
+          if (btnExportCsv) {
+            btnExportCsv.disabled = true;
+            btnExportCsv.textContent = 'Exporting ZIP...';
+          }
+
+          // Gather any in-memory drafts for the selected models
+          var draftsToSend = {};
+          slugArr.forEach(function (s) {
+            if (matrixDrafts[s]) {
+              draftsToSend[s] = matrixDrafts[s];
+            }
+          });
+
+          fetch('/api/models/export-zip', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              slugs: slugArr,
+              includePhotos: true,
+              matrixDrafts: draftsToSend
+            })
+          })
+            .then(function (res) {
+              if (!res.ok) {
+                return res.json().then(function (data) {
+                  throw new Error(data.error || 'Server returned status ' + res.status);
+                });
+              }
+              return res.blob();
+            })
+            .then(function (blob) {
+              var url = URL.createObjectURL(blob);
+              var link = document.createElement('a');
+              link.href = url;
+              link.setAttribute('download', 'catalog-models-export.zip');
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              URL.revokeObjectURL(url);
+            })
+            .catch(function (err) {
+              alert('Failed to export ZIP with photos: ' + err.message);
+            })
+            .finally(function () {
+              syncCatalogSelectionBar();
+            });
+          return;
+        }
+
+        // CSV only export
         function formatCsvField(val) {
           var str = val === undefined || val === null ? '' : String(val);
           if (/[",\r\n]/.test(str)) {
@@ -6090,6 +6183,12 @@
       if (btnExportCsv) {
         btnExportCsv.addEventListener('click', function () {
           exportSelectedModelsToCsv();
+        });
+      }
+
+      if (chkExportIncludePhotos) {
+        chkExportIncludePhotos.addEventListener('change', function () {
+          syncCatalogSelectionBar();
         });
       }
 

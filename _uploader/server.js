@@ -1,6 +1,7 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 const { execFileSync } = require('child_process');
 
 const app = express();
@@ -1553,6 +1554,182 @@ app.post('/api/youtube/classify', async (req, res) => {
     return res.json(result);
   } catch (err) {
     return res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * POST /api/models/export-zip — Export selected models' data and photos into a zip archive.
+ * If includePhotos is true:
+ * - Creates a separate folder for each model named with the model's title.
+ * - Converts all photos for that model into JPG format.
+ * - Names the cover photo as cover.jpg.
+ * Also includes catalog-models-export.csv in the root of the zip.
+ */
+app.post('/api/models/export-zip', async (req, res) => {
+  let tmpExportDir = null;
+  try {
+    const slugs = Array.isArray(req.body.slugs) ? req.body.slugs : [];
+    const includePhotos = Boolean(req.body.includePhotos);
+    const matrixDrafts = (req.body.matrixDrafts && typeof req.body.matrixDrafts === 'object') ? req.body.matrixDrafts : {};
+
+    if (!slugs.length) {
+      return res.status(400).json({ error: 'No models selected for export.' });
+    }
+
+    // Prepare temp working directory
+    tmpExportDir = fs.mkdtempSync(path.join(os.tmpdir(), 'catalog-models-export-'));
+    const zipFilePath = path.join(os.tmpdir(), `catalog-export-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.zip`);
+
+    function sanitizeDirName(title, fallback) {
+      let name = String(title || fallback || 'model').trim();
+      name = name.replace(/[\/\\\\?%*:|"<>\\x00-\\x1f]/g, ' ').replace(/\s+/g, ' ').trim();
+      return name || fallback || 'model';
+    }
+
+    function formatCsvValue(val) {
+      const str = val === undefined || val === null ? '' : String(val);
+      if (/[",\r\n]/.test(str)) {
+        return `"${str.replace(/"/g, '""')}"`;
+      }
+      return str;
+    }
+
+    // Build CSV rows
+    const csvHeaders = ['title', 'extended title', 'tagline', 'description', 'tags'];
+    const csvRows = [csvHeaders.map(formatCsvValue).join(',')];
+
+    // Track folder names to avoid collisions
+    const usedFolderNames = new Set();
+
+    for (const slug of slugs) {
+      const mdFilename = `${slug}.md`;
+      const mdPath = path.join(MODELS_DIR, mdFilename);
+      const model = fs.existsSync(mdPath) ? parseModelMarkdown(mdFilename) : { slug, title: slug, tags: [] };
+
+      // Apply any draft edits if passed from client
+      const draft = matrixDrafts[slug] || {};
+      const title = draft.title !== undefined ? String(draft.title).trim() : String(model.title || slug).trim();
+      const extendedTitle = draft.extended_title !== undefined ? String(draft.extended_title).trim() : String(model.extended_title || '').trim();
+      const tagline = draft.tagline !== undefined ? String(draft.tagline).trim() : String(model.tagline || '').trim();
+      const description = draft.description !== undefined ? String(draft.description).trim() : String(model.description || '').trim();
+
+      let tagsStr = '';
+      if (draft.tags !== undefined) {
+        tagsStr = String(draft.tags).split(',').map((t) => t.trim()).filter(Boolean).join(', ');
+      } else if (Array.isArray(model.tags)) {
+        tagsStr = model.tags.map((t) => String(t).trim()).filter(Boolean).join(', ');
+      } else {
+        tagsStr = String(model.tags || '').trim();
+      }
+
+      csvRows.push([
+        formatCsvValue(title),
+        formatCsvValue(extendedTitle),
+        formatCsvValue(tagline),
+        formatCsvValue(description),
+        formatCsvValue(tagsStr)
+      ].join(','));
+
+      if (includePhotos) {
+        let folderName = sanitizeDirName(title, slug);
+        let folderCandidate = folderName;
+        let counter = 2;
+        while (usedFolderNames.has(folderCandidate.toLowerCase())) {
+          folderCandidate = `${folderName} (${counter})`;
+          counter++;
+        }
+        usedFolderNames.add(folderCandidate.toLowerCase());
+
+        const modelFolder = path.join(tmpExportDir, folderCandidate);
+        fs.mkdirSync(modelFolder, { recursive: true });
+
+        // Identify model's image directory: images/models/<shortname> or images/models/<slug>
+        const shortname = model.shortname || slug;
+        const candidateDir1 = path.join(IMAGES_MODELS_DIR, shortname);
+        const candidateDir2 = path.join(IMAGES_MODELS_DIR, slug);
+        const sourceDir = fs.existsSync(candidateDir1) ? candidateDir1 : fs.existsSync(candidateDir2) ? candidateDir2 : null;
+
+        // Cover image path
+        let coverBaseName = '';
+        if (model.cover_image) {
+          coverBaseName = path.basename(model.cover_image);
+        }
+
+        if (sourceDir && fs.existsSync(sourceDir)) {
+          const files = fs.readdirSync(sourceDir);
+          // Only process image files (exclude videos like .mp4)
+          const imageFiles = files.filter((f) => {
+            const ext = path.extname(f).toLowerCase();
+            return ['.webp', '.jpg', '.jpeg', '.png', '.gif'].includes(ext);
+          });
+
+          // Separate cover file if identifiable, otherwise first main or first image
+          let coverFile = imageFiles.find((f) => f === coverBaseName);
+          if (!coverFile) {
+            coverFile = imageFiles.find((f) => f.includes('-main.')) || imageFiles[0];
+          }
+
+          // 1. Export cover photo as cover.jpg
+          if (coverFile) {
+            const srcPath = path.join(sourceDir, coverFile);
+            const destPath = path.join(modelFolder, 'cover.jpg');
+            try {
+              execFileSync('convert', [srcPath, '-quality', '92', destPath]);
+            } catch (convErr) {
+              // Fallback copy if convert fails
+              fs.copyFileSync(srcPath, destPath);
+            }
+          }
+
+          // 2. Export all other photos for that model in jpg format
+          for (const imgFile of imageFiles) {
+            if (imgFile === coverFile) continue;
+            // Exclude thumbnail if redundant with main
+            const isThumb = imgFile.includes('-thumb.');
+            if (isThumb && coverFile && coverFile.includes('-main.')) {
+              // thumbnail image is just a downscaled version of cover_image, skip to avoid duplicate
+              continue;
+            }
+
+            const baseName = path.parse(imgFile).name;
+            const srcPath = path.join(sourceDir, imgFile);
+            const destPath = path.join(modelFolder, `${baseName}.jpg`);
+            try {
+              execFileSync('convert', [srcPath, '-quality', '92', destPath]);
+            } catch (convErr) {
+              fs.copyFileSync(srcPath, destPath);
+            }
+          }
+        }
+      }
+    }
+
+    // Write CSV file with UTF-8 BOM
+    const csvContent = '\uFEFF' + csvRows.join('\r\n');
+    fs.writeFileSync(path.join(tmpExportDir, 'catalog-models-export.csv'), csvContent, 'utf8');
+
+    // Create zip archive
+    execFileSync('zip', ['-r', zipFilePath, '.'], { cwd: tmpExportDir });
+
+    res.download(zipFilePath, 'catalog-models-export.zip', (downloadErr) => {
+      // Cleanup temp directory and zip file
+      try {
+        if (fs.existsSync(zipFilePath)) fs.unlinkSync(zipFilePath);
+        if (tmpExportDir && fs.existsSync(tmpExportDir)) {
+          fs.rmSync(tmpExportDir, { recursive: true, force: true });
+        }
+      } catch (cleanupErr) {
+        console.error('Export cleanup error:', cleanupErr);
+      }
+    });
+  } catch (err) {
+    if (tmpExportDir && fs.existsSync(tmpExportDir)) {
+      try {
+        fs.rmSync(tmpExportDir, { recursive: true, force: true });
+      } catch (e) {}
+    }
+    console.error('Error generating export zip:', err);
+    res.status(500).json({ error: err.message || 'Failed to generate export zip.' });
   }
 });
 
