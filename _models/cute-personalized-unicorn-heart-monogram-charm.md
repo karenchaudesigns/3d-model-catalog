@@ -1,5 +1,7 @@
 ---
-title: "Cute personalized unicorn heart monogram charm | Letters A-Z & blank"
+title: "Cute personalized unicorn heart monogram charm"
+extended_title: "Letters A-Z & blank"
+tagline: ""
 shortname: "cute-personalized-unicorn-heart-monogram-charm"
 category: "gifts-decor"
 hidden: false
@@ -8,6 +10,7 @@ cover_image: "/images/models/cute-personalized-unicorn-heart-monogram-charm/3d-m
 gallery_images:
   - "/images/models/cute-personalized-unicorn-heart-monogram-charm/3d-model-cute-personalized-unicorn-heart-monogram-charm-angle1.webp"
   - "/images/models/cute-personalized-unicorn-heart-monogram-charm/3d-model-cute-personalized-unicorn-heart-monogram-charm-angle2.webp"
+detailed_images: []
 tags:
   - "cute"
   - "kids"
