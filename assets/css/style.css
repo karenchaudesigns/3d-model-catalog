@@ -1108,6 +1108,162 @@ a {
   background-color: var(--color-cults3d);
 }
 
+/* ==========================================================================
+   Model Share Button & Dropdown Menu
+   ========================================================================== */
+.model-share-container {
+  position: relative;
+  margin-top: 1rem;
+  padding-top: 0.85rem;
+  border-top: 1px dashed var(--border-subtle);
+}
+
+.btn-share {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.65rem 1rem;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.16s ease;
+  user-select: none;
+}
+
+.btn-share:hover,
+.btn-share.is-active {
+  color: var(--accent-terracotta);
+  border-color: var(--accent-terracotta);
+  background-color: var(--accent-soft);
+}
+
+.btn-share svg {
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.btn-share:hover svg {
+  transform: scale(1.08);
+}
+
+.share-dropdown-menu {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(100% + 0.45rem);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 25px -5px hsla(24, 20%, 14%, 0.14), 0 8px 10px -6px hsla(24, 20%, 14%, 0.08);
+  padding: 0.45rem;
+  z-index: 50;
+  display: none;
+  animation: shareDropdownFade 0.15s ease forwards;
+}
+
+.share-dropdown-menu.is-open {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+@keyframes shareDropdownFade {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.share-menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.35rem 0.6rem 0.45rem;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 0.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.share-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-xs);
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: background-color 0.14s ease, color 0.14s ease;
+}
+
+.share-menu-item:hover {
+  background-color: var(--bg-subtle);
+  color: var(--accent-terracotta);
+}
+
+.share-menu-icon {
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--text-secondary);
+}
+
+.share-menu-item:hover .share-menu-icon {
+  color: var(--accent-terracotta);
+}
+
+.share-toast {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(1rem);
+  background-color: var(--text-primary);
+  color: #fff;
+  padding: 0.6rem 1.15rem;
+  border-radius: 999px;
+  font-size: 0.84rem;
+  font-weight: 500;
+  box-shadow: 0 6px 18px -2px hsla(0, 0%, 0%, 0.3);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 1000;
+}
+
+.share-toast.is-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
 /* Sidebar Materials & Filament Callout */
 .sidebar-materials-card {
   background-color: var(--bg-surface);
