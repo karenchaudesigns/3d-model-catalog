@@ -1,7 +1,7 @@
 ---
 title: "Cute personalized unicorn heart monogram charm"
 extended_title: "Letters A-Z & blank"
-tagline: ""
+tagline: "Fun accessory for anyone who loves unicorns! Use these unicorn charms in multiple ways!"
 shortname: "cute-personalized-unicorn-heart-monogram-charm"
 category: "gifts-decor"
 hidden: false
@@ -46,6 +46,8 @@ youtube_id: "trD0dy0kwxw"
 
 #### See it in action!
 
+####
+
 #### FEATURES
 
 - a big heart
@@ -63,6 +65,10 @@ youtube_id: "trD0dy0kwxw"
 **Gift bag tag**
 
 - I printed one at 200% scale and used ribbon to tie it to the handle of the gift bag.
+
+**Using them in a different way? **
+
+- I'd love to know how you're using my design! Share your makes!
 
 ### Recommended Print Settings
 
