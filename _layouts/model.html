@@ -492,7 +492,50 @@ layout: default
       </div>
     </section>
   {% endif %}
+
+  <!-- Recommended Models Section: Promotes related models based on shared tags, same category, and fan favorites -->
+  {% assign all_catalog_models = site.models | where_exp: "item", "item.hidden != true" %}
+  <section class="model-recommendations-section" id="model-recommendations" aria-labelledby="recommendations-heading">
+    <div class="recommendations-header">
+      <span class="eyebrow">Explore More Prints</span>
+      <h2 class="section-title" id="recommendations-heading">You Might Also Like</h2>
+      <p class="recommendations-subtitle">Discover community favorites, models sharing similar tags, and related designs from our collection.</p>
+    </div>
+
+    <div class="model-recommendations-grid" id="recommendations-grid">
+      <!-- Populated dynamically based on shared tags, category, and fan favorites -->
+    </div>
+  </section>
 </article>
+
+<script id="catalog-models-data" type="application/json">
+[
+  {% for m in all_catalog_models %}
+    {% assign m_cat = site.catalog_categories | where: "slug", m.category | first %}
+    {% if m.thumbnail_image %}
+      {% assign m_thumb = m.thumbnail_image %}
+    {% elsif m.shortname %}
+      {% assign m_thumb = '/images/models/' | append: m.shortname | append: '/3d-model-' | append: m.shortname | append: '-thumb.webp' %}
+    {% else %}
+      {% assign m_thumb = m.cover_image %}
+    {% endif %}
+    {
+      "slug": {{ m.slug | jsonify }},
+      "title": {{ m.title | jsonify }},
+      "category": {{ m.category | jsonify }},
+      "categoryTitle": {{ m_cat.title | default: m.category | jsonify }},
+      "fan_favorite": {% if m.fan_favorite == true %}true{% else %}false{% endif %},
+      "url": {{ m.url | relative_url | jsonify }},
+      "thumb": {{ m_thumb | relative_url | jsonify }},
+      "tags": [
+        {% for t in m.tags %}
+          {{ t | jsonify }}{% unless forloop.last %},{% endunless %}
+        {% endfor %}
+      ]
+    }{% unless forloop.last %},{% endunless %}
+  {% endfor %}
+]
+</script>
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
@@ -576,5 +619,264 @@ layout: default
         thumbStrip.scrollBy({ left: 260, behavior: 'smooth' });
       });
     }
+
+    // Recommendation Engine: Pick related models to promote at bottom of model page
+    (function renderRecommendations() {
+      var gridEl = document.getElementById('recommendations-grid');
+      var dataEl = document.getElementById('catalog-models-data');
+      if (!gridEl || !dataEl) return;
+
+      var catalog;
+      try {
+        catalog = JSON.parse(dataEl.textContent);
+      } catch (e) {
+        console.error('Failed to parse catalog-models-data', e);
+        return;
+      }
+      if (!Array.isArray(catalog) || !catalog.length) return;
+
+      var currentSlug = {{ page.slug | jsonify }};
+      var currentCategory = {{ page.category | jsonify }};
+      var currentTags = [
+        {% for t in page.tags %}
+          {{ t | jsonify }}{% unless forloop.last %},{% endunless %}
+        {% endfor %}
+      ];
+
+      var currentTagMap = {};
+      currentTags.forEach(function (t) {
+        if (!t) return;
+        currentTagMap[String(t).trim().toLowerCase()] = String(t).trim();
+      });
+
+      var candidates = catalog.filter(function (m) {
+        return m.slug !== currentSlug;
+      });
+
+      function getSharedTags(m) {
+        var shared = [];
+        (m.tags || []).forEach(function (t) {
+          if (!t) return;
+          var key = String(t).trim().toLowerCase();
+          if (currentTagMap[key]) {
+            shared.push(currentTagMap[key]);
+          }
+        });
+        return shared;
+      }
+
+      // 1. Candidate models with shared tags
+      var tagCandidates = [];
+      candidates.forEach(function (m) {
+        var shared = getSharedTags(m);
+        if (shared.length > 0) {
+          tagCandidates.push({
+            model: m,
+            sharedTags: shared,
+            count: shared.length
+          });
+        }
+      });
+
+      // Sort tag candidates:
+      // a. Most shared tags first
+      // b. Fan favorites first
+      // c. Same category first
+      tagCandidates.sort(function (a, b) {
+        if (b.count !== a.count) return b.count - a.count;
+        if (b.model.fan_favorite !== a.model.fan_favorite) {
+          return (b.model.fan_favorite ? 1 : 0) - (a.model.fan_favorite ? 1 : 0);
+        }
+        var aSame = a.model.category === currentCategory ? 1 : 0;
+        var bSame = b.model.category === currentCategory ? 1 : 0;
+        if (bSame !== aSame) return bSame - aSame;
+        return (a.model.title || '').localeCompare(b.model.title || '');
+      });
+
+      var selected = [];
+      var selectedSlugs = {};
+
+      // Up to 2 models sharing the most tags
+      for (var i = 0; i < tagCandidates.length; i++) {
+        if (selected.length >= 2) break;
+        var item = tagCandidates[i];
+        selected.push({
+          model: item.model,
+          sharedTags: item.sharedTags,
+          reason: 'shared-tags'
+        });
+        selectedSlugs[item.model.slug] = true;
+      }
+
+      // 2. Models in the same category (favoring fan favorites)
+      var sameCategoryCandidates = candidates.filter(function (m) {
+        return m.category === currentCategory && !selectedSlugs[m.slug];
+      });
+
+      sameCategoryCandidates.sort(function (a, b) {
+        if (b.fan_favorite !== a.fan_favorite) {
+          return (b.fan_favorite ? 1 : 0) - (a.fan_favorite ? 1 : 0);
+        }
+        var aShared = getSharedTags(a).length;
+        var bShared = getSharedTags(b).length;
+        if (bShared !== aShared) return bShared - aShared;
+        return (a.title || '').localeCompare(b.title || '');
+      });
+
+      for (var j = 0; j < sameCategoryCandidates.length; j++) {
+        if (selected.length >= 3) break;
+        var mCat = sameCategoryCandidates[j];
+        selected.push({
+          model: mCat,
+          sharedTags: getSharedTags(mCat),
+          reason: 'same-category'
+        });
+        selectedSlugs[mCat.slug] = true;
+      }
+
+      // 3. Fan Favorite that is NOT in the same category
+      var diffCategoryFanFavs = candidates.filter(function (m) {
+        return m.fan_favorite && m.category !== currentCategory && !selectedSlugs[m.slug];
+      });
+
+      diffCategoryFanFavs.sort(function (a, b) {
+        var aShared = getSharedTags(a).length;
+        var bShared = getSharedTags(b).length;
+        if (bShared !== aShared) return bShared - aShared;
+        return (a.title || '').localeCompare(b.title || '');
+      });
+
+      for (var k = 0; k < diffCategoryFanFavs.length; k++) {
+        if (selected.length >= 4) break;
+        var mFF = diffCategoryFanFavs[k];
+        selected.push({
+          model: mFF,
+          sharedTags: getSharedTags(mFF),
+          reason: 'fan-favorite-diff-category'
+        });
+        selectedSlugs[mFF.slug] = true;
+      }
+
+      // Backfill up to 4 if needed (e.g. if category or tags had fewer candidates)
+      if (selected.length < 4) {
+        for (var tIdx = 0; tIdx < tagCandidates.length; tIdx++) {
+          if (selected.length >= 4) break;
+          var tCand = tagCandidates[tIdx];
+          if (!selectedSlugs[tCand.model.slug]) {
+            selected.push({
+              model: tCand.model,
+              sharedTags: tCand.sharedTags,
+              reason: 'shared-tags'
+            });
+            selectedSlugs[tCand.model.slug] = true;
+          }
+        }
+      }
+
+      if (selected.length < 4) {
+        for (var cIdx = 0; cIdx < sameCategoryCandidates.length; cIdx++) {
+          if (selected.length >= 4) break;
+          var cCand = sameCategoryCandidates[cIdx];
+          if (!selectedSlugs[cCand.slug]) {
+            selected.push({
+              model: cCand,
+              sharedTags: getSharedTags(cCand),
+              reason: 'same-category'
+            });
+            selectedSlugs[cCand.slug] = true;
+          }
+        }
+      }
+
+      if (selected.length < 4) {
+        var remaining = candidates.filter(function (m) {
+          return !selectedSlugs[m.slug];
+        }).sort(function (a, b) {
+          if (b.fan_favorite !== a.fan_favorite) {
+            return (b.fan_favorite ? 1 : 0) - (a.fan_favorite ? 1 : 0);
+          }
+          return (a.title || '').localeCompare(b.title || '');
+        });
+
+        for (var rIdx = 0; rIdx < remaining.length; rIdx++) {
+          if (selected.length >= 4) break;
+          var rCand = remaining[rIdx];
+          selected.push({
+            model: rCand,
+            sharedTags: getSharedTags(rCand),
+            reason: 'explore'
+          });
+          selectedSlugs[rCand.slug] = true;
+        }
+      }
+
+      function escapeHtml(str) {
+        return String(str || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      // Render cards
+      var cardsHtml = selected.map(function (item) {
+        var m = item.model;
+        var thumb = m.thumb || '';
+        var safeTitle = escapeHtml(m.title);
+        var safeCat = escapeHtml(m.categoryTitle || m.category || '');
+        var safeUrl = escapeHtml(m.url);
+
+        var fanFavBadge = m.fan_favorite
+          ? '<span class="fan-favorite-badge">⭐ Fan Favorite</span>'
+          : '';
+
+        var sharedTagsHtml = '';
+        if (item.sharedTags && item.sharedTags.length > 0) {
+          var tagPills = item.sharedTags.slice(0, 3).map(function (tag) {
+            return '<span class="mini-tag is-shared">#' + escapeHtml(tag) + '</span>';
+          }).join('');
+
+          var extraCount = item.sharedTags.length > 3 ? '<span class="mini-tag is-shared">+' + (item.sharedTags.length - 3) + '</span>' : '';
+
+          sharedTagsHtml =
+            '<div class="model-card-shared-tags">' +
+            '<span class="shared-tags-label">' +
+            '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>' +
+            'Shared Tags' +
+            '</span>' +
+            '<div class="shared-tags-list">' + tagPills + extraCount + '</div>' +
+            '</div>';
+        } else if (m.tags && m.tags.length > 0) {
+          var normalTags = m.tags.slice(0, 3).map(function (tag) {
+            return '<span class="mini-tag">#' + escapeHtml(tag) + '</span>';
+          }).join('');
+          sharedTagsHtml =
+            '<div class="model-card-tags" style="margin-top:auto;padding-top:0.4rem;">' +
+            normalTags +
+            '</div>';
+        }
+
+        return (
+          '<article class="model-thumb-card">' +
+          '<a href="' + safeUrl + '" class="model-thumb-link" id="rec-model-' + escapeHtml(m.slug) + '">' +
+          '<div class="model-thumb-media">' +
+          '<img src="' + escapeHtml(thumb) + '" alt="' + safeTitle + ' — 3D model thumbnail" width="600" height="600" loading="lazy" decoding="async" class="model-thumb-img">' +
+          '</div>' +
+          '<div class="model-thumb-body">' +
+          '<div class="model-card-meta-row">' +
+          '<span class="model-card-category">' + safeCat + '</span>' +
+          fanFavBadge +
+          '</div>' +
+          '<h3 class="model-card-title">' + safeTitle + '</h3>' +
+          sharedTagsHtml +
+          '</div>' +
+          '</a>' +
+          '</article>'
+        );
+      }).join('');
+
+      gridEl.innerHTML = cardsHtml;
+    })();
   });
 </script>

@@ -1473,6 +1473,117 @@ a {
 }
 
 /* ==========================================================================
+   Model Recommendations Section (_layouts/model.html)
+   ========================================================================== */
+.model-recommendations-section {
+  margin-top: 4rem;
+  padding-top: 2.75rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.recommendations-header {
+  margin-bottom: 1.5rem;
+}
+
+.recommendations-header .eyebrow {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent-terracotta);
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.recommendations-header .section-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 2.4vw, 1.85rem);
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  margin-bottom: 0.35rem;
+}
+
+.recommendations-subtitle {
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+}
+
+.model-recommendations-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .model-recommendations-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+}
+
+@media (min-width: 900px) {
+  .model-recommendations-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.35rem;
+  }
+}
+
+.model-card-shared-tags {
+  margin-top: auto;
+  padding-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.shared-tags-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--accent-terracotta);
+}
+
+.shared-tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.mini-tag.is-shared {
+  background-color: var(--accent-soft);
+  color: var(--accent-terracotta);
+  font-weight: 600;
+  border: 1px solid hsla(16, 62%, 46%, 0.18);
+}
+
+[data-theme="dark"] .mini-tag.is-shared {
+  background-color: hsl(16, 50%, 20%);
+  color: hsl(16, 85%, 80%);
+  border-color: hsl(16, 50%, 35%);
+}
+
+.rec-reason-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  background-color: var(--bg-primary);
+  color: var(--text-secondary);
+}
+
+/* ==========================================================================
    Footer
    ========================================================================== */
 .site-footer {
