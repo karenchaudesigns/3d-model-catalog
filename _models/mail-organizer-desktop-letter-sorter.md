@@ -1,18 +1,24 @@
 ---
 title: "Mail organizer desktop letter sorter"
+extended_title: ""
+tagline: ""
 shortname: "mail-organizer-desktop-letter-sorter"
 category: "useful-prints"
+hidden: false
 thumbnail_image: "/images/models/mail-organizer-desktop-letter-sorter/3d-model-mail-organizer-desktop-letter-sorter-thumb.webp"
 cover_image: "/images/models/mail-organizer-desktop-letter-sorter/3d-model-mail-organizer-desktop-letter-sorter-main.webp"
 gallery_images:
   - "/images/models/mail-organizer-desktop-letter-sorter/3d-model-mail-organizer-desktop-letter-sorter-angle1.webp"
   - "/images/models/mail-organizer-desktop-letter-sorter/3d-model-mail-organizer-desktop-letter-sorter-angle2.webp"
+detailed_images: []
 tags: []
 downloads:
   makerworld: ""
   printables: "https://www.printables.com/model/545149-mail-organizer-desktop-letter-sorter"
   thangs: ""
   cults3d: ""
+youtube_shorts: []
+youtube_videos: []
 youtube_id: ""
 ---
 Sick of stacks of snail mail and seeking a slim solution? Stop stacking and start sorting!
