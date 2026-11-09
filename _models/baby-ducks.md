@@ -1,10 +1,14 @@
 ---
-title: "Baby Ducks | Multi-color 3mf | Free to a good home"
+title: "Baby Ducks"
+extended_title: "Multi-color 3mf | Free to a good home"
+tagline: ""
 shortname: "baby-ducks"
 category: "gifts-decor"
+hidden: false
 thumbnail_image: "/images/models/baby-ducks/3d-model-baby-ducks-thumb.webp"
 cover_image: "/images/models/baby-ducks/3d-model-baby-ducks-main.webp"
 gallery_images: []
+detailed_images: []
 tags:
   - "duck"
   - "rubber duck"
@@ -20,7 +24,8 @@ downloads:
   printables: "https://www.printables.com/model/986068-baby-ducks-multi-color-3mf-included-free-to-a-good"
   thangs: "https://thangs.com/designer/karenchaudesigns/3d-model/Baby%20Ducks%20%7C%20Multi-color%203mf%20included%20%7C%20Free%20to%20a%20good%20home-1121799"
   cults3d: ""
+youtube_shorts: []
+youtube_videos: []
 youtube_id: ""
 ---
-
 I printed these ducks with no supports, 0% infill, back seams, and 6 bottom layers (so they stay upright while floating).
