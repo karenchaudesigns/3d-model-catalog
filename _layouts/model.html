@@ -348,9 +348,19 @@ layout: default
   <!-- Below-the-Fold Model Description & Print Settings -->
   {% assign stripped_content = content | strip %}
   {% if stripped_content != "" %}
+    {% assign has_print_settings = false %}
+    {% if content contains "Recommended Print Settings" or content contains "Print Settings" or page.print_settings or page.printSettings %}
+      {% assign has_print_settings = true %}
+    {% endif %}
     <section class="model-description-section" aria-labelledby="description-heading">
       <div class="section-header">
-        <h2 class="section-title" id="description-heading">Model Overview &amp; Print Settings</h2>
+        <h2 class="section-title" id="description-heading">
+          {% if has_print_settings %}
+            Model Overview &amp; Print Settings
+          {% else %}
+            Model Overview
+          {% endif %}
+        </h2>
       </div>
       <div class="model-description prose">
         {{ content }}
