@@ -37,20 +37,4 @@ youtube_shorts:
 youtube_videos: []
 youtube_id: "-M0k1IFCxOE"
 ---
-### FEATURES
-
-*Super satisfying sounds, flexible and fun to fidget! Contains cute craters!*
-
-### SEE & HEAR IT IN ACTION!
-
-[https://youtube.com/shorts/-M0k1IFCxOE?feature=share](https://youtube.com/shorts/-M0k1IFCxOE?feature=share)
-
-### CONNECT WITH ME
-
-❤  **LIKE & FOLLOW** if you want to see more from me
-
-📷 **SHARE YOUR MAKES** and let me know what you think
-
-🤑 **WANT TO SELL MY DESIGNS?** Message me for more info
-
-*THANKS FOR ALL YOUR SUPPORT!  ❤ KAREN CHAU*
+Super satisfying sounds, flexible and fun to fidget! Contains cute craters!
