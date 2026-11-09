@@ -7,6 +7,7 @@
   --bg-primary: hsl(36, 33%, 97%);
   --bg-surface: hsl(0, 0%, 100%);
   --bg-subtle: hsl(34, 24%, 93%);
+  --header-bg: hsla(36, 33%, 97%, 0.9);
   --text-primary: hsl(24, 18%, 14%);
   --text-secondary: hsl(24, 10%, 38%);
   --text-muted: hsl(24, 8%, 54%);
@@ -34,6 +35,62 @@
   --container-max: 1320px;
 }
 
+/* System Dark Mode */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg-primary: hsl(24, 14%, 10%);
+    --bg-surface: hsl(24, 12%, 14%);
+    --bg-subtle: hsl(24, 10%, 18%);
+    --header-bg: hsla(24, 14%, 10%, 0.9);
+    --text-primary: hsl(36, 25%, 93%);
+    --text-secondary: hsl(32, 14%, 72%);
+    --text-muted: hsl(28, 10%, 55%);
+    --accent-terracotta: hsl(16, 75%, 58%);
+    --accent-terracotta-hover: hsl(16, 80%, 65%);
+    --accent-soft: hsla(16, 75%, 58%, 0.15);
+    --border-subtle: hsl(24, 10%, 22%);
+    --border-strong: hsl(24, 12%, 30%);
+    --shadow-card: 0 2px 10px -2px hsla(0, 0%, 0%, 0.4), 0 1px 3px hsla(0, 0%, 0%, 0.3);
+    --shadow-hover: 0 14px 28px -6px hsla(0, 0%, 0%, 0.6), 0 4px 10px -2px hsla(0, 0%, 0%, 0.4);
+  }
+}
+
+/* Explicit Dark Mode Override */
+[data-theme="dark"] {
+  --bg-primary: hsl(24, 14%, 10%);
+  --bg-surface: hsl(24, 12%, 14%);
+  --bg-subtle: hsl(24, 10%, 18%);
+  --header-bg: hsla(24, 14%, 10%, 0.9);
+  --text-primary: hsl(36, 25%, 93%);
+  --text-secondary: hsl(32, 14%, 72%);
+  --text-muted: hsl(28, 10%, 55%);
+  --accent-terracotta: hsl(16, 75%, 58%);
+  --accent-terracotta-hover: hsl(16, 80%, 65%);
+  --accent-soft: hsla(16, 75%, 58%, 0.15);
+  --border-subtle: hsl(24, 10%, 22%);
+  --border-strong: hsl(24, 12%, 30%);
+  --shadow-card: 0 2px 10px -2px hsla(0, 0%, 0%, 0.4), 0 1px 3px hsla(0, 0%, 0%, 0.3);
+  --shadow-hover: 0 14px 28px -6px hsla(0, 0%, 0%, 0.6), 0 4px 10px -2px hsla(0, 0%, 0%, 0.4);
+}
+
+/* Explicit Light Mode Override */
+[data-theme="light"] {
+  --bg-primary: hsl(36, 33%, 97%);
+  --bg-surface: hsl(0, 0%, 100%);
+  --bg-subtle: hsl(34, 24%, 93%);
+  --header-bg: hsla(36, 33%, 97%, 0.9);
+  --text-primary: hsl(24, 18%, 14%);
+  --text-secondary: hsl(24, 10%, 38%);
+  --text-muted: hsl(24, 8%, 54%);
+  --accent-terracotta: hsl(16, 62%, 46%);
+  --accent-terracotta-hover: hsl(16, 66%, 38%);
+  --accent-soft: hsl(16, 55%, 94%);
+  --border-subtle: hsl(32, 18%, 87%);
+  --border-strong: hsl(28, 16%, 76%);
+  --shadow-card: 0 2px 10px -2px hsla(24, 20%, 14%, 0.06), 0 1px 3px hsla(24, 20%, 14%, 0.04);
+  --shadow-hover: 0 14px 28px -6px hsla(24, 20%, 14%, 0.11), 0 4px 10px -2px hsla(24, 20%, 14%, 0.06);
+}
+
 *,
 *::before,
 *::after {
@@ -56,6 +113,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 img,
@@ -84,7 +142,7 @@ a {
   position: sticky;
   top: 0;
   z-index: 40;
-  background-color: hsla(36, 33%, 97%, 0.9);
+  background-color: var(--header-bg);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border-subtle);
 }
@@ -144,6 +202,68 @@ a {
   color: var(--accent-terracotta);
   background-color: var(--accent-soft);
   font-weight: 600;
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  margin-left: 0.25rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  background-color: var(--bg-surface);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 0.18s ease, background-color 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+}
+
+.theme-toggle:hover {
+  color: var(--text-primary);
+  background-color: var(--bg-subtle);
+  border-color: var(--border-strong);
+  transform: scale(1.05);
+}
+
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--accent-terracotta);
+  outline-offset: 2px;
+}
+
+.theme-toggle svg {
+  width: 1.15rem;
+  height: 1.15rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Icon visibility depending on active theme */
+.theme-toggle .icon-sun {
+  display: none;
+}
+.theme-toggle .icon-moon {
+  display: block;
+}
+
+/* When in dark mode, show sun and hide moon */
+[data-theme="dark"] .theme-toggle .icon-sun {
+  display: block;
+}
+[data-theme="dark"] .theme-toggle .icon-moon {
+  display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-toggle .icon-sun {
+    display: block;
+  }
+  :root:not([data-theme="light"]) .theme-toggle .icon-moon {
+    display: none;
+  }
 }
 
 .site-main {
