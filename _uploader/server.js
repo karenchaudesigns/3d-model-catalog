@@ -1246,6 +1246,7 @@ app.post('/api/import/printables', async (req, res) => {
           }
           images {
             filePath
+            order
           }
         }
       }
@@ -1295,11 +1296,18 @@ app.post('/api/import/printables', async (req, res) => {
       }
 
       const rawPaths = [];
+      // If Printables provides a dedicated cover image, ensure it is first in the list
       if (gqlPrint.image && gqlPrint.image.filePath) {
         rawPaths.push(gqlPrint.image.filePath);
       }
       if (Array.isArray(gqlPrint.images)) {
-        gqlPrint.images.forEach((img) => {
+        // Sort images by Printables order field (order: 0, 1, 2...)
+        const sortedImages = gqlPrint.images.slice().sort((a, b) => {
+          const ordA = typeof a.order === 'number' ? a.order : 0;
+          const ordB = typeof b.order === 'number' ? b.order : 0;
+          return ordA - ordB;
+        });
+        sortedImages.forEach((img) => {
           if (img && img.filePath && !rawPaths.includes(img.filePath)) {
             rawPaths.push(img.filePath);
           }

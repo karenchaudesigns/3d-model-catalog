@@ -4871,11 +4871,19 @@
             if (addedShorts > 0) populatedParts.push(addedShorts + (addedShorts === 1 ? ' Short' : ' Shorts'));
             if (addedVideos > 0) populatedParts.push(addedVideos + (addedVideos === 1 ? ' Video' : ' Videos'));
 
-            // If no images are currently in the showcase stage and Printables returned images, load them via proxy
+            // If no images are currently in the showcase stage and Printables returned images, load them in exact sequence
             if (sourceImages.length === 0 && Array.isArray(d.imageUrls) && d.imageUrls.length > 0) {
-              d.imageUrls.slice(0, 5).forEach(function (remoteImgUrl) {
-                var proxiedUrl = '/api/proxy-image?url=' + encodeURIComponent(remoteImgUrl);
-                addImageFromUrl(proxiedUrl);
+              var candidatePhotos = d.imageUrls.slice(0, 5).map(function (remoteImgUrl) {
+                return '/api/proxy-image?url=' + encodeURIComponent(remoteImgUrl);
+              });
+              loadImageListInOrder(candidatePhotos, function (orderedImages) {
+                if (orderedImages && orderedImages.length > 0) {
+                  sourceImages = orderedImages;
+                  // Ensure index 0 (the cover photo) is active and selected as the cover
+                  activeStageSelection = { type: 'image', index: 0 };
+                  renderSourceCards();
+                  updateMarkdownPreview();
+                }
               });
               populatedParts.push(Math.min(5, d.imageUrls.length) + ' Photos');
             }
