@@ -471,16 +471,58 @@
       z-index: 35;
     }
 
+    .matrix-images-cell {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      justify-content: flex-start;
+      width: 100%;
+    }
+
     .matrix-cover-thumb {
       width: 86px;
       height: 86px;
+      flex-shrink: 0;
       object-fit: cover;
       border-radius: 8px;
       border: 1px solid var(--border-subtle);
       background: var(--bg-primary);
       display: block;
-      margin: 0 auto;
+      margin: 0;
       box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+
+    .matrix-other-thumbs-grid {
+      display: grid;
+      grid-template-rows: repeat(3, 26px);
+      grid-auto-flow: column;
+      grid-auto-columns: 26px;
+      gap: 4px;
+      height: 86px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding-bottom: 2px;
+      align-content: start;
+    }
+
+    .matrix-tiny-thumb {
+      width: 26px;
+      height: 26px;
+      object-fit: cover;
+      border-radius: 4px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-primary);
+      display: block;
+      transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+      cursor: pointer;
+    }
+
+    .matrix-tiny-thumb:hover {
+      transform: scale(1.15);
+      border-color: var(--accent-terracotta);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+      z-index: 5;
+      position: relative;
     }
 
     .matrix-input-text {
@@ -965,16 +1007,47 @@
           var thumbUrl = m.thumbnail_image || m.cover_image || '';
           var dirtyPill = '<span class="matrix-col-dirty-pill">UNSAVED</span>';
 
-          // Row 1: Cover Image
+          // Row 1: Cover Image & Other Images Grid
+          var otherImages = [];
+          if (Array.isArray(m.gallery_images)) {
+            m.gallery_images.forEach(function (img) {
+              if (img && img !== thumbUrl && otherImages.indexOf(img) === -1) {
+                otherImages.push(img);
+              }
+            });
+          }
+          if (Array.isArray(m.detailed_images)) {
+            m.detailed_images.forEach(function (img) {
+              if (img && img !== thumbUrl && otherImages.indexOf(img) === -1) {
+                otherImages.push(img);
+              }
+            });
+          }
+
+          var otherImagesHtml = '';
+          if (otherImages.length > 0) {
+            otherImagesHtml =
+              '<div class="matrix-other-thumbs-grid" title="' + otherImages.length + ' additional image' + (otherImages.length === 1 ? '' : 's') + '">' +
+              otherImages.map(function (imgUrl, idx) {
+                return '<img src="' + escapeHtmlText(imgUrl) + '" alt="Angle ' + (idx + 1) + '" class="matrix-tiny-thumb" loading="lazy">';
+              }).join('') +
+              '</div>';
+          }
+
+          var coverImgHtml = thumbUrl
+            ? '<img src="' + escapeHtmlText(thumbUrl) + '" alt="' + escapeHtmlText(cur.title) + '" class="matrix-cover-thumb" loading="lazy">'
+            : '<div class="matrix-cover-thumb" style="display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:0.7rem;">No Image</div>';
+
           rowCover +=
             '<th class="model-col-header' + dirtyClass + '" data-col-slug="' + sSlug + '">' +
             '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.4rem;margin-bottom:0.35rem;">' +
             '<span style="font-family:var(--font-mono);font-size:0.68rem;color:var(--text-muted);">' + sSlug + '</span>' +
             dirtyPill +
             '</div>' +
-            (thumbUrl
-              ? '<img src="' + escapeHtmlText(thumbUrl) + '" alt="' + escapeHtmlText(cur.title) + '" class="matrix-cover-thumb" loading="lazy">'
-              : '<div class="matrix-cover-thumb" style="display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:0.7rem;">No Image</div>') +
+            '<div class="matrix-images-cell">' +
+            coverImgHtml +
+            otherImagesHtml +
+            '</div>' +
             '</th>';
 
           // Row 2: Title (auto-resizing textarea to fit longest title)
