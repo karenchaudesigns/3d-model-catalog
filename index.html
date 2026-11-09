@@ -26,7 +26,9 @@ description: "Browse original 3D printable models by category—Useful Prints, G
   <div class="category-grid">
     {% for cat in site.catalog_categories %}
       {% if cat.slug == "fan-favorites" %}
-        {% assign cat_models = visible_models | where_exp: "item", "item.category == 'fan-favorites' or item.fan_favorite == true" %}
+        {% assign cat_ff = visible_models | where: "fan_favorite", true %}
+        {% assign cat_legacy_ff = visible_models | where: "category", "fan-favorites" %}
+        {% assign cat_models = cat_ff | concat: cat_legacy_ff | uniq %}
       {% else %}
         {% assign cat_models = visible_models | where: "category", cat.slug %}
       {% endif %}

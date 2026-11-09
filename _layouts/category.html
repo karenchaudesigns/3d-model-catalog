@@ -5,7 +5,9 @@ layout: default
 {% assign category_meta = site.catalog_categories | where: "slug", current_slug | first %}
 {% assign visible_models = site.models | where_exp: "item", "item.hidden != true" %}
 {% if current_slug == "fan-favorites" %}
-  {% assign category_models = visible_models | where_exp: "item", "item.category == 'fan-favorites' or item.fan_favorite == true" %}
+  {% assign ff_models = visible_models | where: "fan_favorite", true %}
+  {% assign legacy_ff_models = visible_models | where: "category", "fan-favorites" %}
+  {% assign category_models = ff_models | concat: legacy_ff_models | uniq %}
 {% else %}
   {% assign category_models = visible_models | where: "category", current_slug %}
 {% endif %}
