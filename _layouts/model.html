@@ -618,6 +618,7 @@ layout: default
     {
       "slug": {{ m.slug | jsonify }},
       "title": {{ m.title | jsonify }},
+      "extended_title": {{ m.extended_title | jsonify }},
       "category": {{ m.category | jsonify }},
       "categoryTitle": {{ m_cat.title | default: m.category | jsonify }},
       "fan_favorite": {% if m.fan_favorite == true %}true{% else %}false{% endif %},
@@ -1117,6 +1118,7 @@ layout: default
           fanFavBadge +
           '</div>' +
           '<h3 class="model-card-title">' + safeTitle + '</h3>' +
+          (m.extended_title ? '<p class="model-card-extended-title">' + escapeHtml(m.extended_title) + '</p>' : '') +
           sharedTagsHtml +
           '</div>' +
           '</a>' +

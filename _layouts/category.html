@@ -105,6 +105,9 @@ layout: default
                 {% endif %}
               </div>
               <h2 class="model-card-title">{{ model.title }}</h2>
+              {% if model.extended_title and model.extended_title != "" %}
+                <p class="model-card-extended-title">{{ model.extended_title }}</p>
+              {% endif %}
               {% if model.tags and model.tags.size > 0 %}
                 <div class="model-card-tags">
                   {% for t in model.tags limit: 3 %}
