@@ -3500,6 +3500,19 @@
           });
       }
 
+      function hasExistingFormData() {
+        return Boolean(
+          nameInput.value.trim() ||
+          extendedTitleInput.value.trim() ||
+          taglineInput.value.trim() ||
+          descInput.value.trim() ||
+          sourceImages.length > 0 ||
+          detailedImages.length > 0 ||
+          youtubeShorts.length > 0 ||
+          youtubeVideos.length > 0
+        );
+      }
+
       btnAutofillPrintables.addEventListener('click', function () {
         importFromPrintables(dlPrintables.value);
       });
@@ -3508,6 +3521,14 @@
         var clip = (e.clipboardData || window.clipboardData).getData('text');
         if (clip && /printables\.com\/(?:[a-z]{2}\/)?model\/\d+/i.test(clip.trim())) {
           setTimeout(function () {
+            syncDownloadButtonHighlights();
+            updateMarkdownPreview();
+            // If fields are already filled in, do not auto-fill over them; user can still click "✨ Auto-Fill Page" manually if desired
+            if (hasExistingFormData()) {
+              printablesImportStatus.style.display = 'block';
+              printablesImportStatus.textContent = 'Printables link pasted. Click "✨ Auto-Fill Page" if you want to overwrite current fields.';
+              return;
+            }
             importFromPrintables(dlPrintables.value);
           }, 50);
         }
