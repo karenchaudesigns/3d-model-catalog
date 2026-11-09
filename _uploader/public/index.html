@@ -755,6 +755,11 @@
     }
 
     /* Model Title Input styled identically to <h1 class="model-title"> */
+    .model-title-wrapper {
+      position: relative;
+      width: 100%;
+    }
+
     .model-title-input {
       width: 100%;
       font-family: var(--font-display);
@@ -766,8 +771,30 @@
       background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-sm);
-      padding: 0.45rem 0.7rem;
+      padding: 0.45rem 4.5rem 0.45rem 0.7rem;
       transition: border-color 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .model-title-counter {
+      position: absolute;
+      right: 0.65rem;
+      bottom: 0.55rem;
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      pointer-events: none;
+      user-select: none;
+      background: var(--bg-surface);
+      padding: 0 0.25rem;
+      border-radius: var(--radius-xs);
+      line-height: 1.2;
+      transition: color 0.16s ease;
+    }
+
+    .model-title-counter.is-over-limit {
+      color: var(--danger, #d9534f);
+      font-weight: 600;
     }
 
     .model-title-input::placeholder {
@@ -936,6 +963,7 @@
       width: 100%;
     }
 
+    .matrix-title-counter,
     .matrix-tagline-counter {
       position: absolute;
       right: 0.55rem;
@@ -953,6 +981,7 @@
       transition: color 0.16s ease;
     }
 
+    .matrix-title-counter.is-over-limit,
     .matrix-tagline-counter.is-over-limit {
       color: var(--danger, #d9534f);
       font-weight: 600;
@@ -2895,14 +2924,17 @@
               </label>
             </div>
 
-            <input
-              type="text"
-              id="model-name"
-              class="model-title-input"
-              required
-              placeholder="Model Title (e.g., Baby Ducks)"
-              aria-label="Model Title"
-            >
+            <div class="model-title-wrapper">
+              <input
+                type="text"
+                id="model-name"
+                class="model-title-input"
+                required
+                placeholder="Model Title (e.g., Baby Ducks)"
+                aria-label="Model Title"
+              >
+              <span id="title-char-counter" class="model-title-counter" aria-live="polite">0/50</span>
+            </div>
 
             <textarea
               id="model-extended-title"
@@ -3284,6 +3316,7 @@
       };
 
       var nameInput = document.getElementById('model-name');
+      var titleCharCounter = document.getElementById('title-char-counter');
       var extendedTitleInput = document.getElementById('model-extended-title');
       var taglineInput = document.getElementById('model-tagline');
       var taglineCharCounter = document.getElementById('tagline-char-counter');
@@ -4300,6 +4333,7 @@
         }
         syncBreadcrumbs();
         rebuildWebPAssets();
+        updateTitleCharCounter();
       });
 
       shortnameInput.addEventListener('input', function () {
@@ -4497,6 +4531,13 @@
         });
       }
 
+      function updateTitleCharCounter() {
+        if (!nameInput || !titleCharCounter) return;
+        var count = nameInput.value.length;
+        titleCharCounter.textContent = count + '/50';
+        titleCharCounter.classList.toggle('is-over-limit', count > 50);
+      }
+
       function updateTaglineCharCounter() {
         if (!taglineInput || !taglineCharCounter) return;
         var count = taglineInput.value.length;
@@ -4516,6 +4557,7 @@
         autoExpandTextarea(taglineInput);
         autoExpandTextarea(descInput);
         autoExpandTextarea(settingsInput);
+        updateTitleCharCounter();
         updateTaglineCharCounter();
       }
 
@@ -5515,9 +5557,15 @@
             '</th>';
 
           // Row 2: Title (auto-resizing textarea to fit longest title)
+          var mTitleLen = (cur.title || '').length;
+          var mTitleOver = mTitleLen > 50;
+          var mTitleCounterClass = 'matrix-title-counter' + (mTitleOver ? ' is-over-limit' : '');
           rowTitle +=
             '<th class="model-col-header' + dirtyClass + '" data-col-slug="' + sSlug + '">' +
-            '<textarea class="matrix-textarea matrix-textarea-auto matrix-field-input" data-slug="' + sSlug + '" data-field="title" rows="1" placeholder="Model Title..." aria-label="Title for ' + sSlug + '">' + escapeHtmlText(cur.title) + '</textarea>' +
+            '<div class="matrix-field-wrapper">' +
+            '<textarea class="matrix-textarea matrix-textarea-auto matrix-field-input" data-slug="' + sSlug + '" data-field="title" rows="1" placeholder="Model Title..." aria-label="Title for ' + sSlug + '" style="padding-bottom:1.35rem;">' + escapeHtmlText(cur.title) + '</textarea>' +
+            '<span class="' + mTitleCounterClass + '" data-role="matrix-title-counter" data-slug="' + sSlug + '" aria-live="polite">' + mTitleLen + '/50</span>' +
+            '</div>' +
             '</th>';
 
           // Row 3: Extended Title (auto-resizing textarea)
@@ -6222,6 +6270,15 @@
                 var tOver = tCount > 20;
                 countPill.className = 'matrix-tag-count-pill' + (tOver ? ' is-over-limit' : '');
                 countPill.textContent = tCount + ' / 20 tags' + (tOver ? ' (+' + (tCount - 20) + ')' : '');
+              }
+            }
+            if (field === 'title') {
+              var titleCounter = matrixModelsTableBody.querySelector('[data-role="matrix-title-counter"][data-slug="' + slug + '"]');
+              if (titleCounter) {
+                var tLen = (inputEl.value || '').length;
+                var tOver = tLen > 50;
+                titleCounter.className = 'matrix-title-counter' + (tOver ? ' is-over-limit' : '');
+                titleCounter.textContent = tLen + '/50';
               }
             }
             if (field === 'tagline') {

@@ -571,6 +571,7 @@
       width: 100%;
     }
 
+    .matrix-title-counter,
     .matrix-tagline-counter {
       position: absolute;
       right: 0.55rem;
@@ -588,6 +589,7 @@
       transition: color 0.16s ease;
     }
 
+    .matrix-title-counter.is-over-limit,
     .matrix-tagline-counter.is-over-limit {
       color: var(--danger, #d9534f);
       font-weight: 600;
@@ -976,9 +978,15 @@
             '</th>';
 
           // Row 2: Title (auto-resizing textarea to fit longest title)
+          var mTitleLen = (cur.title || '').length;
+          var mTitleOver = mTitleLen > 50;
+          var mTitleCounterClass = 'matrix-title-counter' + (mTitleOver ? ' is-over-limit' : '');
           rowTitle +=
             '<th class="model-col-header' + dirtyClass + '" data-col-slug="' + sSlug + '">' +
-            '<textarea class="matrix-textarea matrix-textarea-auto matrix-field-input" data-slug="' + sSlug + '" data-field="title" rows="1" placeholder="Model Title..." aria-label="Title for ' + sSlug + '">' + escapeHtmlText(cur.title) + '</textarea>' +
+            '<div class="matrix-field-wrapper">' +
+            '<textarea class="matrix-textarea matrix-textarea-auto matrix-field-input" data-slug="' + sSlug + '" data-field="title" rows="1" placeholder="Model Title..." aria-label="Title for ' + sSlug + '" style="padding-bottom:1.35rem;">' + escapeHtmlText(cur.title) + '</textarea>' +
+            '<span class="' + mTitleCounterClass + '" data-role="matrix-title-counter" data-slug="' + sSlug + '" aria-live="polite">' + mTitleLen + '/50</span>' +
+            '</div>' +
             '</th>';
 
           // Row 3: Extended Title
@@ -1311,6 +1319,15 @@
               var tOver = tCount > 20;
               countPill.className = 'matrix-tag-count-pill' + (tOver ? ' is-over-limit' : '');
               countPill.textContent = tCount + ' / 20 tags' + (tOver ? ' (+' + (tCount - 20) + ')' : '');
+            }
+          }
+          if (field === 'title') {
+            var titleCounter = matrixModelsTableBody.querySelector('[data-role="matrix-title-counter"][data-slug="' + slug + '"]');
+            if (titleCounter) {
+              var tLen = (inputEl.value || '').length;
+              var tOver = tLen > 50;
+              titleCounter.className = 'matrix-title-counter' + (tOver ? ' is-over-limit' : '');
+              titleCounter.textContent = tLen + '/50';
             }
           }
           if (field === 'tagline') {
