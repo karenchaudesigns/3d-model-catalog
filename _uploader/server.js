@@ -1710,12 +1710,13 @@ function buildZipArchiveBuffer(entries) {
  * Helper: Convert an image to JPG format. Tries convert, then magick, or copies file as fallback.
  */
 function convertImageFileToJpg(srcPath, destPath) {
+  // Try 'magick' first (ImageMagick v7, and avoids Windows system C:\Windows\System32\convert.exe)
   try {
-    execFileSync('convert', [srcPath, '-quality', '92', destPath]);
+    execFileSync('magick', [srcPath, '-quality', '92', destPath], { stdio: ['ignore', 'ignore', 'ignore'] });
     return true;
   } catch (err1) {
     try {
-      execFileSync('magick', [srcPath, '-quality', '92', destPath]);
+      execFileSync('convert', [srcPath, '-quality', '92', destPath], { stdio: ['ignore', 'ignore', 'ignore'] });
       return true;
     } catch (err2) {
       fs.copyFileSync(srcPath, destPath);
