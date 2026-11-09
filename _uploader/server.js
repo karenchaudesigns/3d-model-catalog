@@ -312,6 +312,36 @@ function normalizeYoutubeIdList(input) {
 }
 
 /**
+ * Download an animated GIF from media.printables.com and convert it to a looping MP4
+ * (the model page plays `animation` in a <video> tag). Returns the web path.
+ */
+function convertPrintablesGifToLoopMp4(gifUrl, shortname, modelImageDir) {
+  const parsed = new URL(String(gifUrl));
+  if (parsed.protocol !== 'https:' || parsed.hostname.toLowerCase() !== 'media.printables.com') {
+    throw new Error('Animation URL must be on media.printables.com');
+  }
+  const tmpGif = path.join(os.tmpdir(), `printables-anim-${Date.now()}-${process.pid}.gif`);
+  const mp4Filename = `3d-model-${shortname}-loop.mp4`;
+  try {
+    execFileSync('curl', ['-sSfL', '-m', '60', '-o', tmpGif, parsed.href], { stdio: 'ignore' });
+    execFileSync(
+      'ffmpeg',
+      [
+        '-loglevel', 'error', '-y', '-i', tmpGif,
+        '-movflags', '+faststart', '-pix_fmt', 'yuv420p',
+        '-vf', 'scale=trunc(iw/2)*2:trunc(ih/2)*2',
+        '-c:v', 'libx264', '-crf', '23', '-an',
+        path.join(modelImageDir, mp4Filename)
+      ],
+      { stdio: 'ignore' }
+    );
+  } finally {
+    try { fs.unlinkSync(tmpGif); } catch (e) { /* ignore */ }
+  }
+  return `/images/models/${shortname}/${mp4Filename}`;
+}
+
+/**
  * Shared handler for creating or updating a model
  */
 function saveAndDeployModel(req, res) {
@@ -344,6 +374,7 @@ function saveAndDeployModel(req, res) {
       existingGalleryImages = [],
       existingDetailedImages = [],
       existingAnimation = '',
+      animationUrl = '',
       autoDeploy = true
     } = req.body;
 
@@ -1338,7 +1369,13 @@ app.post('/api/import/printables', async (req, res) => {
     );
 
     // Extract photos embedded in the Printables description that are not already in the top photo section
-    const descriptionImageUrls = extractDescriptionImages(descriptionHtml, imageUrls);
+    const allDescriptionImageUrls = extractDescriptionImages(descriptionHtml, imageUrls);
+
+    // Animated GIFs can't be cropped to WebP stills; pull them out and return the first as the animation
+    const isGifUrl = (u) => /\.gif$/i.test(String(u || '').split(/[?#]/)[0]);
+    const animationUrl = [...imageUrls, ...allDescriptionImageUrls].find(isGifUrl) || '';
+    imageUrls = imageUrls.filter((u) => !isGifUrl(u));
+    const descriptionImageUrls = allDescriptionImageUrls.filter((u) => !isGifUrl(u));
 
     // Guess best matching catalog category if possible
     const combinedText = `${decodedFullTitle} ${tags.join(' ')} ${categoryPath.join(' ')}`.toLowerCase();
@@ -1376,6 +1413,7 @@ app.post('/api/import/printables', async (req, res) => {
       suggestedCategory,
       suggestedFanFavorite,
       imageUrls,
+      animationUrl,
       descriptionImageUrls
     });
   } catch (err) {

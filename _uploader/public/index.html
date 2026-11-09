@@ -3543,6 +3543,7 @@
 
       // Array of { id, imgElement, originalUrl } for Top Photo Section
       var sourceImages = [];
+      var importedAnimationUrl = '';
       // Array of { id, imgElement, originalUrl } for Detailed Views Section (e.g. description photos not in Top Photo Section)
       var detailedImages = [];
       // YouTube Shorts (rendered first after photos) and Long Videos (rendered after Shorts)
@@ -4879,6 +4880,12 @@
               populatedParts.push(Math.min(5, d.imageUrls.length) + ' Photos');
             }
 
+            // Animated GIF from Printables (converted to a looping MP4 on save)
+            if (d.animationUrl) {
+              importedAnimationUrl = d.animationUrl;
+              populatedParts.push('Looping Animation');
+            }
+
             // Load description images into the Detailed Views section
             if (Array.isArray(d.descriptionImageUrls) && d.descriptionImageUrls.length > 0) {
               var loadedDetailCount = 0;
@@ -5123,6 +5130,7 @@
       function resetToNewModel(hideSuccessCard) {
         editingSlug = null;
         editingModelData = null;
+        importedAnimationUrl = '';
         editBaselineSnapshot = null;
         shortnameManuallyEdited = false;
         activeStageSelection = { type: 'image', index: 0 };
@@ -6993,6 +7001,7 @@
             existingGalleryImages: editingModelData ? editingModelData.gallery_images : [],
             existingDetailedImages: editingModelData ? editingModelData.detailed_images : [],
             existingAnimation: editingModelData ? editingModelData.animation : '',
+            animationUrl: importedAnimationUrl,
             autoDeploy: autoDeployCheckbox.checked
           };
 
