@@ -1585,75 +1585,103 @@ function computeBufferCrc32(buf) {
   return (c ^ -1) >>> 0;
 }
 
+function getCurrentDosDateTime() {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = d.getMonth() + 1;
+  const day = d.getDate();
+  const hours = d.getHours();
+  const minutes = d.getMinutes();
+  const seconds = d.getSeconds();
+
+  const dosTime = ((hours & 0x1f) << 11) | ((minutes & 0x3f) << 5) | (Math.floor(seconds / 2) & 0x1f);
+  const dosDate = (((Math.max(1980, year) - 1980) & 0x7f) << 9) | ((month & 0x0f) << 5) | (day & 0x1f);
+  return { dosTime, dosDate };
+}
+
 /**
  * Pure Node.js ZIP archive creator (PKZIP 2.0 with DEFLATE / STORE)
  * Zero external CLI dependencies (works on all platforms: Linux, macOS, Windows without zip binary).
- * @param {Array<{ name: string, data: Buffer }>} files
+ * Includes explicit directory entries and Unix/DOS attributes for perfect compatibility across all extractors.
+ * @param {Array<{ name: string, data?: Buffer, isDirectory?: boolean }>} entries
  * @returns {Buffer}
  */
-function buildZipArchiveBuffer(files) {
+function buildZipArchiveBuffer(entries) {
   const localHeaders = [];
   const centralDirHeaders = [];
   let offset = 0;
+  const { dosTime, dosDate } = getCurrentDosDateTime();
 
-  for (const file of files) {
-    const nameBuf = Buffer.from(file.name.replace(/\\/g, '/'), 'utf8');
-    const uncompressedData = file.data;
+  for (const entry of entries) {
+    const rawName = String(entry.name || '').replace(/\\/g, '/').replace(/^\/+/, '');
+    const isDir = Boolean(entry.isDirectory || rawName.endsWith('/'));
+    const normalizedName = isDir && !rawName.endsWith('/') ? rawName + '/' : rawName;
+    const nameBuf = Buffer.from(normalizedName, 'utf8');
+
+    const uncompressedData = isDir ? Buffer.alloc(0) : (entry.data || Buffer.alloc(0));
     const uncompressedSize = uncompressedData.length;
-    const crc = computeBufferCrc32(uncompressedData);
+    const crc = isDir ? 0 : computeBufferCrc32(uncompressedData);
 
-    let compressionMethod = 8; // DEFLATE
-    let dataToWrite;
-    try {
-      const compressedData = zlib.deflateRawSync(uncompressedData);
-      if (compressedData.length < uncompressedSize) {
-        dataToWrite = compressedData;
-      } else {
-        compressionMethod = 0; // STORE
+    let compressionMethod = 0; // STORE
+    let dataToWrite = uncompressedData;
+    if (!isDir && uncompressedSize > 0) {
+      try {
+        const compressedData = zlib.deflateRawSync(uncompressedData);
+        if (compressedData.length < uncompressedSize) {
+          compressionMethod = 8; // DEFLATE
+          dataToWrite = compressedData;
+        }
+      } catch (e) {
+        compressionMethod = 0;
         dataToWrite = uncompressedData;
       }
-    } catch (e) {
-      compressionMethod = 0;
-      dataToWrite = uncompressedData;
     }
     const compressedSize = dataToWrite.length;
+
+    // External file attributes:
+    // Directory: Unix 040755 << 16 | DOS directory bit 0x10 = 0x41ed0010
+    // File: Unix 0100644 << 16 | DOS archive bit 0x20 = 0x81a40020
+    const externalAttr = isDir ? 0x41ed0010 : 0x81a40020;
 
     // Local file header (30 bytes + name length)
     const localHeader = Buffer.alloc(30 + nameBuf.length);
     localHeader.writeUInt32LE(0x04034b50, 0); // Local header signature
-    localHeader.writeUInt16LE(20, 4); // Version needed (2.0)
-    localHeader.writeUInt16LE(0x0800, 6); // UTF-8 filename flag
+    localHeader.writeUInt16LE(20, 4);         // Version needed (2.0)
+    localHeader.writeUInt16LE(0x0800, 6);     // Flag: Bit 11 set for UTF-8 filename
     localHeader.writeUInt16LE(compressionMethod, 8);
-    localHeader.writeUInt16LE(0, 10); // Mod time
-    localHeader.writeUInt16LE(0, 12); // Mod date
+    localHeader.writeUInt16LE(dosTime, 10);
+    localHeader.writeUInt16LE(dosDate, 12);
     localHeader.writeUInt32LE(crc, 14);
     localHeader.writeUInt32LE(compressedSize, 18);
     localHeader.writeUInt32LE(uncompressedSize, 22);
     localHeader.writeUInt16LE(nameBuf.length, 26);
-    localHeader.writeUInt16LE(0, 28); // Extra field len
+    localHeader.writeUInt16LE(0, 28);         // Extra field length
     nameBuf.copy(localHeader, 30);
 
-    localHeaders.push(localHeader, dataToWrite);
+    localHeaders.push(localHeader);
+    if (dataToWrite.length > 0) {
+      localHeaders.push(dataToWrite);
+    }
 
     // Central directory header (46 bytes + name length)
     const cdHeader = Buffer.alloc(46 + nameBuf.length);
-    cdHeader.writeUInt32LE(0x02014b50, 0); // Central directory signature
-    cdHeader.writeUInt16LE(20, 4); // Made by (2.0)
-    cdHeader.writeUInt16LE(20, 6); // Needed (2.0)
-    cdHeader.writeUInt16LE(0x0800, 8); // UTF-8 filename flag
+    cdHeader.writeUInt32LE(0x02014b50, 0);    // Central directory signature
+    cdHeader.writeUInt16LE((3 << 8) | 20, 4); // Made by: Unix (3), Spec 2.0 (20)
+    cdHeader.writeUInt16LE(20, 6);            // Needed: 2.0
+    cdHeader.writeUInt16LE(0x0800, 8);        // Flag: UTF-8 filename
     cdHeader.writeUInt16LE(compressionMethod, 10);
-    cdHeader.writeUInt16LE(0, 12);
-    cdHeader.writeUInt16LE(0, 14);
+    cdHeader.writeUInt16LE(dosTime, 12);
+    cdHeader.writeUInt16LE(dosDate, 14);
     cdHeader.writeUInt32LE(crc, 16);
     cdHeader.writeUInt32LE(compressedSize, 20);
     cdHeader.writeUInt32LE(uncompressedSize, 24);
     cdHeader.writeUInt16LE(nameBuf.length, 28);
-    cdHeader.writeUInt16LE(0, 30); // Extra field len
-    cdHeader.writeUInt16LE(0, 32); // Comment len
-    cdHeader.writeUInt16LE(0, 34); // Disk num
-    cdHeader.writeUInt16LE(0, 36); // Internal attr
-    cdHeader.writeUInt32LE(0, 38); // External attr
-    cdHeader.writeUInt32LE(offset, 42); // Offset of local header
+    cdHeader.writeUInt16LE(0, 30);            // Extra field length
+    cdHeader.writeUInt16LE(0, 32);            // File comment length
+    cdHeader.writeUInt16LE(0, 34);            // Disk number start
+    cdHeader.writeUInt16LE(0, 36);            // Internal file attributes
+    cdHeader.writeUInt32LE(externalAttr, 38);  // External file attributes
+    cdHeader.writeUInt32LE(offset, 42);       // Relative offset of local header
     nameBuf.copy(cdHeader, 46);
 
     centralDirHeaders.push(cdHeader);
@@ -1669,8 +1697,8 @@ function buildZipArchiveBuffer(files) {
   eocd.writeUInt32LE(0x06054b50, 0);
   eocd.writeUInt16LE(0, 4);
   eocd.writeUInt16LE(0, 6);
-  eocd.writeUInt16LE(files.length, 8);
-  eocd.writeUInt16LE(files.length, 10);
+  eocd.writeUInt16LE(entries.length, 8);
+  eocd.writeUInt16LE(entries.length, 10);
   eocd.writeUInt32LE(cdSize, 12);
   eocd.writeUInt32LE(cdOffset, 16);
   eocd.writeUInt16LE(0, 20);
@@ -1782,66 +1810,67 @@ app.post('/api/models/export-zip', async (req, res) => {
         const modelFolder = path.join(tmpExportDir, folderCandidate);
         fs.mkdirSync(modelFolder, { recursive: true });
 
-        // Identify model's image directory: images/models/<shortname> or images/models/<slug>
-        const shortname = model.shortname || slug;
-        const candidateDir1 = path.join(IMAGES_MODELS_DIR, shortname);
-        const candidateDir2 = path.join(IMAGES_MODELS_DIR, slug);
-        const sourceDir = fs.existsSync(candidateDir1) ? candidateDir1 : fs.existsSync(candidateDir2) ? candidateDir2 : null;
+        // Add explicit directory entry in zip
+        zipFilesList.push({
+          name: `${folderCandidate}/`,
+          isDirectory: true
+        });
 
-        // Cover image path
-        let coverBaseName = '';
+        // Collect only the model's active photos: cover_image, gallery_images, detailed_images
+        // (Do NOT export orphaned files previously deleted from the model)
+        const activePhotoWebPaths = [];
         if (model.cover_image) {
-          coverBaseName = path.basename(model.cover_image);
+          activePhotoWebPaths.push({ role: 'cover', webPath: model.cover_image });
+        }
+        if (Array.isArray(model.gallery_images)) {
+          model.gallery_images.forEach((p) => {
+            if (p && !activePhotoWebPaths.some((x) => x.webPath === p)) {
+              activePhotoWebPaths.push({ role: 'gallery', webPath: p });
+            }
+          });
+        }
+        if (Array.isArray(model.detailed_images)) {
+          model.detailed_images.forEach((p) => {
+            if (p && !activePhotoWebPaths.some((x) => x.webPath === p)) {
+              activePhotoWebPaths.push({ role: 'detailed', webPath: p });
+            }
+          });
         }
 
-        if (sourceDir && fs.existsSync(sourceDir)) {
-          const files = fs.readdirSync(sourceDir);
-          // Only process image files (exclude videos like .mp4)
-          const imageFiles = files.filter((f) => {
-            const ext = path.extname(f).toLowerCase();
-            return ['.webp', '.jpg', '.jpeg', '.png', '.gif'].includes(ext);
-          });
-
-          // Separate cover file if identifiable, otherwise first main or first image
-          let coverFile = imageFiles.find((f) => f === coverBaseName);
-          if (!coverFile) {
-            coverFile = imageFiles.find((f) => f.includes('-main.')) || imageFiles[0];
-          }
-
-          // 1. Export cover photo as cover.jpg
-          if (coverFile) {
-            const srcPath = path.join(sourceDir, coverFile);
-            const destPath = path.join(modelFolder, 'cover.jpg');
-            convertImageFileToJpg(srcPath, destPath);
-            if (fs.existsSync(destPath)) {
-              zipFilesList.push({
-                name: `${folderCandidate}/cover.jpg`,
-                data: fs.readFileSync(destPath)
-              });
+        // Export active photos
+        let photoIndex = 1;
+        for (const item of activePhotoWebPaths) {
+          // Resolve file on disk
+          let relPath = item.webPath.replace(/^\/+/, '');
+          let srcPath = path.join(REPO_ROOT, relPath);
+          if (!fs.existsSync(srcPath)) {
+            // Try relative to sourceDir
+            const base = path.basename(item.webPath);
+            if (sourceDir && fs.existsSync(path.join(sourceDir, base))) {
+              srcPath = path.join(sourceDir, base);
+            } else {
+              continue; // file not found on disk
             }
           }
 
-          // 2. Export all other photos for that model in jpg format
-          for (const imgFile of imageFiles) {
-            if (imgFile === coverFile) continue;
-            // Exclude thumbnail if redundant with main
-            const isThumb = imgFile.includes('-thumb.');
-            if (isThumb && coverFile && coverFile.includes('-main.')) {
-              // thumbnail image is just a downscaled version of cover_image, skip to avoid duplicate
-              continue;
-            }
-
-            const baseName = path.parse(imgFile).name;
-            const srcPath = path.join(sourceDir, imgFile);
-            const destPath = path.join(modelFolder, `${baseName}.jpg`);
-            convertImageFileToJpg(srcPath, destPath);
-            if (fs.existsSync(destPath)) {
-              zipFilesList.push({
-                name: `${folderCandidate}/${baseName}.jpg`,
-                data: fs.readFileSync(destPath)
-              });
-            }
+          let outFileName;
+          if (item.role === 'cover') {
+            outFileName = 'cover.jpg';
+          } else {
+            const rawBase = path.parse(srcPath).name;
+            // Clean up prefix if desired or use baseName
+            outFileName = `${rawBase}.jpg`;
           }
+
+          const destPath = path.join(modelFolder, outFileName);
+          convertImageFileToJpg(srcPath, destPath);
+          if (fs.existsSync(destPath)) {
+            zipFilesList.push({
+              name: `${folderCandidate}/${outFileName}`,
+              data: fs.readFileSync(destPath)
+            });
+          }
+          photoIndex++;
         }
       }
     }
