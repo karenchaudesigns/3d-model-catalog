@@ -708,6 +708,15 @@ a {
   border-bottom: 1px solid var(--border-subtle);
 }
 
+.category-hero-text {
+  flex: 1 1 32rem;
+  min-width: 0;
+}
+
+.category-hero-text .page-subtitle {
+  max-width: none;
+}
+
 .category-count-pill {
   background-color: var(--bg-surface);
   border: 1px solid var(--border-subtle);
@@ -736,7 +745,7 @@ a {
 .category-intro {
   margin-bottom: 1.5rem;
   color: var(--text-secondary);
-  max-width: 48rem;
+  max-width: none;
 }
 
 .empty-category-state {
