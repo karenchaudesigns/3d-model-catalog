@@ -12,14 +12,14 @@ gallery_images:
   - "/images/models/auto-accessories-w-velcro/3d-model-auto-accessories-w-velcro-angle2.webp"
   - "/images/models/auto-accessories-w-velcro/3d-model-auto-accessories-w-velcro-angle3.webp"
   - "/images/models/auto-accessories-w-velcro/3d-model-auto-accessories-w-velcro-angle4.webp"
-detailed_images:
-  - "/images/models/auto-accessories-w-velcro/3d-model-auto-accessories-w-velcro-detail1.webp"
-  - "/images/models/auto-accessories-w-velcro/3d-model-auto-accessories-w-velcro-detail2.webp"
-  - "/images/models/auto-accessories-w-velcro/3d-model-auto-accessories-w-velcro-detail3.webp"
-  - "/images/models/auto-accessories-w-velcro/3d-model-auto-accessories-w-velcro-detail4.webp"
-  - "/images/models/auto-accessories-w-velcro/3d-model-auto-accessories-w-velcro-detail5.webp"
-  - "/images/models/auto-accessories-w-velcro/3d-model-auto-accessories-w-velcro-detail6.webp"
-  - "/images/models/auto-accessories-w-velcro/3d-model-auto-accessories-w-velcro-detail7.webp"
+  - "/images/models/auto-accessories-w-velcro/3d-model-auto-accessories-w-velcro-angle5.webp"
+  - "/images/models/auto-accessories-w-velcro/3d-model-auto-accessories-w-velcro-angle6.webp"
+  - "/images/models/auto-accessories-w-velcro/3d-model-auto-accessories-w-velcro-angle7.webp"
+  - "/images/models/auto-accessories-w-velcro/3d-model-auto-accessories-w-velcro-angle8.webp"
+  - "/images/models/auto-accessories-w-velcro/3d-model-auto-accessories-w-velcro-angle9.webp"
+  - "/images/models/auto-accessories-w-velcro/3d-model-auto-accessories-w-velcro-angle10.webp"
+  - "/images/models/auto-accessories-w-velcro/3d-model-auto-accessories-w-velcro-angle11.webp"
+detailed_images: []
 tags:
   - "organizer"
   - "car"
