@@ -9,7 +9,7 @@ description: "Browse original 3D printable models by category—Useful Prints, G
     <span class="eyebrow">3D Printing Portfolio &amp; Digital Catalog</span>
     <h1 class="hero-title">Designed for Clean Prints &amp; Everyday Utility</h1>
     <p class="hero-description">
-      Explore support-free functional organizers, sculptural home accents, and articulated prints. Select a product category below or filter the full model library by tag.
+      Explore support-free functional organizers, sculptural home accents, and articulated prints. Select a product category below or search the full 3D model library.
     </p>
   </div>
 </section>
@@ -51,35 +51,31 @@ description: "Browse original 3D printable models by category—Useful Prints, G
   </div>
 </section>
 
-<!-- All Models Filterable Grid (600x600px Model Thumbnails: 3d-model-[shortname]-thumb.webp) -->
+<!-- All Models Searchable Grid (600x600px Model Thumbnails: 3d-model-[shortname]-thumb.webp) -->
 <section class="all-models-section container" id="all-models-section" aria-labelledby="all-models-heading">
   <div class="section-header">
     <h2 class="section-title" id="all-models-heading">Featured &amp; Recent Models</h2>
-    <p class="section-subtitle">Filter across all {{ visible_models.size }} catalog designs by tag</p>
+    <p class="section-subtitle">Search across all {{ visible_models.size }} catalog designs by name, tags, or description</p>
   </div>
 
-  {% assign all_tags = "" | split: "" %}
-  {% for model in visible_models %}
-    {% for t in model.tags %}
-      {% unless all_tags contains t %}
-        {% assign all_tags = all_tags | push: t %}
-      {% endunless %}
-    {% endfor %}
-  {% endfor %}
-
-  {% if all_tags.size > 0 %}
-    <div class="filter-bar" role="region" aria-label="Filter models by tag">
-      <span class="filter-label">Filter by tag:</span>
-      <div class="filter-pills">
-        <button type="button" class="filter-btn is-active" data-filter="all" id="home-filter-all">All Models</button>
-        {% for tag in all_tags %}
-          <button type="button" class="filter-btn" data-filter="{{ tag | slugify }}" id="home-filter-{{ tag | slugify }}">
-            #{{ tag }}
-          </button>
-        {% endfor %}
-      </div>
-    </div>
-  {% endif %}
+  <div class="catalog-search-bar" role="search">
+    <span class="catalog-search-icon" aria-hidden="true">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+    </span>
+    <input
+      type="search"
+      id="catalog-search-input"
+      class="catalog-search-input"
+      placeholder="Search models by name, tagline, or tags (e.g. duck, organizer, pumpkin)..."
+      aria-label="Search models in catalog"
+      autocomplete="off"
+    >
+    <button type="button" id="catalog-search-clear" class="catalog-search-clear" style="display: none;" aria-label="Clear search">Clear</button>
+    <span id="catalog-search-count" class="catalog-search-count">{{ visible_models.size }} models</span>
+  </div>
 
   <div class="model-thumbnail-grid" id="home-model-grid">
     {% for model in visible_models %}
@@ -92,13 +88,14 @@ description: "Browse original 3D printable models by category—Useful Prints, G
         {% assign thumb_src = model.cover_image %}
       {% endif %}
 
-      {% assign tag_slugs = "" %}
+      {% assign tag_text = "" %}
       {% for t in model.tags %}
-        {% assign s = t | slugify %}
-        {% assign tag_slugs = tag_slugs | append: s | append: " " %}
+        {% assign tag_text = tag_text | append: t | append: " " %}
       {% endfor %}
 
-      <article class="model-thumb-card" data-tags="{{ tag_slugs | strip }}">
+      {% capture search_index %}{{ model.title }} {{ model.extended_title }} {{ model.tagline }} {{ model.category }} {{ cat_info.title }} {{ tag_text }}{% endcapture %}
+
+      <article class="model-thumb-card" data-search-text="{{ search_index | strip | downcase | escape }}">
         <a href="{{ model.url | relative_url }}" class="model-thumb-link" id="home-model-card-{{ model.slug }}">
           <div class="model-thumb-media">
             <img
@@ -130,29 +127,79 @@ description: "Browse original 3D printable models by category—Useful Prints, G
       </article>
     {% endfor %}
   </div>
+
+  <div id="catalog-search-empty" class="catalog-search-empty" style="display: none;">
+    <p>No 3D models found matching &ldquo;<span id="empty-search-term"></span>&rdquo;.</p>
+    <button type="button" class="btn-secondary" id="empty-search-clear-btn">Clear Search</button>
+  </div>
 </section>
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    var filterBtns = document.querySelectorAll('#all-models-section .filter-btn');
-    var cards = document.querySelectorAll('#home-model-grid .model-thumb-card');
-    if (!filterBtns.length || !cards.length) return;
+    var searchInput = document.getElementById('catalog-search-input');
+    var clearBtn = document.getElementById('catalog-search-clear');
+    var emptyClearBtn = document.getElementById('empty-search-clear-btn');
+    var countEl = document.getElementById('catalog-search-count');
+    var emptyState = document.getElementById('catalog-search-empty');
+    var emptyTerm = document.getElementById('empty-search-term');
+    var cards = Array.prototype.slice.call(document.querySelectorAll('#home-model-grid .model-thumb-card'));
+    var totalCards = cards.length;
 
-    filterBtns.forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var filterValue = btn.getAttribute('data-filter');
-        filterBtns.forEach(function (b) { b.classList.remove('is-active'); });
-        btn.classList.add('is-active');
+    if (!searchInput || !cards.length) return;
 
-        cards.forEach(function (card) {
-          var cardTags = (card.getAttribute('data-tags') || '').split(/\s+/);
-          if (filterValue === 'all' || cardTags.indexOf(filterValue) !== -1) {
-            card.style.display = '';
-          } else {
-            card.style.display = 'none';
-          }
-        });
+    function filterModels() {
+      var query = (searchInput.value || '').trim().toLowerCase();
+      var visibleCount = 0;
+
+      if (!query) {
+        cards.forEach(function (card) { card.style.display = ''; });
+        if (clearBtn) clearBtn.style.display = 'none';
+        if (emptyState) emptyState.style.display = 'none';
+        if (countEl) countEl.textContent = totalCards + ' models';
+        return;
+      }
+
+      if (clearBtn) clearBtn.style.display = '';
+
+      var terms = query.split(/\s+/).filter(Boolean);
+
+      cards.forEach(function (card) {
+        var text = card.getAttribute('data-search-text') || '';
+        var matches = terms.every(function (t) { return text.indexOf(t) !== -1; });
+        if (matches) {
+          card.style.display = '';
+          visibleCount++;
+        } else {
+          card.style.display = 'none';
+        }
       });
-    });
+
+      if (countEl) {
+        countEl.textContent = visibleCount + (visibleCount === 1 ? ' match' : ' matches');
+      }
+
+      if (emptyState) {
+        if (visibleCount === 0) {
+          emptyState.style.display = '';
+          if (emptyTerm) emptyTerm.textContent = query;
+        } else {
+          emptyState.style.display = 'none';
+        }
+      }
+    }
+
+    searchInput.addEventListener('input', filterModels);
+
+    function resetSearch() {
+      searchInput.value = '';
+      searchInput.focus();
+      filterModels();
+    }
+
+    if (clearBtn) clearBtn.addEventListener('click', resetSearch);
+    if (emptyClearBtn) emptyClearBtn.addEventListener('click', resetSearch);
   });
 </script>
+
+{% include affiliate_section.html %}
+

@@ -747,6 +747,11 @@
       box-shadow: 0 0 0 3px var(--accent-soft);
     }
 
+    .model-tagline-wrapper {
+      position: relative;
+      margin-top: 0.5rem;
+    }
+
     .model-tagline-input {
       width: 100%;
       font-family: var(--font-sans);
@@ -757,8 +762,8 @@
       background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-sm);
-      padding: 0.45rem 0.7rem;
-      margin-top: 0.5rem;
+      padding: 0.45rem 4.5rem 0.45rem 0.7rem;
+      margin-top: 0;
       resize: none;
       overflow-y: hidden;
       field-sizing: content;
@@ -776,6 +781,28 @@
       outline: none;
       border-color: var(--accent-terracotta);
       box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    .model-tagline-counter {
+      position: absolute;
+      right: 0.65rem;
+      bottom: 0.4rem;
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      pointer-events: none;
+      user-select: none;
+      background: var(--bg-surface);
+      padding: 0 0.25rem;
+      border-radius: var(--radius-xs);
+      line-height: 1.2;
+      transition: color 0.16s ease;
+    }
+
+    .model-tagline-counter.is-over-limit {
+      color: var(--danger, #d9534f);
+      font-weight: 600;
     }
 
     /* Tag List Block (matches <ul class="tag-list"> in _layouts/model.html) */
@@ -2055,13 +2082,16 @@
               aria-label="Extended Title"
             ></textarea>
 
-            <textarea
-              id="model-tagline"
-              class="model-tagline-input"
-              rows="1"
-              placeholder="Tagline (auto-filled from Printables summary)..."
-              aria-label="Model Tagline"
-            ></textarea>
+            <div class="model-tagline-wrapper">
+              <textarea
+                id="model-tagline"
+                class="model-tagline-input"
+                rows="1"
+                placeholder="Tagline (auto-filled from Printables summary)..."
+                aria-label="Model Tagline"
+              ></textarea>
+              <span id="tagline-char-counter" class="model-tagline-counter" aria-live="polite">0/120</span>
+            </div>
           </div>
 
           <!-- Tags matching .tag-list in _layouts/model.html -->
@@ -2340,6 +2370,7 @@
       var nameInput = document.getElementById('model-name');
       var extendedTitleInput = document.getElementById('model-extended-title');
       var taglineInput = document.getElementById('model-tagline');
+      var taglineCharCounter = document.getElementById('tagline-char-counter');
       var shortnameInput = document.getElementById('model-shortname');
       var categorySelect = document.getElementById('model-category');
       var hiddenCheckbox = document.getElementById('model-hidden');
@@ -3365,6 +3396,13 @@
         updateMarkdownPreview();
       });
 
+      function updateTaglineCharCounter() {
+        if (!taglineInput || !taglineCharCounter) return;
+        var count = taglineInput.value.length;
+        taglineCharCounter.textContent = count + '/120';
+        taglineCharCounter.classList.toggle('is-over-limit', count > 120);
+      }
+
       function autoExpandTextarea(el) {
         if (!el) return;
         el.style.height = 'auto';
@@ -3377,6 +3415,7 @@
         autoExpandTextarea(taglineInput);
         autoExpandTextarea(descInput);
         autoExpandTextarea(settingsInput);
+        updateTaglineCharCounter();
       }
 
       window.addEventListener('resize', autoExpandAllProse);
@@ -3469,9 +3508,9 @@
 
             if (d.description) {
               descInput.value = d.description;
-              autoExpandAllProse();
               populatedParts.push('Description');
             }
+            autoExpandAllProse();
 
             if (Array.isArray(d.tags) && d.tags.length > 0) {
               tagsInput.value = d.tags.join(', ');
@@ -3581,12 +3620,18 @@
             if (el === descInput || el === settingsInput || el === extendedTitleInput || el === taglineInput) {
               autoExpandTextarea(el);
             }
+            if (el === taglineInput) {
+              updateTaglineCharCounter();
+            }
             syncDownloadButtonHighlights();
             updateMarkdownPreview();
           });
           el.addEventListener('change', function () {
             if (el === descInput || el === settingsInput || el === extendedTitleInput || el === taglineInput) {
               autoExpandTextarea(el);
+            }
+            if (el === taglineInput) {
+              updateTaglineCharCounter();
             }
             syncDownloadButtonHighlights();
             updateMarkdownPreview();

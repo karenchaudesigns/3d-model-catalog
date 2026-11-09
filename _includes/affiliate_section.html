@@ -1,0 +1,63 @@
+{% assign aff_data = site.data.affiliates %}
+{% if aff_data and aff_data.categories.size > 0 %}
+<section class="affiliate-showcase-section container" id="affiliate-recommendations" aria-labelledby="affiliate-heading">
+  <div class="affiliate-card-wrapper">
+    <div class="affiliate-header">
+      <div class="affiliate-header-left">
+        <span class="affiliate-eyebrow">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+          </svg>
+          Maker Essentials &amp; Materials
+        </span>
+        <h2 class="section-title" id="affiliate-heading">{{ aff_data.section_title | default: "Recommended Gear & Filament" }}</h2>
+        <p class="section-subtitle">{{ aff_data.section_subtitle | default: "Curated 3D printing supplies, trusted filaments, and maker essentials I personally use and recommend." }}</p>
+      </div>
+      <div class="affiliate-disclosure-pill">
+        <span class="disclosure-dot" aria-hidden="true"></span>
+        <span>Affiliate Links</span>
+      </div>
+    </div>
+
+    {% for group in aff_data.categories %}
+      <div class="affiliate-group">
+        <h3 class="affiliate-group-title">
+          <span class="group-bullet" aria-hidden="true">&bull;</span>
+          {{ group.title }}
+        </h3>
+        <div class="affiliate-grid">
+          {% for item in group.items %}
+            <article class="affiliate-card">
+              <div class="affiliate-card-top">
+                <span class="affiliate-category-tag">{{ item.category | default: group.title }}</span>
+                {% if item.badge %}
+                  <span class="affiliate-badge">{{ item.badge }}</span>
+                {% endif %}
+              </div>
+              <h4 class="affiliate-item-title">{{ item.title }}</h4>
+              <p class="affiliate-item-desc">{{ item.description }}</p>
+              <div class="affiliate-card-footer">
+                <a
+                  href="{{ item.url }}"
+                  target="_blank"
+                  rel="noopener noreferrer sponsored"
+                  class="btn-affiliate"
+                >
+                  <span>{{ item.cta | default: "View Product" }}</span>
+                  <span class="btn-arrow" aria-hidden="true">&rarr;</span>
+                </a>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      </div>
+    {% endfor %}
+
+    {% if aff_data.disclaimer %}
+      <footer class="affiliate-footer-note">
+        <p><small>&lowast; {{ aff_data.disclaimer }}</small></p>
+      </footer>
+    {% endif %}
+  </div>
+</section>
+{% endif %}
