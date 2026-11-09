@@ -1,5 +1,7 @@
 ---
 title: "Paint brush rack"
+extended_title: ""
+tagline: ""
 shortname: "paint-brush-rack"
 category: "useful-prints"
 hidden: false
@@ -9,6 +11,7 @@ gallery_images:
   - "/images/models/paint-brush-rack/3d-model-paint-brush-rack-angle1.webp"
   - "/images/models/paint-brush-rack/3d-model-paint-brush-rack-angle2.webp"
   - "/images/models/paint-brush-rack/3d-model-paint-brush-rack-angle3.webp"
+detailed_images: []
 tags:
   - "art"
   - "storage"
