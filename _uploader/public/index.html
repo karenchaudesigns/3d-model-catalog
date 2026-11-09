@@ -1914,6 +1914,10 @@
               ></iframe>
             </div>
 
+            <button type="button" class="stage-nav-btn is-prev" id="btn-stage-prev" title="Previous photo/video" aria-label="Previous photo or video" style="display:none;">&#8249;</button>
+            <button type="button" class="stage-nav-btn is-next" id="btn-stage-next" title="Next photo/video" aria-label="Next photo or video" style="display:none;">&#8250;</button>
+            <span class="stage-counter-pill" id="stage-counter-pill" style="display:none;">1 / 1</span>
+
             <!-- Floating Controls when an image or video is loaded -->
             <div class="stage-overlay-bar">
               <span class="stage-role-pill is-primary" id="active-stage-badge">MAIN SHOWCASE (1200&times;1200)</span>
@@ -1929,7 +1933,11 @@
           </div>
 
           <!-- Thumbnail Strip matching .model-thumb-strip in _layouts/model.html (Photos -> Shorts -> Long Videos) -->
-          <div class="model-thumb-strip" id="source-images-list" role="list" aria-label="Model photos and videos selector"></div>
+          <div class="model-thumb-carousel">
+            <button type="button" class="thumb-scroll-btn" id="btn-thumb-scroll-left" title="Scroll thumbnails left" aria-label="Scroll thumbnails left">&#8249;</button>
+            <div class="model-thumb-strip" id="source-images-list" role="list" aria-label="Model photos and videos selector"></div>
+            <button type="button" class="thumb-scroll-btn" id="btn-thumb-scroll-right" title="Scroll thumbnails right" aria-label="Scroll thumbnails right">&#8250;</button>
+          </div>
 
           <!-- Square Framing Mode -->
           <div class="fit-mode-bar">
@@ -2403,6 +2411,7 @@
       }
 
       function syncStageCarouselControls() {
+        if (!btnStagePrev || !btnStageNext || !stageCounterPill) return;
         var items = getOrderedStageMediaItems();
         if (items.length > 1) {
           var curIdx = getCurrentStageMediaIndex(items);
