@@ -2041,6 +2041,240 @@
       overflow-y: auto;
       margin-top: 0.85rem;
     }
+
+    /* ==========================================================================
+       Full Matrix Table View: 1 Model Per Column, Frozen Top 2 & Bottom Rows
+       ========================================================================== */
+    .matrix-table-container {
+      display: none;
+      width: 100%;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+      margin-top: 1rem;
+    }
+
+    .matrix-table-container.is-visible {
+      display: block;
+    }
+
+    .matrix-table-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.85rem 1.15rem;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      flex-wrap: wrap;
+    }
+
+    .matrix-table-scroll {
+      width: 100%;
+      max-height: 80vh;
+      overflow: auto;
+      position: relative;
+    }
+
+    .matrix-models-table {
+      width: max-content;
+      min-width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 0.83rem;
+      text-align: left;
+    }
+
+    /* Column Widths */
+    .matrix-models-table th.col-row-label,
+    .matrix-models-table td.col-row-label {
+      width: 175px;
+      min-width: 175px;
+      max-width: 175px;
+      position: sticky;
+      left: 0;
+      z-index: 10;
+      background: var(--bg-subtle);
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--text-primary);
+      border-right: 2px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0.65rem 0.85rem;
+      box-shadow: 2px 0 6px -2px rgba(0,0,0,0.06);
+    }
+
+    .matrix-models-table th.model-col-header,
+    .matrix-models-table td.model-col-cell {
+      width: 310px;
+      min-width: 310px;
+      max-width: 310px;
+      border-right: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0.65rem 0.75rem;
+      vertical-align: top;
+      background: var(--bg-surface);
+      transition: background-color 0.18s ease;
+    }
+
+    /* Unsaved Dirty Column Highlight */
+    .matrix-models-table td.model-col-cell.is-col-dirty,
+    .matrix-models-table th.model-col-header.is-col-dirty {
+      background-color: hsla(16, 75%, 58%, 0.08) !important;
+    }
+
+    .matrix-models-table td.model-col-cell.is-col-dirty textarea,
+    .matrix-models-table td.model-col-cell.is-col-dirty input {
+      border-color: hsla(16, 75%, 58%, 0.5);
+    }
+
+    /* Frozen Row 1: Cover Image (top: 0, height: 116px) */
+    .matrix-models-table tr.frozen-row-1 th.col-row-label,
+    .matrix-models-table tr.frozen-row-1 th.model-col-header {
+      position: sticky;
+      top: 0;
+      height: 116px;
+      max-height: 116px;
+      z-index: 25;
+      background: var(--bg-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .matrix-models-table tr.frozen-row-1 th.col-row-label {
+      z-index: 35; /* Corner intersection */
+    }
+
+    /* Frozen Row 2: Title (top: 116px, height: 60px) */
+    .matrix-models-table tr.frozen-row-2 th.col-row-label,
+    .matrix-models-table tr.frozen-row-2 th.model-col-header {
+      position: sticky;
+      top: 116px;
+      height: 60px;
+      max-height: 60px;
+      z-index: 24;
+      background: var(--bg-subtle);
+      border-bottom: 2px solid var(--border-strong);
+      box-shadow: 0 4px 6px -2px rgba(0,0,0,0.06);
+    }
+
+    .matrix-models-table tr.frozen-row-2 th.col-row-label {
+      z-index: 34; /* Corner intersection */
+    }
+
+    /* Frozen Bottom Row: Save / Actions (bottom: 0) */
+    .matrix-models-table tr.frozen-row-bottom td.col-row-label,
+    .matrix-models-table tr.frozen-row-bottom td.model-col-cell {
+      position: sticky;
+      bottom: 0;
+      z-index: 25;
+      background: var(--bg-subtle);
+      border-top: 2px solid var(--border-strong);
+      border-bottom: none;
+      box-shadow: 0 -4px 8px -2px rgba(0,0,0,0.08);
+      padding: 0.65rem 0.75rem;
+    }
+
+    .matrix-models-table tr.frozen-row-bottom td.col-row-label {
+      z-index: 35; /* Corner intersection */
+    }
+
+    .matrix-cover-thumb {
+      width: 90px;
+      height: 90px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-primary);
+      display: block;
+      margin: 0 auto;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+
+    .matrix-input-text {
+      width: 100%;
+      font-family: var(--font-sans);
+      font-size: 0.83rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xs);
+      padding: 0.38rem 0.55rem;
+      outline: none;
+      transition: border-color 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .matrix-input-text:focus {
+      border-color: var(--accent-terracotta);
+      box-shadow: 0 0 0 2px var(--accent-soft);
+    }
+
+    .matrix-textarea {
+      width: 100%;
+      font-family: var(--font-sans);
+      font-size: 0.81rem;
+      line-height: 1.45;
+      color: var(--text-primary);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xs);
+      padding: 0.45rem 0.55rem;
+      resize: vertical;
+      min-height: 80px;
+      outline: none;
+      transition: border-color 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .matrix-textarea:focus {
+      border-color: var(--accent-terracotta);
+      box-shadow: 0 0 0 2px var(--accent-soft);
+    }
+
+    .matrix-affiliate-box {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      max-height: 240px;
+      overflow-y: auto;
+      padding: 0.2rem;
+    }
+
+    .matrix-aff-item {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 0.45rem 0.55rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      font-size: 0.76rem;
+    }
+
+    .matrix-aff-item-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.35rem;
+    }
+
+    .matrix-col-dirty-pill {
+      display: none;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      background: var(--accent-terracotta);
+      color: #fff;
+      padding: 0.12rem 0.45rem;
+      border-radius: 999px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .is-col-dirty .matrix-col-dirty-pill {
+      display: inline-block;
+    }
   </style>
 </head>
 <body>
@@ -2054,6 +2288,7 @@
       <nav class="site-nav" aria-label="Editor navigation">
         <button type="button" class="nav-btn is-active" id="btn-nav-new">+ Upload New Model</button>
         <button type="button" class="nav-btn" id="btn-nav-library">Existing Catalog Models (<span id="nav-model-count">0</span>)</button>
+        <button type="button" class="nav-btn" id="btn-nav-matrix">Columns Table View</button>
         <button type="button" class="nav-btn" id="btn-nav-table">Download Links Table</button>
       </nav>
     </div>
@@ -2425,9 +2660,13 @@
               <span aria-hidden="true">&#9638;</span>
               <span>Grid View</span>
             </button>
+            <button type="button" class="view-switch-btn" id="btn-view-matrix" role="tab" aria-selected="false">
+              <span aria-hidden="true">&#9635;</span>
+              <span>Columns Table View</span>
+            </button>
             <button type="button" class="view-switch-btn" id="btn-view-table" role="tab" aria-selected="false">
               <span aria-hidden="true">&#9776;</span>
-              <span>Table / Links View</span>
+              <span>Links Table View</span>
             </button>
           </div>
           <button type="button" class="btn-ghost" id="btn-new-from-library">+ Upload New Model</button>
@@ -2437,7 +2676,41 @@
       <!-- View 1: Thumbnail Card Grid -->
       <div class="model-thumbnail-grid" id="existing-models-list"></div>
 
-      <!-- View 2: Download Links Table / List View -->
+      <!-- View 2: Horizontal Matrix Table (1 Model Per Column, Frozen Top 2 & Bottom Rows) -->
+      <div class="matrix-table-container" id="existing-models-matrix-view">
+        <div class="matrix-table-toolbar">
+          <div class="links-toolbar-left">
+            <span style="font-family:var(--font-display);font-weight:600;font-size:0.95rem;color:var(--text-primary);">
+              Editable Columns Table (1 Model Per Column)
+            </span>
+            <input
+              type="search"
+              class="links-search-input"
+              id="matrix-table-search"
+              placeholder="Search / filter columns by model name or tags..."
+              aria-label="Filter model columns"
+              style="width:280px;"
+            >
+          </div>
+          <div class="links-toolbar-right">
+            <span class="links-table-status" id="matrix-table-status" aria-live="polite"></span>
+            <button type="button" class="btn-ghost" id="btn-discard-matrix" style="display:none;">
+              Reset Unsaved
+            </button>
+            <button type="button" class="btn-primary" id="btn-save-all-matrix" disabled style="padding:0.48rem 0.95rem;font-size:0.82rem;">
+              Save All Changes &amp; Push (<span id="dirty-matrix-count">0</span>)
+            </button>
+          </div>
+        </div>
+
+        <div class="matrix-table-scroll" id="matrix-table-scroll">
+          <table class="matrix-models-table" id="matrix-models-table" aria-label="Catalog Models Matrix Table">
+            <tbody id="matrix-models-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- View 3: Download Links Table / List View -->
       <div class="links-table-container" id="existing-models-table-view">
         <div class="links-table-toolbar">
           <div class="links-toolbar-left">
@@ -2614,8 +2887,18 @@
       var btnNavNew = document.getElementById('btn-nav-new');
       var btnNavLibrary = document.getElementById('btn-nav-library');
       var btnNavTable = document.getElementById('btn-nav-table');
+      var btnNavMatrix = document.getElementById('btn-nav-matrix');
       var btnNewFromLibrary = document.getElementById('btn-new-from-library');
       var brandResetLink = document.getElementById('brand-reset-link');
+
+      var existingModelsMatrixView = document.getElementById('existing-models-matrix-view');
+      var matrixModelsTableBody = document.getElementById('matrix-models-table-body');
+      var btnViewMatrix = document.getElementById('btn-view-matrix');
+      var matrixTableSearch = document.getElementById('matrix-table-search');
+      var matrixTableStatus = document.getElementById('matrix-table-status');
+      var btnDiscardMatrix = document.getElementById('btn-discard-matrix');
+      var btnSaveAllMatrix = document.getElementById('btn-save-all-matrix');
+      var dirtyMatrixCountEl = document.getElementById('dirty-matrix-count');
 
       var productsEditorList = document.getElementById('products-editor-list');
       var btnAddProduct = document.getElementById('btn-add-product');
@@ -2625,10 +2908,12 @@
       var editingModelData = null;
       var lastSavedSlug = null;
       var catalogModelsCache = [];
-      var libraryViewMode = 'grid'; // 'grid' or 'table'
+      var libraryViewMode = 'grid'; // 'grid', 'table', or 'matrix'
       var linksFilterMode = 'all'; // 'all', 'missing', or 'complete'
       var tableLinkDrafts = {}; // { [slug]: { makerworld, printables, thangs, cults3d } }
+      var matrixDrafts = {}; // { [slug]: { title, extended_title, tagline, description, tags, printSettings, products } }
       var recentlySavedSlugs = {}; // { [slug]: true }
+      var recentlySavedMatrixSlugs = {}; // { [slug]: true }
 
       // Array of { id, imgElement, originalUrl } for Top Photo Section
       var sourceImages = [];
@@ -4281,22 +4566,109 @@
           .map(function (m) { return m.slug; });
       }
 
+      function getModelSavedMatrix(m) {
+        if (!m) return { title: '', extended_title: '', tagline: '', description: '', tags: '', printSettings: '', products: [] };
+        return {
+          title: String(m.title || '').trim(),
+          extended_title: String(m.extended_title || '').trim(),
+          tagline: String(m.tagline || '').trim(),
+          description: String(m.description || '').trim(),
+          tags: Array.isArray(m.tags) ? m.tags.join(', ') : String(m.tags || '').trim(),
+          printSettings: String(m.printSettings || '').trim(),
+          products: Array.isArray(m.products) ? JSON.parse(JSON.stringify(m.products)) : []
+        };
+      }
+
+      function getModelCurrentMatrix(m) {
+        var saved = getModelSavedMatrix(m);
+        var draft = m && matrixDrafts[m.slug];
+        if (!draft) return saved;
+        return {
+          title: draft.title !== undefined ? String(draft.title).trim() : saved.title,
+          extended_title: draft.extended_title !== undefined ? String(draft.extended_title).trim() : saved.extended_title,
+          tagline: draft.tagline !== undefined ? String(draft.tagline).trim() : saved.tagline,
+          description: draft.description !== undefined ? String(draft.description).trim() : saved.description,
+          tags: draft.tags !== undefined ? String(draft.tags).trim() : saved.tags,
+          printSettings: draft.printSettings !== undefined ? String(draft.printSettings).trim() : saved.printSettings,
+          products: draft.products !== undefined ? draft.products : saved.products
+        };
+      }
+
+      function normalizeTagsList(str) {
+        return String(str || '')
+          .split(',')
+          .map(function (t) { return t.trim().toLowerCase(); })
+          .filter(Boolean)
+          .sort()
+          .join(',');
+      }
+
+      function isModelMatrixDirty(m) {
+        if (!m || !matrixDrafts[m.slug]) return false;
+        var saved = getModelSavedMatrix(m);
+        var cur = getModelCurrentMatrix(m);
+        if (saved.title !== cur.title) return true;
+        if (saved.extended_title !== cur.extended_title) return true;
+        if (saved.tagline !== cur.tagline) return true;
+        if (saved.description !== cur.description) return true;
+        if (normalizeTagsList(saved.tags) !== normalizeTagsList(cur.tags)) return true;
+        if (saved.printSettings !== cur.printSettings) return true;
+        if (JSON.stringify(saved.products) !== JSON.stringify(cur.products)) return true;
+        return false;
+      }
+
+      function getDirtyMatrixSlugs() {
+        return catalogModelsCache
+          .filter(function (m) { return isModelMatrixDirty(m); })
+          .map(function (m) { return m.slug; });
+      }
+
+      function syncMatrixToolbarCounts() {
+        var dirtySlugs = getDirtyMatrixSlugs();
+        if (dirtyMatrixCountEl) dirtyMatrixCountEl.textContent = dirtySlugs.length;
+        if (btnSaveAllMatrix) btnSaveAllMatrix.disabled = dirtySlugs.length === 0;
+        if (btnDiscardMatrix) btnDiscardMatrix.style.display = dirtySlugs.length > 0 ? 'inline-block' : 'none';
+      }
+
       function setLibraryViewMode(mode) {
-        libraryViewMode = mode === 'table' ? 'table' : 'grid';
+        if (mode === 'matrix') {
+          libraryViewMode = 'matrix';
+        } else if (mode === 'table') {
+          libraryViewMode = 'table';
+        } else {
+          libraryViewMode = 'grid';
+        }
+        var isGrid = libraryViewMode === 'grid';
+        var isMatrix = libraryViewMode === 'matrix';
         var isTable = libraryViewMode === 'table';
 
-        btnViewGrid.classList.toggle('is-active', !isTable);
-        btnViewGrid.setAttribute('aria-selected', isTable ? 'false' : 'true');
+        btnViewGrid.classList.toggle('is-active', isGrid);
+        btnViewGrid.setAttribute('aria-selected', isGrid ? 'true' : 'false');
+        if (btnViewMatrix) {
+          btnViewMatrix.classList.toggle('is-active', isMatrix);
+          btnViewMatrix.setAttribute('aria-selected', isMatrix ? 'true' : 'false');
+        }
         btnViewTable.classList.toggle('is-active', isTable);
         btnViewTable.setAttribute('aria-selected', isTable ? 'true' : 'false');
 
-        existingModelsList.classList.toggle('is-hidden', isTable);
+        existingModelsList.classList.toggle('is-hidden', !isGrid);
+        if (existingModelsMatrixView) {
+          existingModelsMatrixView.classList.toggle('is-visible', isMatrix);
+        }
         existingModelsTableView.classList.toggle('is-visible', isTable);
 
-        btnNavLibrary.classList.toggle('is-active', !isTable && document.activeElement === btnNavLibrary);
+        btnNavLibrary.classList.toggle('is-active', isGrid);
+        if (btnNavMatrix) btnNavMatrix.classList.toggle('is-active', isMatrix);
         btnNavTable.classList.toggle('is-active', isTable);
-        if (isTable) {
+
+        if (!isGrid) {
           btnNavNew.classList.remove('is-active');
+        }
+
+        if (isMatrix) {
+          renderMatrixTable();
+        } else if (isTable) {
+          renderExistingModelsTable();
         }
       }
 
@@ -4424,9 +4796,350 @@
           .join('');
       }
 
+      function renderMatrixAffiliateBoxHtml(slug, products) {
+        var itemsHtml = (products || []).map(function (p, pIdx) {
+          return (
+            '<div class="matrix-aff-item" data-product-idx="' + pIdx + '">' +
+            '<div class="matrix-aff-item-header">' +
+            '<span style="font-weight:600;color:var(--text-primary);font-size:0.72rem;">#' + (pIdx + 1) + '</span>' +
+            '<button type="button" class="btn-ghost btn-matrix-del-prod" data-slug="' + escapeHtmlText(slug) + '" data-product-idx="' + pIdx + '" style="padding:0.12rem 0.35rem;font-size:0.68rem;color:var(--danger);" title="Remove this product link">&times; Remove</button>' +
+            '</div>' +
+            '<input type="text" class="matrix-input-text matrix-prod-field" data-slug="' + escapeHtmlText(slug) + '" data-product-idx="' + pIdx + '" data-prop="name" value="' + escapeHtmlText(p.name || '') + '" placeholder="Product name (e.g., Bambu Matte PLA)" style="font-size:0.76rem;padding:0.25rem 0.45rem;">' +
+            '<input type="url" class="matrix-input-text matrix-prod-field" data-slug="' + escapeHtmlText(slug) + '" data-product-idx="' + pIdx + '" data-prop="url" value="' + escapeHtmlText(p.url || '') + '" placeholder="Affiliate link (https://...)" style="font-size:0.76rem;padding:0.25rem 0.45rem;">' +
+            '</div>'
+          );
+        }).join('');
+
+        return (
+          '<div class="matrix-affiliate-box">' +
+          (itemsHtml || '<span style="font-size:0.75rem;color:var(--text-muted);font-style:italic;">No products added yet.</span>') +
+          '<button type="button" class="btn-ghost btn-matrix-add-prod" data-slug="' + escapeHtmlText(slug) + '" style="margin-top:0.35rem;padding:0.28rem 0.55rem;font-size:0.74rem;">+ Add Product Link</button>' +
+          '</div>'
+        );
+      }
+
+      function renderMatrixTable() {
+        if (!matrixModelsTableBody) return;
+        syncMatrixToolbarCounts();
+
+        if (!catalogModelsCache.length) {
+          matrixModelsTableBody.innerHTML =
+            '<tr><td class="col-row-label">Notice</td><td style="padding:1.5rem;color:var(--text-muted);">No models found in <code>_models/</code>.</td></tr>';
+          return;
+        }
+
+        var searchQuery = String(matrixTableSearch && matrixTableSearch.value || '').trim().toLowerCase();
+        var filteredModels = catalogModelsCache.filter(function (m) {
+          if (!searchQuery) return true;
+          var cur = getModelCurrentMatrix(m);
+          var hay = (
+            (cur.title || '') + ' ' +
+            (cur.extended_title || '') + ' ' +
+            (cur.tagline || '') + ' ' +
+            (m.slug || '') + ' ' +
+            (cur.tags || '')
+          ).toLowerCase();
+          return hay.indexOf(searchQuery) !== -1;
+        });
+
+        if (!filteredModels.length) {
+          matrixModelsTableBody.innerHTML =
+            '<tr><td class="col-row-label">Notice</td><td style="padding:1.5rem;color:var(--text-muted);">No models match the search query.</td></tr>';
+          return;
+        }
+
+        // Build 9 semantic rows across columns
+        // 1. Cover Image (Frozen top 1)
+        var rowCover = '<tr class="frozen-row-1"><th scope="row" class="col-row-label">Cover Image</th>';
+        // 2. Title (Frozen top 2)
+        var rowTitle = '<tr class="frozen-row-2"><th scope="row" class="col-row-label">Title</th>';
+        // 3. Extended Title
+        var rowExtTitle = '<tr><td class="col-row-label">Extended Title</td>';
+        // 4. Tagline
+        var rowTagline = '<tr><td class="col-row-label">Tagline</td>';
+        // 5. Description
+        var rowDesc = '<tr><td class="col-row-label">Description</td>';
+        // 6. Tags
+        var rowTags = '<tr><td class="col-row-label">Tags</td>';
+        // 7. Affiliate Links / Products
+        var rowAff = '<tr><td class="col-row-label">Affiliate Links<br><span style="font-size:0.7rem;font-weight:normal;color:var(--text-muted);">Related Products</span></td>';
+        // 8. Print Settings
+        var rowSettings = '<tr><td class="col-row-label">Print Settings</td>';
+        // 9. Save & Push (Frozen bottom)
+        var rowSave = '<tr class="frozen-row-bottom"><td class="col-row-label">Save &amp; Push</td>';
+
+        filteredModels.forEach(function (m) {
+          var cur = getModelCurrentMatrix(m);
+          var isDirty = isModelMatrixDirty(m);
+          var isSaved = Boolean(recentlySavedMatrixSlugs[m.slug]) && !isDirty;
+          var dirtyClass = isDirty ? ' is-col-dirty' : '';
+          var sSlug = escapeHtmlText(m.slug);
+          var thumbUrl = m.thumbnail_image || m.cover_image || '';
+          var dirtyPill = '<span class="matrix-col-dirty-pill">UNSAVED</span>';
+
+          // Row 1: Cover Image
+          rowCover +=
+            '<th class="model-col-header' + dirtyClass + '" data-col-slug="' + sSlug + '">' +
+            '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.4rem;margin-bottom:0.35rem;">' +
+            '<span style="font-family:var(--font-mono);font-size:0.68rem;color:var(--text-muted);">' + sSlug + '</span>' +
+            dirtyPill +
+            '</div>' +
+            (thumbUrl
+              ? '<img src="' + escapeHtmlText(thumbUrl) + '" alt="' + escapeHtmlText(cur.title) + '" class="matrix-cover-thumb" loading="lazy">'
+              : '<div class="matrix-cover-thumb" style="display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:0.7rem;">No Image</div>') +
+            '</th>';
+
+          // Row 2: Title (editable text input)
+          rowTitle +=
+            '<th class="model-col-header' + dirtyClass + '" data-col-slug="' + sSlug + '">' +
+            '<input type="text" class="matrix-input-text matrix-field-input" data-slug="' + sSlug + '" data-field="title" value="' + escapeHtmlText(cur.title) + '" placeholder="Model Title..." aria-label="Title for ' + sSlug + '">' +
+            '</th>';
+
+          // Row 3: Extended Title
+          rowExtTitle +=
+            '<td class="model-col-cell' + dirtyClass + '" data-col-slug="' + sSlug + '">' +
+            '<textarea class="matrix-textarea matrix-field-input" data-slug="' + sSlug + '" data-field="extended_title" rows="2" style="min-height:54px;" placeholder="Extended Title (optional)..." aria-label="Extended title for ' + sSlug + '">' + escapeHtmlText(cur.extended_title) + '</textarea>' +
+            '</td>';
+
+          // Row 4: Tagline
+          rowTagline +=
+            '<td class="model-col-cell' + dirtyClass + '" data-col-slug="' + sSlug + '">' +
+            '<textarea class="matrix-textarea matrix-field-input" data-slug="' + sSlug + '" data-field="tagline" rows="2" style="min-height:54px;" placeholder="Tagline (summary)..." aria-label="Tagline for ' + sSlug + '">' + escapeHtmlText(cur.tagline) + '</textarea>' +
+            '</td>';
+
+          // Row 5: Description
+          rowDesc +=
+            '<td class="model-col-cell' + dirtyClass + '" data-col-slug="' + sSlug + '">' +
+            '<textarea class="matrix-textarea matrix-field-input" data-slug="' + sSlug + '" data-field="description" rows="5" style="min-height:110px;" placeholder="Model markdown overview / description..." aria-label="Description for ' + sSlug + '">' + escapeHtmlText(cur.description) + '</textarea>' +
+            '</td>';
+
+          // Row 6: Tags
+          rowTags +=
+            '<td class="model-col-cell' + dirtyClass + '" data-col-slug="' + sSlug + '">' +
+            '<textarea class="matrix-textarea matrix-field-input" data-slug="' + sSlug + '" data-field="tags" rows="2" style="min-height:54px;" placeholder="comma, separated, tags..." aria-label="Tags for ' + sSlug + '">' + escapeHtmlText(cur.tags) + '</textarea>' +
+            '</td>';
+
+          // Row 7: Affiliate Links / Products
+          rowAff +=
+            '<td class="model-col-cell' + dirtyClass + '" data-col-slug="' + sSlug + '">' +
+            renderMatrixAffiliateBoxHtml(m.slug, cur.products) +
+            '</td>';
+
+          // Row 8: Print Settings
+          rowSettings +=
+            '<td class="model-col-cell' + dirtyClass + '" data-col-slug="' + sSlug + '">' +
+            '<textarea class="matrix-textarea matrix-field-input" data-slug="' + sSlug + '" data-field="printSettings" rows="4" style="min-height:90px;" placeholder="Recommended Print Settings..." aria-label="Print settings for ' + sSlug + '">' + escapeHtmlText(cur.printSettings) + '</textarea>' +
+            '</td>';
+
+          // Row 9: Save & Push
+          var saveBtnLabel = isDirty ? 'Save &amp; Push' : isSaved ? 'Saved &#10003;' : 'Save &amp; Push';
+          var saveBtnClass = 'btn-row-save' + (isDirty ? ' is-dirty' : isSaved ? ' is-saved' : '');
+          rowSave +=
+            '<td class="model-col-cell' + dirtyClass + '" data-col-slug="' + sSlug + '" style="text-align:center;">' +
+            '<div style="display:flex;align-items:center;justify-content:center;gap:0.4rem;">' +
+            '<button type="button" class="' + saveBtnClass + ' btn-col-save" data-slug="' + sSlug + '" title="Save changes for ' + sSlug + ' and push to GitHub">' + saveBtnLabel + '</button>' +
+            '<button type="button" class="btn-ghost btn-matrix-load-editor" data-slug="' + sSlug + '" style="padding:0.32rem 0.55rem;font-size:0.75rem;" title="Open in top page editor">Edit &#8599;</button>' +
+            '</div>' +
+            '</td>';
+        });
+
+        rowCover += '</tr>';
+        rowTitle += '</tr>';
+        rowExtTitle += '</tr>';
+        rowTagline += '</tr>';
+        rowDesc += '</tr>';
+        rowTags += '</tr>';
+        rowAff += '</tr>';
+        rowSettings += '</tr>';
+        rowSave += '</tr>';
+
+        matrixModelsTableBody.innerHTML =
+          rowCover + rowTitle + rowExtTitle + rowTagline + rowDesc + rowTags + rowAff + rowSettings + rowSave;
+      }
+
+      function updateMatrixColumnDirtyState(slug) {
+        var m = catalogModelsCache.find(function (item) { return item.slug === slug; });
+        if (!m) return;
+        var isDirty = isModelMatrixDirty(m);
+        var cells = matrixModelsTableBody.querySelectorAll('[data-col-slug="' + slug + '"]');
+        cells.forEach(function (el) {
+          el.classList.toggle('is-col-dirty', isDirty);
+        });
+
+        var saveBtn = matrixModelsTableBody.querySelector('.btn-col-save[data-slug="' + slug + '"]');
+        if (saveBtn) {
+          saveBtn.className = 'btn-row-save btn-col-save' + (isDirty ? ' is-dirty' : '');
+          saveBtn.innerHTML = 'Save &amp; Push';
+        }
+        syncMatrixToolbarCounts();
+      }
+
+      function saveSingleModelMatrix(slug, btnEl) {
+        var m = catalogModelsCache.find(function (item) { return item.slug === slug; });
+        if (!m) return;
+
+        var cur = getModelCurrentMatrix(m);
+        if (btnEl) {
+          btnEl.disabled = true;
+          btnEl.textContent = 'Saving...';
+        }
+        if (matrixTableStatus) {
+          matrixTableStatus.className = 'links-table-status';
+          matrixTableStatus.textContent = 'Saving "' + (cur.title || slug) + '" & pushing...';
+        }
+
+        var updatePayload = {
+          updates: [{
+            slug: slug,
+            fields: {
+              title: cur.title,
+              extended_title: cur.extended_title,
+              tagline: cur.tagline,
+              description: cur.description,
+              tags: cur.tags,
+              printSettings: cur.printSettings,
+              products: cur.products
+            }
+          }],
+          autoDeploy: autoDeployCheckbox.checked
+        };
+
+        fetch('/api/models/bulk-update', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatePayload)
+        })
+          .then(function (r) {
+            return r.json().then(function (b) { return { ok: r.ok, body: b }; });
+          })
+          .then(function (res) {
+            if (!res.ok || res.body.error) {
+              if (btnEl) {
+                btnEl.disabled = false;
+                btnEl.textContent = 'Save & Push';
+              }
+              if (matrixTableStatus) {
+                matrixTableStatus.className = 'links-table-status is-error';
+                matrixTableStatus.textContent = '⚠ ' + (res.body.error || 'Failed to save model.');
+              }
+              return;
+            }
+
+            var updated = res.body.models && res.body.models[0];
+            if (updated) {
+              catalogModelsCache = catalogModelsCache.map(function (item) {
+                return item.slug === slug ? updated : item;
+              });
+              syncEditorIfMatchingSlug(updated);
+            }
+            delete matrixDrafts[slug];
+            recentlySavedMatrixSlugs[slug] = true;
+
+            if (matrixTableStatus) {
+              matrixTableStatus.className = 'links-table-status is-success';
+              matrixTableStatus.textContent =
+                '✓ Saved "' + (cur.title || slug) + '"' + (res.body.deployed ? ' & pushed to GitHub!' : ' locally.');
+            }
+            renderMatrixTable();
+          })
+          .catch(function (err) {
+            if (btnEl) {
+              btnEl.disabled = false;
+              btnEl.textContent = 'Save & Push';
+            }
+            if (matrixTableStatus) {
+              matrixTableStatus.className = 'links-table-status is-error';
+              matrixTableStatus.textContent = '⚠ Network error: ' + err.message;
+            }
+          });
+      }
+
+      function saveAllDirtyMatrix() {
+        var dirtySlugs = getDirtyMatrixSlugs();
+        if (!dirtySlugs.length) return;
+
+        var updates = dirtySlugs.map(function (slug) {
+          var m = catalogModelsCache.find(function (item) { return item.slug === slug; });
+          var cur = getModelCurrentMatrix(m);
+          return {
+            slug: slug,
+            fields: {
+              title: cur.title,
+              extended_title: cur.extended_title,
+              tagline: cur.tagline,
+              description: cur.description,
+              tags: cur.tags,
+              printSettings: cur.printSettings,
+              products: cur.products
+            }
+          };
+        });
+
+        btnSaveAllMatrix.disabled = true;
+        btnSaveAllMatrix.textContent = 'Saving & Pushing...';
+        if (matrixTableStatus) {
+          matrixTableStatus.className = 'links-table-status';
+          matrixTableStatus.textContent = 'Saving ' + updates.length + ' model(s) & pushing...';
+        }
+
+        fetch('/api/models/bulk-update', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            updates: updates,
+            autoDeploy: autoDeployCheckbox.checked
+          })
+        })
+          .then(function (r) {
+            return r.json().then(function (b) { return { ok: r.ok, body: b }; });
+          })
+          .then(function (res) {
+            btnSaveAllMatrix.innerHTML = 'Save All Changes &amp; Push (<span id="dirty-matrix-count">0</span>)';
+            dirtyMatrixCountEl = document.getElementById('dirty-matrix-count');
+
+            if (!res.ok || res.body.error) {
+              syncMatrixToolbarCounts();
+              if (matrixTableStatus) {
+                matrixTableStatus.className = 'links-table-status is-error';
+                matrixTableStatus.textContent = '⚠ ' + (res.body.error || 'Failed to save models.');
+              }
+              return;
+            }
+
+            var updatedMap = {};
+            (res.body.models || []).forEach(function (u) {
+              updatedMap[u.slug] = u;
+              delete matrixDrafts[u.slug];
+              recentlySavedMatrixSlugs[u.slug] = true;
+              syncEditorIfMatchingSlug(u);
+            });
+
+            catalogModelsCache = catalogModelsCache.map(function (m) {
+              return updatedMap[m.slug] ? updatedMap[m.slug] : m;
+            });
+
+            if (matrixTableStatus) {
+              matrixTableStatus.className = 'links-table-status is-success';
+              matrixTableStatus.textContent =
+                '✓ Updated ' + res.body.updatedCount + ' model(s)' + (res.body.deployed ? ' & pushed to GitHub!' : ' locally.');
+            }
+            renderMatrixTable();
+          })
+          .catch(function (err) {
+            btnSaveAllMatrix.innerHTML = 'Save All Changes &amp; Push (<span id="dirty-matrix-count">0</span>)';
+            dirtyMatrixCountEl = document.getElementById('dirty-matrix-count');
+            syncMatrixToolbarCounts();
+            if (matrixTableStatus) {
+              matrixTableStatus.className = 'links-table-status is-error';
+              matrixTableStatus.textContent = '⚠ Network error: ' + err.message;
+            }
+          });
+      }
+
       function renderExistingModelsList() {
         navModelCount.textContent = catalogModelsCache.length;
         renderExistingModelsTable();
+        renderMatrixTable();
 
         if (!catalogModelsCache.length) {
           existingModelsList.innerHTML = '<p style="font-size:0.86rem;color:var(--text-muted);">No models found in <code>_models/</code>.</p>';
@@ -4725,6 +5438,166 @@
         saveAllDirtyDownloads();
       });
 
+      // =========================================================================
+      // Matrix (Columns Table) Event Listeners
+      // =========================================================================
+      if (matrixModelsTableBody) {
+        // Text / Textarea input delegation
+        matrixModelsTableBody.addEventListener('input', function (e) {
+          var inputEl = e.target.closest('.matrix-field-input');
+          if (inputEl) {
+            var slug = inputEl.getAttribute('data-slug');
+            var field = inputEl.getAttribute('data-field');
+            if (!slug || !field) return;
+
+            var m = catalogModelsCache.find(function (item) { return item.slug === slug; });
+            if (!m) return;
+
+            if (!matrixDrafts[slug]) {
+              matrixDrafts[slug] = getModelSavedMatrix(m);
+            }
+            matrixDrafts[slug][field] = inputEl.value;
+            delete recentlySavedMatrixSlugs[slug];
+
+            if (!isModelMatrixDirty(m)) {
+              delete matrixDrafts[slug];
+            }
+            updateMatrixColumnDirtyState(slug);
+            return;
+          }
+
+          var prodField = e.target.closest('.matrix-prod-field');
+          if (prodField) {
+            var pSlug = prodField.getAttribute('data-slug');
+            var pIdx = parseInt(prodField.getAttribute('data-product-idx'), 10);
+            var pProp = prodField.getAttribute('data-prop');
+            if (!pSlug || isNaN(pIdx) || !pProp) return;
+
+            var pModel = catalogModelsCache.find(function (item) { return item.slug === pSlug; });
+            if (!pModel) return;
+
+            if (!matrixDrafts[pSlug]) {
+              matrixDrafts[pSlug] = getModelSavedMatrix(pModel);
+            }
+            if (!Array.isArray(matrixDrafts[pSlug].products)) {
+              matrixDrafts[pSlug].products = [];
+            }
+            if (matrixDrafts[pSlug].products[pIdx]) {
+              matrixDrafts[pSlug].products[pIdx][pProp] = prodField.value;
+            }
+            delete recentlySavedMatrixSlugs[pSlug];
+
+            if (!isModelMatrixDirty(pModel)) {
+              delete matrixDrafts[pSlug];
+            }
+            updateMatrixColumnDirtyState(pSlug);
+          }
+        });
+
+        // Click delegation for matrix buttons (Save & Push, Remove Prod, Add Prod, Edit in Top Editor)
+        matrixModelsTableBody.addEventListener('click', function (e) {
+          var saveBtn = e.target.closest('.btn-col-save');
+          if (saveBtn) {
+            var sSlug = saveBtn.getAttribute('data-slug');
+            if (sSlug) saveSingleModelMatrix(sSlug, saveBtn);
+            return;
+          }
+
+          var addProdBtn = e.target.closest('.btn-matrix-add-prod');
+          if (addProdBtn) {
+            var aSlug = addProdBtn.getAttribute('data-slug');
+            var aModel = catalogModelsCache.find(function (item) { return item.slug === aSlug; });
+            if (!aModel) return;
+
+            if (!matrixDrafts[aSlug]) {
+              matrixDrafts[aSlug] = getModelSavedMatrix(aModel);
+            }
+            if (!Array.isArray(matrixDrafts[aSlug].products)) {
+              matrixDrafts[aSlug].products = [];
+            }
+            matrixDrafts[aSlug].products.push({
+              name: '',
+              category: 'Filament & Materials',
+              badge: '',
+              description: '',
+              url: '',
+              cta: 'Buy on Amazon'
+            });
+            delete recentlySavedMatrixSlugs[aSlug];
+
+            var affCell = addProdBtn.closest('td');
+            if (affCell) {
+              affCell.innerHTML = renderMatrixAffiliateBoxHtml(aSlug, matrixDrafts[aSlug].products);
+            }
+            updateMatrixColumnDirtyState(aSlug);
+            return;
+          }
+
+          var delProdBtn = e.target.closest('.btn-matrix-del-prod');
+          if (delProdBtn) {
+            var dSlug = delProdBtn.getAttribute('data-slug');
+            var dIdx = parseInt(delProdBtn.getAttribute('data-product-idx'), 10);
+            var dModel = catalogModelsCache.find(function (item) { return item.slug === dSlug; });
+            if (!dModel || isNaN(dIdx)) return;
+
+            if (!matrixDrafts[dSlug]) {
+              matrixDrafts[dSlug] = getModelSavedMatrix(dModel);
+            }
+            if (Array.isArray(matrixDrafts[dSlug].products)) {
+              matrixDrafts[dSlug].products.splice(dIdx, 1);
+            }
+            delete recentlySavedMatrixSlugs[dSlug];
+
+            if (!isModelMatrixDirty(dModel)) {
+              delete matrixDrafts[dSlug];
+            }
+            var dCell = delProdBtn.closest('td');
+            if (dCell) {
+              dCell.innerHTML = renderMatrixAffiliateBoxHtml(dSlug, getModelCurrentMatrix(dModel).products);
+            }
+            updateMatrixColumnDirtyState(dSlug);
+            return;
+          }
+
+          var editBtn = e.target.closest('.btn-matrix-load-editor');
+          if (editBtn) {
+            var eSlug = editBtn.getAttribute('data-slug');
+            if (eSlug) openEditModel(eSlug);
+            return;
+          }
+        });
+      }
+
+      if (matrixTableSearch) {
+        matrixTableSearch.addEventListener('input', function () {
+          renderMatrixTable();
+        });
+      }
+
+      if (btnDiscardMatrix) {
+        btnDiscardMatrix.addEventListener('click', function () {
+          matrixDrafts = {};
+          if (matrixTableStatus) {
+            matrixTableStatus.className = 'links-table-status';
+            matrixTableStatus.textContent = 'Unsaved changes reset.';
+          }
+          renderMatrixTable();
+        });
+      }
+
+      if (btnSaveAllMatrix) {
+        btnSaveAllMatrix.addEventListener('click', function () {
+          saveAllDirtyMatrix();
+        });
+      }
+
+      if (btnViewMatrix) {
+        btnViewMatrix.addEventListener('click', function () {
+          setLibraryViewMode('matrix');
+          renderMatrixTable();
+        });
+      }
+
       existingModelsList.addEventListener('click', function (e) {
         var toggleBtn = e.target.closest('.btn-toggle-hidden');
         if (toggleBtn) {
@@ -4810,8 +5683,21 @@
         btnNavTable.classList.add('is-active');
         btnNavNew.classList.remove('is-active');
         btnNavLibrary.classList.remove('is-active');
+        if (btnNavMatrix) btnNavMatrix.classList.remove('is-active');
         document.getElementById('existing-models-section').scrollIntoView({ behavior: 'smooth' });
       });
+
+      if (btnNavMatrix) {
+        btnNavMatrix.addEventListener('click', function () {
+          setLibraryViewMode('matrix');
+          renderMatrixTable();
+          btnNavMatrix.classList.add('is-active');
+          btnNavNew.classList.remove('is-active');
+          btnNavLibrary.classList.remove('is-active');
+          btnNavTable.classList.remove('is-active');
+          document.getElementById('existing-models-section').scrollIntoView({ behavior: 'smooth' });
+        });
+      }
 
       formEl.addEventListener('submit', function (e) {
         e.preventDefault();
@@ -4931,8 +5817,9 @@
       fetchExistingModels(function () {
         var params = new URLSearchParams(window.location.search);
         var editParam = params.get('edit');
-        var viewParam = params.get('view');
-        if (viewParam === 'table' || window.location.hash === '#table') {
+        if (viewParam === 'matrix' || window.location.hash === '#matrix') {
+          setLibraryViewMode('matrix');
+        } else if (viewParam === 'table' || window.location.hash === '#table') {
           setLibraryViewMode('table');
         }
         if (editParam) {

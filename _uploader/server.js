@@ -864,6 +864,202 @@ app.post('/api/models/bulk-downloads', (req, res) => {
 });
 
 /**
+ * Helper: Update multiple fields for a model directly on disk
+ */
+function updateModelFieldsOnDisk(slug, fields = {}) {
+  const filename = `${String(slug || '').replace(/\.md$/, '')}.md`;
+  const fullPath = path.join(MODELS_DIR, filename);
+  if (!fs.existsSync(fullPath)) {
+    throw new Error(`Model "${slug}" not found in _models/.`);
+  }
+
+  const existing = parseModelMarkdown(filename);
+
+  const cleanTitle = fields.title !== undefined ? String(fields.title || '').trim() : existing.title;
+  const resolvedExtendedTitle = fields.extended_title !== undefined ? String(fields.extended_title || '').trim() : (fields.extendedTitle !== undefined ? String(fields.extendedTitle || '').trim() : existing.extended_title);
+  const resolvedTagline = fields.tagline !== undefined ? String(fields.tagline || '').trim() : existing.tagline;
+  const shortname = existing.shortname || slug;
+  const category = fields.category !== undefined ? fields.category : existing.category;
+  const hidden = fields.hidden !== undefined ? Boolean(fields.hidden) : existing.hidden;
+  const thumbWebPath = existing.thumbnail_image;
+  const mainWebPath = existing.cover_image;
+
+  // Tags
+  let parsedTags = existing.tags;
+  if (fields.tags !== undefined) {
+    parsedTags = Array.isArray(fields.tags)
+      ? fields.tags.map((t) => String(t).trim()).filter(Boolean)
+      : String(fields.tags || '')
+          .split(',')
+          .map((t) => t.trim())
+          .filter(Boolean);
+  }
+
+  // Downloads
+  const downloads = fields.downloads !== undefined ? fields.downloads : existing.downloads;
+  const dlMakerworld = downloads && downloads.makerworld !== undefined ? String(downloads.makerworld || '').trim() : (existing.downloads.makerworld || '');
+  const dlPrintables = downloads && downloads.printables !== undefined ? String(downloads.printables || '').trim() : (existing.downloads.printables || '');
+  const dlThangs = downloads && downloads.thangs !== undefined ? String(downloads.thangs || '').trim() : (existing.downloads.thangs || '');
+  const dlCults3d = downloads && downloads.cults3d !== undefined ? String(downloads.cults3d || '').trim() : (existing.downloads.cults3d || '');
+
+  // Products
+  let finalProducts = existing.products;
+  if (fields.products !== undefined) {
+    if (Array.isArray(fields.products)) {
+      finalProducts = fields.products.filter(function (p) {
+        return p && ((p.name && p.name.trim()) || (p.url && p.url.trim()));
+      });
+    } else {
+      finalProducts = [];
+    }
+  }
+
+  // Description & Print Settings
+  const description = fields.description !== undefined ? String(fields.description) : existing.description;
+  const printSettings = fields.printSettings !== undefined ? String(fields.printSettings) : (fields.print_settings !== undefined ? String(fields.print_settings) : existing.printSettings);
+
+  const yamlLines = [
+    '---',
+    `title: ${yamlQuote(cleanTitle)}`,
+    `extended_title: ${yamlQuote(resolvedExtendedTitle)}`,
+    `tagline: ${yamlQuote(resolvedTagline)}`,
+    `shortname: ${yamlQuote(shortname)}`,
+    `category: ${yamlQuote(category || 'useful-prints')}`,
+    `hidden: ${Boolean(hidden)}`,
+    `thumbnail_image: ${yamlQuote(thumbWebPath)}`,
+    `cover_image: ${yamlQuote(mainWebPath)}`
+  ];
+
+  if (Array.isArray(existing.gallery_images) && existing.gallery_images.length > 0) {
+    yamlLines.push('gallery_images:');
+    existing.gallery_images.forEach((p) => {
+      yamlLines.push(`  - ${yamlQuote(p)}`);
+    });
+  } else {
+    yamlLines.push('gallery_images: []');
+  }
+
+  if (Array.isArray(existing.detailed_images) && existing.detailed_images.length > 0) {
+    yamlLines.push('detailed_images:');
+    existing.detailed_images.forEach((p) => {
+      yamlLines.push(`  - ${yamlQuote(p)}`);
+    });
+  } else {
+    yamlLines.push('detailed_images: []');
+  }
+
+  if (existing.animation) {
+    yamlLines.push(`animation: ${yamlQuote(existing.animation)}`);
+  }
+
+  if (parsedTags.length > 0) {
+    yamlLines.push('tags:');
+    parsedTags.forEach((t) => {
+      yamlLines.push(`  - ${yamlQuote(t)}`);
+    });
+  } else {
+    yamlLines.push('tags: []');
+  }
+
+  yamlLines.push('downloads:');
+  yamlLines.push(`  makerworld: ${yamlQuote(dlMakerworld)}`);
+  yamlLines.push(`  printables: ${yamlQuote(dlPrintables)}`);
+  yamlLines.push(`  thangs: ${yamlQuote(dlThangs)}`);
+  yamlLines.push(`  cults3d: ${yamlQuote(dlCults3d)}`);
+
+  if (Array.isArray(existing.youtube_shorts) && existing.youtube_shorts.length > 0) {
+    yamlLines.push('youtube_shorts:');
+    existing.youtube_shorts.forEach((id) => {
+      yamlLines.push(`  - ${yamlQuote(id)}`);
+    });
+  } else {
+    yamlLines.push('youtube_shorts: []');
+  }
+
+  if (Array.isArray(existing.youtube_videos) && existing.youtube_videos.length > 0) {
+    yamlLines.push('youtube_videos:');
+    existing.youtube_videos.forEach((id) => {
+      yamlLines.push(`  - ${yamlQuote(id)}`);
+    });
+  } else {
+    yamlLines.push('youtube_videos: []');
+  }
+
+  yamlLines.push(`youtube_id: ${yamlQuote(existing.youtube_id || '')}`);
+
+  if (Array.isArray(finalProducts) && finalProducts.length > 0) {
+    yamlLines.push('products:');
+    finalProducts.forEach((p) => {
+      yamlLines.push(`  - name: ${yamlQuote(p.name || p.title || '')}`);
+      if (p.category) yamlLines.push(`    category: ${yamlQuote(p.category)}`);
+      if (p.badge) yamlLines.push(`    badge: ${yamlQuote(p.badge)}`);
+      if (p.description) yamlLines.push(`    description: ${yamlQuote(p.description)}`);
+      yamlLines.push(`    url: ${yamlQuote(p.url || '')}`);
+      if (p.cta) yamlLines.push(`    cta: ${yamlQuote(p.cta)}`);
+    });
+  }
+
+  yamlLines.push('---');
+  yamlLines.push('');
+
+  const bodySections = [];
+  if (String(description).trim()) {
+    bodySections.push(String(description).trim());
+  }
+  if (String(printSettings).trim()) {
+    const settingsText = String(printSettings).trim();
+    if (/^#{1,4}\s+/m.test(settingsText)) {
+      bodySections.push(settingsText);
+    } else {
+      bodySections.push(`### Recommended Print Settings\n\n${settingsText}`);
+    }
+  }
+
+  const markdownContent = yamlLines.join('\n') + bodySections.join('\n\n') + '\n';
+  fs.writeFileSync(fullPath, markdownContent, 'utf8');
+
+  return parseModelMarkdown(filename);
+}
+
+/**
+ * POST /api/models/bulk-update — Update multiple editable fields across multiple models
+ */
+app.post('/api/models/bulk-update', (req, res) => {
+  try {
+    const updates = Array.isArray(req.body.updates) ? req.body.updates : [];
+    if (updates.length === 0) {
+      return res.status(400).json({ error: 'No model updates provided.' });
+    }
+
+    const updatedModels = [];
+    for (const item of updates) {
+      if (!item || !item.slug) continue;
+      const updated = updateModelFieldsOnDisk(item.slug, item.fields || {});
+      updatedModels.push(updated);
+    }
+
+    const autoDeploy = req.body.autoDeploy !== false;
+    let deployResult = { deployed: false, gitError: null, gitLog: '' };
+    if (autoDeploy && updatedModels.length > 0) {
+      const msg =
+        updatedModels.length === 1
+          ? `Update details for ${updatedModels[0].title}`
+          : `Update details across ${updatedModels.length} models in table view`;
+      deployResult = commitAndPushChanges(msg);
+    }
+
+    return res.json({
+      success: true,
+      updatedCount: updatedModels.length,
+      models: updatedModels,
+      ...deployResult
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+/**
  * Decode common HTML entities into plain characters
  */
 function decodeHtmlEntities(str) {
