@@ -720,13 +720,19 @@
       font-family: var(--font-display);
       font-size: 1.05rem;
       font-weight: 500;
-      line-height: 1.3;
+      line-height: 1.4;
       color: var(--text-secondary);
       background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-sm);
-      padding: 0.4rem 0.7rem;
+      padding: 0.45rem 0.7rem;
       margin-top: 0.5rem;
+      resize: none;
+      overflow-y: hidden;
+      field-sizing: content;
+      min-height: 2.25rem;
+      box-sizing: border-box;
+      display: block;
       transition: border-color 0.16s ease, box-shadow 0.16s ease;
     }
 
@@ -751,8 +757,14 @@
       background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-sm);
-      padding: 0.42rem 0.7rem;
+      padding: 0.45rem 0.7rem;
       margin-top: 0.5rem;
+      resize: none;
+      overflow-y: hidden;
+      field-sizing: content;
+      min-height: 2.25rem;
+      box-sizing: border-box;
+      display: block;
       transition: border-color 0.16s ease, box-shadow 0.16s ease;
     }
 
@@ -2035,21 +2047,21 @@
               aria-label="Model Title"
             >
 
-            <input
-              type="text"
+            <textarea
               id="model-extended-title"
               class="model-extended-title-input"
+              rows="1"
               placeholder="Extended Title (e.g., Multi-color 3mf | Free to a good home)"
               aria-label="Extended Title"
-            >
+            ></textarea>
 
-            <input
-              type="text"
+            <textarea
               id="model-tagline"
               class="model-tagline-input"
+              rows="1"
               placeholder="Tagline (auto-filled from Printables summary)..."
               aria-label="Model Tagline"
-            >
+            ></textarea>
           </div>
 
           <!-- Tags matching .tag-list in _layouts/model.html -->
@@ -3356,10 +3368,13 @@
       function autoExpandTextarea(el) {
         if (!el) return;
         el.style.height = 'auto';
-        el.style.height = Math.max(120, el.scrollHeight + 2) + 'px';
+        var minH = (el === descInput || el === settingsInput) ? 120 : 36;
+        el.style.height = Math.max(minH, el.scrollHeight + 2) + 'px';
       }
 
       function autoExpandAllProse() {
+        autoExpandTextarea(extendedTitleInput);
+        autoExpandTextarea(taglineInput);
         autoExpandTextarea(descInput);
         autoExpandTextarea(settingsInput);
       }
@@ -3563,14 +3578,14 @@
       [extendedTitleInput, taglineInput, hiddenCheckbox, descInput, settingsInput, dlMakerworld, dlPrintables, dlThangs, dlCults3d].forEach(
         function (el) {
           el.addEventListener('input', function () {
-            if (el === descInput || el === settingsInput) {
+            if (el === descInput || el === settingsInput || el === extendedTitleInput || el === taglineInput) {
               autoExpandTextarea(el);
             }
             syncDownloadButtonHighlights();
             updateMarkdownPreview();
           });
           el.addEventListener('change', function () {
-            if (el === descInput || el === settingsInput) {
+            if (el === descInput || el === settingsInput || el === extendedTitleInput || el === taglineInput) {
               autoExpandTextarea(el);
             }
             syncDownloadButtonHighlights();
@@ -3578,6 +3593,16 @@
           });
         }
       );
+
+      [extendedTitleInput, taglineInput].forEach(function (el) {
+        if (!el) return;
+        el.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            el.blur();
+          }
+        });
+      });
 
       function yamlEscape(s) {
         return '"' + String(s || '').trim().replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"';
