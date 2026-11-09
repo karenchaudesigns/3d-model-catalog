@@ -282,13 +282,19 @@
 
     @media (min-width: 920px) {
       .model-hero-grid {
-        grid-template-columns: 1.1fr 0.9fr;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
         gap: 3rem;
         align-items: start;
       }
     }
 
-    /* Left Column: Main Showcase Stage & Thumbnail Strip */
+    /* Left Column: Main Showcase Stage & Thumbnail Strip (strictly 50% max on desktop) */
+    .model-media-column,
+    .model-info-column {
+      min-width: 0;
+      max-width: 100%;
+    }
+
     .model-media-column {
       display: flex;
       flex-direction: column;
@@ -465,14 +471,54 @@
       background: var(--danger);
     }
 
-    /* Thumbnail Strip below Main Stage (matches .model-thumb-strip in _layouts/model.html) */
+    /* Thumbnail Carousel & Strip below Main Stage (matches .model-thumb-carousel in _layouts/model.html) */
+    .model-thumb-carousel {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-top: 0.85rem;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+    }
+
+    .thumb-scroll-btn {
+      appearance: none;
+      width: 1.95rem;
+      height: 3.5rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      font-size: 1.15rem;
+      font-weight: 700;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      box-shadow: var(--shadow-card);
+      transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    }
+
+    .thumb-scroll-btn:hover {
+      border-color: var(--accent-terracotta);
+      color: var(--accent-terracotta);
+      background: var(--accent-soft);
+    }
+
     .model-thumb-strip {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
-      margin-top: 0.85rem;
+      gap: 0.65rem;
       overflow-x: auto;
-      padding-bottom: 0.3rem;
+      scroll-behavior: smooth;
+      padding: 0.15rem 0.1rem 0.35rem;
+      flex: 1;
+      min-width: 0;
+      max-width: 100%;
+      scrollbar-width: thin;
     }
 
     .thumb-selector {
