@@ -10,6 +10,7 @@ cover_image: "/images/models/graduated-paint-brush-racks/3d-model-graduated-pain
 gallery_images:
   - "/images/models/graduated-paint-brush-racks/3d-model-graduated-paint-brush-racks-angle1.webp"
 detailed_images: []
+animation: "/images/models/graduated-paint-brush-racks/3d-model-graduated-paint-brush-racks-loop.mp4"
 tags:
   - "organizer"
   - "art"
