@@ -2408,9 +2408,14 @@
       transition: all 0.15s ease;
     }
 
-    .btn-catalog-action:hover {
+    .btn-catalog-action:hover:not(:disabled) {
       border-color: var(--border-strong);
       background: var(--bg-subtle);
+    }
+
+    .btn-catalog-action:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
 
     .btn-open-columns {
@@ -2894,6 +2899,7 @@
           >
           <button type="button" class="btn-catalog-action" id="btn-select-all-models">Select All</button>
           <button type="button" class="btn-catalog-action" id="btn-deselect-all-models" style="display:none;">Deselect All</button>
+          <button type="button" class="btn-catalog-action" id="btn-export-csv" title="Export selected models to CSV (title, extended title, tagline, description, tags)">Export CSV (<span id="export-csv-count">0</span>)</button>
           <span style="font-size:0.78rem;font-weight:600;color:var(--text-muted);" id="catalog-selection-count">0 selected</span>
         </div>
         <div class="catalog-toolbar-right">
@@ -3144,6 +3150,8 @@
       var catalogLibrarySearch = document.getElementById('catalog-library-search');
       var btnSelectAllModels = document.getElementById('btn-select-all-models');
       var btnDeselectAllModels = document.getElementById('btn-deselect-all-models');
+      var btnExportCsv = document.getElementById('btn-export-csv');
+      var exportCsvCount = document.getElementById('export-csv-count');
       var catalogSelectionCount = document.getElementById('catalog-selection-count');
       var btnOpenColumnsTable = document.getElementById('btn-open-columns-table');
 
@@ -5456,6 +5464,15 @@
         if (catalogSelectionCount) {
           catalogSelectionCount.textContent = count + ' selected';
         }
+        if (exportCsvCount) {
+          exportCsvCount.textContent = count;
+        }
+        if (btnExportCsv) {
+          btnExportCsv.disabled = count === 0;
+          btnExportCsv.title = count === 0
+            ? 'Select one or more models to export CSV'
+            : 'Export ' + count + ' selected model' + (count === 1 ? '' : 's') + ' to CSV';
+        }
         if (btnSelectAllModels && btnDeselectAllModels) {
           btnDeselectAllModels.style.display = count > 0 ? 'inline-block' : 'none';
         }
@@ -6004,6 +6021,75 @@
         btnDeselectAllModels.addEventListener('click', function () {
           catalogSelectedSlugs.clear();
           renderExistingModelsList();
+        });
+      }
+
+      function exportSelectedModelsToCsv() {
+        if (!catalogSelectedSlugs || catalogSelectedSlugs.size === 0) {
+          alert('Please select at least one model to export.');
+          return;
+        }
+
+        var selectedModels = catalogModelsCache.filter(function (m) {
+          return catalogSelectedSlugs.has(m.slug);
+        });
+
+        if (!selectedModels.length) {
+          alert('No selected model data found.');
+          return;
+        }
+
+        function formatCsvField(val) {
+          var str = val === undefined || val === null ? '' : String(val);
+          if (/[",\r\n]/.test(str)) {
+            return '"' + str.replace(/"/g, '""') + '"';
+          }
+          return str;
+        }
+
+        var headers = ['title', 'extended title', 'tagline', 'description', 'tags'];
+        var rows = [headers.map(formatCsvField).join(',')];
+
+        selectedModels.forEach(function (m) {
+          var cur = getModelCurrentMatrix(m);
+          var title = cur.title || '';
+          var extendedTitle = cur.extended_title || '';
+          var tagline = cur.tagline || '';
+          var description = cur.description || '';
+
+          // Format tags: separated by commas
+          var tagsStr = '';
+          if (Array.isArray(m.tags) && m.tags.length > 0 && cur.tags === (m.tags.join(', ') || '')) {
+            tagsStr = m.tags.map(function (t) { return String(t).trim(); }).filter(Boolean).join(', ');
+          } else {
+            tagsStr = parseTagsArray(cur.tags).join(', ');
+          }
+
+          var row = [
+            formatCsvField(title),
+            formatCsvField(extendedTitle),
+            formatCsvField(tagline),
+            formatCsvField(description),
+            formatCsvField(tagsStr)
+          ];
+          rows.push(row.join(','));
+        });
+
+        var csvContent = rows.join('\r\n');
+        var blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+        var url = URL.createObjectURL(blob);
+        var link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'catalog-models-export.csv');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }
+
+      if (btnExportCsv) {
+        btnExportCsv.addEventListener('click', function () {
+          exportSelectedModelsToCsv();
         });
       }
 
