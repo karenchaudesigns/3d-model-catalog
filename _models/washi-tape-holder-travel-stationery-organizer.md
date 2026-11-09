@@ -1,5 +1,7 @@
 ---
-title: "Washi tape holder / travel stationery organizer | 25mm diameter"
+title: "Washi tape holder / travel stationery organizer"
+extended_title: "25mm diameter"
+tagline: ""
 shortname: "washi-tape-holder-travel-stationery-organizer"
 category: "useful-prints"
 hidden: false
@@ -7,6 +9,7 @@ thumbnail_image: "/images/models/washi-tape-holder-travel-stationery-organizer/3
 cover_image: "/images/models/washi-tape-holder-travel-stationery-organizer/3d-model-washi-tape-holder-travel-stationery-organizer-main.webp"
 gallery_images:
   - "/images/models/washi-tape-holder-travel-stationery-organizer/3d-model-washi-tape-holder-travel-stationery-organizer-angle1.webp"
+detailed_images: []
 tags:
   - "organizer"
   - "holder"
@@ -29,6 +32,8 @@ downloads:
   printables: "https://www.printables.com/model/546280-washi-tape-holder-travel-stationery-organizer-25mm"
   thangs: ""
   cults3d: ""
+youtube_shorts: []
+youtube_videos: []
 youtube_id: ""
 ---
 *Keep your washi tape organized at your desk and on the go!*
