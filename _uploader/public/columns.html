@@ -1,0 +1,1431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <script>
+    (function() {
+      try {
+        var saved = localStorage.getItem('kcd-theme');
+        var theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {}
+    })();
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Columns Table View — 3D Model Catalog</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: hsl(36, 33%, 97%);
+      --bg-surface: hsl(0, 0%, 100%);
+      --bg-subtle: hsl(34, 24%, 93%);
+      --text-primary: hsl(24, 18%, 14%);
+      --text-secondary: hsl(24, 10%, 38%);
+      --text-muted: hsl(24, 8%, 54%);
+      --accent-terracotta: hsl(16, 62%, 46%);
+      --accent-terracotta-hover: hsl(16, 66%, 38%);
+      --accent-soft: hsl(16, 55%, 94%);
+      --border-subtle: hsl(32, 18%, 87%);
+      --border-strong: hsl(28, 16%, 76%);
+
+      --color-makerworld: hsl(150, 100%, 33%);
+      --color-printables: hsl(16, 95%, 56%);
+      --color-thangs: hsl(215, 28%, 17%);
+      --color-cults3d: hsl(243, 75%, 59%);
+
+      --edit-blue: hsl(214, 72%, 44%);
+      --edit-blue-soft: hsl(214, 80%, 95%);
+      --success: hsl(150, 75%, 28%);
+      --success-bg: hsl(150, 55%, 94%);
+      --danger: hsl(0, 70%, 48%);
+
+      --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-display: 'Fraunces', Georgia, serif;
+      --font-mono: 'JetBrains Mono', monospace;
+
+      --radius-xs: 4px;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --shadow-card: 0 2px 10px -2px hsla(24, 20%, 14%, 0.06), 0 1px 3px hsla(24, 20%, 14%, 0.04);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg-primary: hsl(24, 14%, 10%);
+        --bg-surface: hsl(24, 12%, 14%);
+        --bg-subtle: hsl(24, 10%, 18%);
+        --text-primary: hsl(36, 25%, 93%);
+        --text-secondary: hsl(32, 14%, 72%);
+        --text-muted: hsl(28, 10%, 55%);
+        --accent-terracotta: hsl(16, 75%, 58%);
+        --accent-terracotta-hover: hsl(16, 80%, 65%);
+        --accent-soft: hsla(16, 75%, 58%, 0.15);
+        --border-subtle: hsl(24, 10%, 22%);
+        --border-strong: hsl(24, 12%, 30%);
+        --shadow-card: 0 2px 10px -2px hsla(0, 0%, 0%, 0.4), 0 1px 3px hsla(0, 0%, 0%, 0.3);
+      }
+    }
+
+    [data-theme="dark"] {
+      --bg-primary: hsl(24, 14%, 10%);
+      --bg-surface: hsl(24, 12%, 14%);
+      --bg-subtle: hsl(24, 10%, 18%);
+      --text-primary: hsl(36, 25%, 93%);
+      --text-secondary: hsl(32, 14%, 72%);
+      --text-muted: hsl(28, 10%, 55%);
+      --accent-terracotta: hsl(16, 75%, 58%);
+      --accent-terracotta-hover: hsl(16, 80%, 65%);
+      --accent-soft: hsla(16, 75%, 58%, 0.15);
+      --border-subtle: hsl(24, 10%, 22%);
+      --border-strong: hsl(24, 12%, 30%);
+      --shadow-card: 0 2px 10px -2px hsla(0, 0%, 0%, 0.4), 0 1px 3px hsla(0, 0%, 0%, 0.3);
+    }
+
+    [data-theme="light"] {
+      --bg-primary: hsl(36, 33%, 97%);
+      --bg-surface: hsl(0, 0%, 100%);
+      --bg-subtle: hsl(34, 24%, 93%);
+      --text-primary: hsl(24, 18%, 14%);
+      --text-secondary: hsl(24, 10%, 38%);
+      --text-muted: hsl(24, 8%, 54%);
+      --accent-terracotta: hsl(16, 62%, 46%);
+      --accent-terracotta-hover: hsl(16, 66%, 38%);
+      --accent-soft: hsl(16, 55%, 94%);
+      --border-subtle: hsl(32, 18%, 87%);
+      --border-strong: hsl(28, 16%, 76%);
+      --shadow-card: 0 2px 10px -2px hsla(24, 20%, 14%, 0.06), 0 1px 3px hsla(24, 20%, 14%, 0.04);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Minimal Edge-to-Edge Layout */
+    .columns-page-layout {
+      display: flex;
+      flex-direction: column;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Compact Top Header */
+    .columns-header {
+      flex-shrink: 0;
+      background-color: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0.45rem 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      z-index: 50;
+    }
+
+    .columns-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 1.05rem;
+      color: var(--text-primary);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .brand-mark {
+      width: 1.2rem;
+      height: 1.2rem;
+      background-color: var(--accent-terracotta);
+      clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    .header-actions-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .nav-btn {
+      appearance: none;
+      border: 1px solid var(--border-subtle);
+      background-color: var(--bg-surface);
+      color: var(--text-secondary);
+      font-family: var(--font-sans);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.15s ease;
+    }
+
+    .nav-btn:hover {
+      color: var(--text-primary);
+      border-color: var(--border-strong);
+      background-color: var(--bg-subtle);
+    }
+
+    .nav-btn.is-active {
+      color: var(--accent-terracotta);
+      background-color: var(--accent-soft);
+      border-color: hsla(16, 62%, 46%, 0.35);
+    }
+
+    /* Theme Toggle */
+    .theme-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2rem;
+      height: 2rem;
+      border: 1px solid var(--border-subtle);
+      border-radius: 999px;
+      background-color: var(--bg-surface);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .theme-toggle:hover {
+      color: var(--text-primary);
+      background-color: var(--bg-subtle);
+      border-color: var(--border-strong);
+    }
+
+    .theme-toggle svg {
+      width: 1rem;
+      height: 1rem;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .theme-toggle .icon-sun { display: none; }
+    .theme-toggle .icon-moon { display: block; }
+    [data-theme="dark"] .theme-toggle .icon-sun { display: block; }
+    [data-theme="dark"] .theme-toggle .icon-moon { display: none; }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) .theme-toggle .icon-sun { display: block; }
+      :root:not([data-theme="light"]) .theme-toggle .icon-moon { display: none; }
+    }
+
+    /* Sub-toolbar: Search, Filtering, Stats, Save All & Discard */
+    .columns-toolbar {
+      flex-shrink: 0;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0.4rem 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      z-index: 45;
+    }
+
+    .toolbar-left,
+    .toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      flex-wrap: wrap;
+    }
+
+    .search-input {
+      font-family: var(--font-sans);
+      font-size: 0.8rem;
+      padding: 0.32rem 0.65rem;
+      border: 1px solid var(--border-subtle);
+      border-radius: 999px;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      width: 260px;
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent-terracotta);
+      background: var(--bg-surface);
+    }
+
+    .filter-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      background: var(--accent-soft);
+      color: var(--accent-terracotta);
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+
+    .filter-badge button {
+      border: none;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 0.85rem;
+      line-height: 1;
+    }
+
+    .btn-ghost {
+      appearance: none;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.34rem 0.7rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--text-primary);
+      background: var(--bg-subtle);
+    }
+
+    .btn-primary {
+      appearance: none;
+      border: none;
+      background: var(--accent-terracotta);
+      color: #fff;
+      font-family: var(--font-sans);
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 0.42rem 0.95rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.16s ease;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--accent-terracotta-hover);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .status-msg {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      padding: 0.15rem 0.4rem;
+    }
+    .status-msg.is-success { color: var(--success); }
+    .status-msg.is-error { color: var(--danger); }
+
+    /* Auto-deploy toggle */
+    .auto-deploy-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.76rem;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    /* Full-viewport Table Matrix Scroll Container */
+    .matrix-table-viewport {
+      flex: 1 1 auto;
+      width: 100%;
+      height: calc(100vh - 88px);
+      overflow: auto;
+      position: relative;
+      background: var(--bg-primary);
+      --matrix-row1-height: 136px;
+    }
+
+    .matrix-models-table {
+      width: max-content;
+      min-width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 0.82rem;
+      text-align: left;
+    }
+
+    /* Fixed Row Labels Column (Sticky Left) */
+    .matrix-models-table th.col-row-label,
+    .matrix-models-table td.col-row-label {
+      width: 165px;
+      min-width: 165px;
+      max-width: 165px;
+      position: sticky;
+      left: 0;
+      z-index: 10;
+      background: var(--bg-subtle);
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 0.82rem;
+      color: var(--text-primary);
+      border-right: 2px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0.55rem 0.75rem;
+      box-shadow: 2px 0 6px -2px rgba(0,0,0,0.06);
+    }
+
+    /* Model Columns (310px width) */
+    .matrix-models-table th.model-col-header,
+    .matrix-models-table td.model-col-cell {
+      width: 310px;
+      min-width: 310px;
+      max-width: 310px;
+      border-right: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0.55rem 0.65rem;
+      vertical-align: top;
+      background: var(--bg-surface);
+      transition: background-color 0.18s ease;
+    }
+
+    /* Unsaved Dirty Column Highlight */
+    .matrix-models-table td.model-col-cell.is-col-dirty,
+    .matrix-models-table th.model-col-header.is-col-dirty {
+      background-color: hsla(16, 75%, 58%, 0.08) !important;
+    }
+
+    .matrix-models-table td.model-col-cell.is-col-dirty textarea,
+    .matrix-models-table td.model-col-cell.is-col-dirty input {
+      border-color: hsla(16, 75%, 58%, 0.5);
+    }
+
+    /* Frozen Row 1: Cover Image (top: 0) */
+    .matrix-models-table tr.frozen-row-1 th.col-row-label,
+    .matrix-models-table tr.frozen-row-1 th.model-col-header {
+      position: sticky;
+      top: 0;
+      z-index: 25;
+      background: var(--bg-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .matrix-models-table tr.frozen-row-1 th.col-row-label {
+      z-index: 35;
+    }
+
+    /* Frozen Row 2: Title (top driven dynamically by --matrix-row1-height) */
+    .matrix-models-table tr.frozen-row-2 th.col-row-label,
+    .matrix-models-table tr.frozen-row-2 th.model-col-header {
+      position: sticky;
+      top: var(--matrix-row1-height, 136px);
+      z-index: 24;
+      background: var(--bg-subtle);
+      border-bottom: 2px solid var(--border-strong);
+      box-shadow: 0 4px 6px -2px rgba(0,0,0,0.06);
+    }
+
+    .matrix-models-table tr.frozen-row-2 th.col-row-label {
+      z-index: 34;
+    }
+
+    /* Frozen Bottom Row: Save / Actions (bottom: 0) */
+    .matrix-models-table tr.frozen-row-bottom td.col-row-label,
+    .matrix-models-table tr.frozen-row-bottom td.model-col-cell {
+      position: sticky;
+      bottom: 0;
+      z-index: 25;
+      background: var(--bg-subtle);
+      border-top: 2px solid var(--border-strong);
+      border-bottom: none;
+      box-shadow: 0 -4px 8px -2px rgba(0,0,0,0.08);
+      padding: 0.55rem 0.65rem;
+    }
+
+    .matrix-models-table tr.frozen-row-bottom td.col-row-label {
+      z-index: 35;
+    }
+
+    .matrix-cover-thumb {
+      width: 86px;
+      height: 86px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-primary);
+      display: block;
+      margin: 0 auto;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+
+    .matrix-input-text {
+      width: 100%;
+      font-family: var(--font-sans);
+      font-size: 0.81rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xs);
+      padding: 0.35rem 0.5rem;
+      outline: none;
+      transition: border-color 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .matrix-input-text:focus {
+      border-color: var(--accent-terracotta);
+      box-shadow: 0 0 0 2px var(--accent-soft);
+    }
+
+    .matrix-textarea {
+      width: 100%;
+      font-family: var(--font-sans);
+      font-size: 0.81rem;
+      line-height: 1.45;
+      color: var(--text-primary);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xs);
+      padding: 0.4rem 0.5rem;
+      resize: none;
+      outline: none;
+      box-sizing: border-box;
+      transition: border-color 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .matrix-textarea:focus {
+      border-color: var(--accent-terracotta);
+      box-shadow: 0 0 0 2px var(--accent-soft);
+    }
+
+    .matrix-textarea-auto {
+      overflow-y: hidden;
+      min-height: 36px;
+    }
+
+    .matrix-textarea-desc {
+      min-height: 175px;
+      height: 175px;
+      overflow-y: auto;
+    }
+
+    .matrix-textarea-tags {
+      min-height: 95px;
+      height: 95px;
+      overflow-y: auto;
+    }
+
+    .matrix-tag-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.4rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .matrix-tag-count-pill {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      font-weight: 600;
+      padding: 0.08rem 0.4rem;
+      border-radius: 999px;
+      background: var(--bg-subtle);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .matrix-tag-count-pill.is-over-limit {
+      background: hsla(0, 70%, 48%, 0.12);
+      color: var(--danger);
+      border-color: var(--danger);
+      font-weight: 700;
+    }
+
+    .matrix-affiliate-box {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      max-height: 240px;
+      overflow-y: auto;
+      padding: 0.15rem;
+    }
+
+    .matrix-aff-item {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 0.4rem 0.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      font-size: 0.74rem;
+    }
+
+    .matrix-aff-item-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.35rem;
+    }
+
+    .matrix-col-dirty-pill {
+      display: none;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      background: var(--accent-terracotta);
+      color: #fff;
+      padding: 0.1rem 0.4rem;
+      border-radius: 999px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .is-col-dirty .matrix-col-dirty-pill {
+      display: inline-block;
+    }
+
+    .btn-row-save {
+      appearance: none;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+      color: var(--text-secondary);
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.32rem 0.65rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-row-save.is-dirty {
+      background: var(--accent-terracotta);
+      border-color: var(--accent-terracotta);
+      color: #fff;
+    }
+
+    .btn-row-save.is-dirty:hover {
+      background: var(--accent-terracotta-hover);
+    }
+
+    .btn-row-save.is-saved {
+      background: var(--success-bg);
+      border-color: var(--success);
+      color: var(--success);
+    }
+  </style>
+</head>
+<body>
+  <div class="columns-page-layout">
+    <!-- Compact Header -->
+    <header class="columns-header">
+      <a href="/" class="columns-brand">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>Karen Chau Designs &mdash; Columns Table View</span>
+      </a>
+
+      <div class="header-actions-group">
+        <a href="/" class="nav-btn">
+          &larr; Model Uploader / Library
+        </a>
+        <label class="auto-deploy-label" title="Automatically git commit and push when saving changes">
+          <input type="checkbox" id="auto-deploy-checkbox" checked>
+          <span>Auto-push (git)</span>
+        </label>
+        <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode" title="Toggle theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Sub-toolbar: Search & Actions -->
+    <div class="columns-toolbar">
+      <div class="toolbar-left">
+        <input
+          type="search"
+          class="search-input"
+          id="matrix-table-search"
+          placeholder="Search / filter columns by model name or tags..."
+          aria-label="Filter model columns"
+        >
+        <span id="filter-selection-badge" class="filter-badge" style="display:none;">
+          <span id="filter-selection-text">Filtered (0 selected)</span>
+          <button type="button" id="btn-clear-selection-filter" title="Show all models">&times;</button>
+        </span>
+        <span class="status-msg" id="columns-showing-count">Loading models...</span>
+      </div>
+
+      <div class="toolbar-right">
+        <span class="status-msg" id="matrix-table-status" aria-live="polite"></span>
+        <button type="button" class="btn-ghost" id="btn-discard-matrix" style="display:none;">
+          Reset Unsaved
+        </button>
+        <button type="button" class="btn-primary" id="btn-save-all-matrix" disabled>
+          Save All Changes &amp; Push (<span id="dirty-matrix-count">0</span>)
+        </button>
+      </div>
+    </div>
+
+    <!-- Scroll Viewport: Frozen Rows + Auto-expanding columns -->
+    <main class="matrix-table-viewport" id="matrix-table-scroll">
+      <table class="matrix-models-table" id="matrix-models-table" aria-label="Catalog Models Matrix Table">
+        <tbody id="matrix-models-table-body"></tbody>
+      </table>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      // Theme Toggle Support
+      var themeToggle = document.getElementById('theme-toggle');
+      if (themeToggle) {
+        themeToggle.addEventListener('click', function () {
+          var current = document.documentElement.getAttribute('data-theme');
+          if (!current) {
+            current = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          }
+          var next = current === 'dark' ? 'light' : 'dark';
+          document.documentElement.setAttribute('data-theme', next);
+          try {
+            localStorage.setItem('kcd-theme', next);
+          } catch (e) {}
+        });
+      }
+
+      // Read initial selected models from query parameter "?models=slug1,slug2,..."
+      var urlParams = new URLSearchParams(window.location.search);
+      var modelsParam = urlParams.get('models');
+      var selectedFilterSlugs = null;
+      if (modelsParam) {
+        selectedFilterSlugs = modelsParam.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+        if (!selectedFilterSlugs.length) selectedFilterSlugs = null;
+      }
+
+      var matrixModelsTableBody = document.getElementById('matrix-models-table-body');
+      var matrixTableSearch = document.getElementById('matrix-table-search');
+      var matrixTableStatus = document.getElementById('matrix-table-status');
+      var btnDiscardMatrix = document.getElementById('btn-discard-matrix');
+      var btnSaveAllMatrix = document.getElementById('btn-save-all-matrix');
+      var dirtyMatrixCountEl = document.getElementById('dirty-matrix-count');
+      var autoDeployCheckbox = document.getElementById('auto-deploy-checkbox');
+      var filterSelectionBadge = document.getElementById('filter-selection-badge');
+      var filterSelectionText = document.getElementById('filter-selection-text');
+      var btnClearSelectionFilter = document.getElementById('btn-clear-selection-filter');
+      var columnsShowingCount = document.getElementById('columns-showing-count');
+
+      var catalogModelsCache = [];
+      var matrixDrafts = {};
+      var recentlySavedMatrixSlugs = {};
+
+      if (selectedFilterSlugs && selectedFilterSlugs.length > 0) {
+        filterSelectionBadge.style.display = 'inline-flex';
+        filterSelectionText.textContent = selectedFilterSlugs.length + ' model' + (selectedFilterSlugs.length === 1 ? '' : 's') + ' selected';
+      }
+
+      if (btnClearSelectionFilter) {
+        btnClearSelectionFilter.addEventListener('click', function () {
+          selectedFilterSlugs = null;
+          filterSelectionBadge.style.display = 'none';
+          // Clean URL without reload
+          var newUrl = window.location.pathname;
+          window.history.replaceState({}, '', newUrl);
+          renderMatrixTable();
+        });
+      }
+
+      function escapeHtmlText(str) {
+        return String(str || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      function parseTagsArray(raw) {
+        if (Array.isArray(raw)) {
+          return raw.map(function (t) { return String(t || '').trim(); }).filter(Boolean);
+        }
+        return String(raw || '')
+          .split(',')
+          .map(function (t) { return t.trim(); })
+          .filter(Boolean);
+      }
+
+      function getModelSavedMatrix(m) {
+        if (!m) return { title: '', extended_title: '', tagline: '', description: '', tags: '', printSettings: '', products: [] };
+        return {
+          title: String(m.title || '').trim(),
+          extended_title: String(m.extended_title || '').trim(),
+          tagline: String(m.tagline || '').trim(),
+          description: String(m.description || '').trim(),
+          tags: Array.isArray(m.tags) ? m.tags.join(', ') : String(m.tags || '').trim(),
+          printSettings: String(m.printSettings || '').trim(),
+          products: Array.isArray(m.products) ? JSON.parse(JSON.stringify(m.products)) : []
+        };
+      }
+
+      function getModelCurrentMatrix(m) {
+        var saved = getModelSavedMatrix(m);
+        var draft = m && matrixDrafts[m.slug];
+        if (!draft) return saved;
+        return {
+          title: draft.title !== undefined ? String(draft.title).trim() : saved.title,
+          extended_title: draft.extended_title !== undefined ? String(draft.extended_title).trim() : saved.extended_title,
+          tagline: draft.tagline !== undefined ? String(draft.tagline).trim() : saved.tagline,
+          description: draft.description !== undefined ? String(draft.description).trim() : saved.description,
+          tags: draft.tags !== undefined ? String(draft.tags).trim() : saved.tags,
+          printSettings: draft.printSettings !== undefined ? String(draft.printSettings).trim() : saved.printSettings,
+          products: draft.products !== undefined ? draft.products : saved.products
+        };
+      }
+
+      function normalizeTagsList(str) {
+        return String(str || '')
+          .split(',')
+          .map(function (t) { return t.trim().toLowerCase(); })
+          .filter(Boolean)
+          .sort()
+          .join(',');
+      }
+
+      function isModelMatrixDirty(m) {
+        if (!m || !matrixDrafts[m.slug]) return false;
+        var saved = getModelSavedMatrix(m);
+        var cur = getModelCurrentMatrix(m);
+        if (saved.title !== cur.title) return true;
+        if (saved.extended_title !== cur.extended_title) return true;
+        if (saved.tagline !== cur.tagline) return true;
+        if (saved.description !== cur.description) return true;
+        if (normalizeTagsList(saved.tags) !== normalizeTagsList(cur.tags)) return true;
+        if (saved.printSettings !== cur.printSettings) return true;
+        if (JSON.stringify(saved.products) !== JSON.stringify(cur.products)) return true;
+        return false;
+      }
+
+      function getDirtyMatrixSlugs() {
+        return catalogModelsCache
+          .filter(function (m) { return isModelMatrixDirty(m); })
+          .map(function (m) { return m.slug; });
+      }
+
+      function syncMatrixToolbarCounts() {
+        var dirtySlugs = getDirtyMatrixSlugs();
+        if (dirtyMatrixCountEl) dirtyMatrixCountEl.textContent = dirtySlugs.length;
+        if (btnSaveAllMatrix) btnSaveAllMatrix.disabled = dirtySlugs.length === 0;
+        if (btnDiscardMatrix) btnDiscardMatrix.style.display = dirtySlugs.length > 0 ? 'inline-block' : 'none';
+      }
+
+      function renderMatrixAffiliateBoxHtml(slug, products) {
+        var itemsHtml = (products || []).map(function (p, pIdx) {
+          return (
+            '<div class="matrix-aff-item" data-product-idx="' + pIdx + '">' +
+            '<div class="matrix-aff-item-header">' +
+            '<span style="font-weight:600;color:var(--text-primary);font-size:0.72rem;">#' + (pIdx + 1) + '</span>' +
+            '<button type="button" class="btn-ghost btn-matrix-del-prod" data-slug="' + escapeHtmlText(slug) + '" data-product-idx="' + pIdx + '" style="padding:0.12rem 0.35rem;font-size:0.68rem;color:var(--danger);" title="Remove this product link">&times; Remove</button>' +
+            '</div>' +
+            '<input type="text" class="matrix-input-text matrix-prod-field" data-slug="' + escapeHtmlText(slug) + '" data-product-idx="' + pIdx + '" data-prop="name" value="' + escapeHtmlText(p.name || '') + '" placeholder="Product name (e.g., Bambu Matte PLA)" style="font-size:0.76rem;padding:0.25rem 0.45rem;">' +
+            '<input type="url" class="matrix-input-text matrix-prod-field" data-slug="' + escapeHtmlText(slug) + '" data-product-idx="' + pIdx + '" data-prop="url" value="' + escapeHtmlText(p.url || '') + '" placeholder="Affiliate link (https://...)" style="font-size:0.76rem;padding:0.25rem 0.45rem;">' +
+            '</div>'
+          );
+        }).join('');
+
+        return (
+          '<div class="matrix-affiliate-box">' +
+          (itemsHtml || '<span style="font-size:0.75rem;color:var(--text-muted);font-style:italic;">No products added yet.</span>') +
+          '<button type="button" class="btn-ghost btn-matrix-add-prod" data-slug="' + escapeHtmlText(slug) + '" style="margin-top:0.35rem;padding:0.28rem 0.55rem;font-size:0.74rem;">+ Add Product Link</button>' +
+          '</div>'
+        );
+      }
+
+      function renderMatrixTable() {
+        if (!matrixModelsTableBody) return;
+        syncMatrixToolbarCounts();
+
+        if (!catalogModelsCache.length) {
+          matrixModelsTableBody.innerHTML =
+            '<tr><td class="col-row-label">Notice</td><td style="padding:1.5rem;color:var(--text-muted);">No models found in <code>_models/</code>.</td></tr>';
+          if (columnsShowingCount) columnsShowingCount.textContent = '0 models';
+          return;
+        }
+
+        var searchQuery = String(matrixTableSearch && matrixTableSearch.value || '').trim().toLowerCase();
+        var filteredModels = catalogModelsCache.filter(function (m) {
+          // If a set of selected models was passed from the catalog library, filter to those first
+          if (selectedFilterSlugs && selectedFilterSlugs.indexOf(m.slug) === -1) {
+            return false;
+          }
+          if (!searchQuery) return true;
+          var cur = getModelCurrentMatrix(m);
+          var hay = (
+            (cur.title || '') + ' ' +
+            (cur.extended_title || '') + ' ' +
+            (cur.tagline || '') + ' ' +
+            (m.slug || '') + ' ' +
+            (cur.tags || '')
+          ).toLowerCase();
+          return hay.indexOf(searchQuery) !== -1;
+        });
+
+        if (columnsShowingCount) {
+          columnsShowingCount.textContent =
+            'Showing ' + filteredModels.length + ' of ' + catalogModelsCache.length + ' models' +
+            (selectedFilterSlugs ? ' (selection filtered)' : '');
+        }
+
+        if (!filteredModels.length) {
+          matrixModelsTableBody.innerHTML =
+            '<tr><td class="col-row-label">Notice</td><td style="padding:1.5rem;color:var(--text-muted);">No models match the filter criteria.</td></tr>';
+          return;
+        }
+
+        // Build 9 semantic rows across columns
+        var rowCover = '<tr class="frozen-row-1" data-row-type="cover"><th scope="row" class="col-row-label">Cover Image</th>';
+        var rowTitle = '<tr class="frozen-row-2" data-row-type="title"><th scope="row" class="col-row-label">Title</th>';
+        var rowExtTitle = '<tr data-row-type="extended_title"><td class="col-row-label">Extended Title</td>';
+        var rowTagline = '<tr data-row-type="tagline"><td class="col-row-label">Tagline</td>';
+        var rowDesc = '<tr data-row-type="description"><td class="col-row-label">Description</td>';
+        var rowTags = '<tr data-row-type="tags"><td class="col-row-label">Tags</td>';
+        var rowAff = '<tr data-row-type="products"><td class="col-row-label">Affiliate Links<br><span style="font-size:0.7rem;font-weight:normal;color:var(--text-muted);">Related Products</span></td>';
+        var rowSettings = '<tr data-row-type="printSettings"><td class="col-row-label">Print Settings</td>';
+        var rowSave = '<tr class="frozen-row-bottom" data-row-type="actions"><td class="col-row-label">Save &amp; Push</td>';
+
+        filteredModels.forEach(function (m) {
+          var cur = getModelCurrentMatrix(m);
+          var isDirty = isModelMatrixDirty(m);
+          var isSaved = Boolean(recentlySavedMatrixSlugs[m.slug]) && !isDirty;
+          var dirtyClass = isDirty ? ' is-col-dirty' : '';
+          var sSlug = escapeHtmlText(m.slug);
+          var thumbUrl = m.thumbnail_image || m.cover_image || '';
+          var dirtyPill = '<span class="matrix-col-dirty-pill">UNSAVED</span>';
+
+          // Row 1: Cover Image
+          rowCover +=
+            '<th class="model-col-header' + dirtyClass + '" data-col-slug="' + sSlug + '">' +
+            '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.4rem;margin-bottom:0.35rem;">' +
+            '<span style="font-family:var(--font-mono);font-size:0.68rem;color:var(--text-muted);">' + sSlug + '</span>' +
+            dirtyPill +
+            '</div>' +
+            (thumbUrl
+              ? '<img src="' + escapeHtmlText(thumbUrl) + '" alt="' + escapeHtmlText(cur.title) + '" class="matrix-cover-thumb" loading="lazy">'
+              : '<div class="matrix-cover-thumb" style="display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:0.7rem;">No Image</div>') +
+            '</th>';
+
+          // Row 2: Title (auto-resizing textarea to fit longest title)
+          rowTitle +=
+            '<th class="model-col-header' + dirtyClass + '" data-col-slug="' + sSlug + '">' +
+            '<textarea class="matrix-textarea matrix-textarea-auto matrix-field-input" data-slug="' + sSlug + '" data-field="title" rows="1" placeholder="Model Title..." aria-label="Title for ' + sSlug + '">' + escapeHtmlText(cur.title) + '</textarea>' +
+            '</th>';
+
+          // Row 3: Extended Title
+          rowExtTitle +=
+            '<td class="model-col-cell' + dirtyClass + '" data-col-slug="' + sSlug + '">' +
+            '<textarea class="matrix-textarea matrix-textarea-auto matrix-field-input" data-slug="' + sSlug + '" data-field="extended_title" rows="1" placeholder="Extended Title (optional)..." aria-label="Extended title for ' + sSlug + '">' + escapeHtmlText(cur.extended_title) + '</textarea>' +
+            '</td>';
+
+          // Row 4: Tagline
+          rowTagline +=
+            '<td class="model-col-cell' + dirtyClass + '" data-col-slug="' + sSlug + '">' +
+            '<textarea class="matrix-textarea matrix-textarea-auto matrix-field-input" data-slug="' + sSlug + '" data-field="tagline" rows="1" placeholder="Tagline (summary)..." aria-label="Tagline for ' + sSlug + '">' + escapeHtmlText(cur.tagline) + '</textarea>' +
+            '</td>';
+
+          // Row 5: Description (defaults to 8 lines of text, with scroll if longer)
+          rowDesc +=
+            '<td class="model-col-cell' + dirtyClass + '" data-col-slug="' + sSlug + '">' +
+            '<textarea class="matrix-textarea matrix-textarea-desc matrix-field-input" data-slug="' + sSlug + '" data-field="description" rows="8" placeholder="Model markdown overview / description..." aria-label="Description for ' + sSlug + '">' + escapeHtmlText(cur.description) + '</textarea>' +
+            '</td>';
+
+          // Row 6: Tags (auto-resizing to largest needed, with min-height of 4 lines)
+          var modelTagsArr = parseTagsArray(cur.tags);
+          var mTagCount = modelTagsArr.length;
+          var mTagOver = mTagCount > 20;
+          var mTagPillClass = 'matrix-tag-count-pill' + (mTagOver ? ' is-over-limit' : '');
+          var mTagPillText = mTagCount + ' / 20 tags' + (mTagOver ? ' (+' + (mTagCount - 20) + ')' : '');
+
+          rowTags +=
+            '<td class="model-col-cell' + dirtyClass + '" data-col-slug="' + sSlug + '">' +
+            '<div class="matrix-tag-header">' +
+            '<span style="font-size:0.68rem;font-weight:600;color:var(--text-muted);">TAGS</span>' +
+            '<span class="' + mTagPillClass + '" data-role="matrix-tag-counter" data-slug="' + sSlug + '">' + mTagPillText + '</span>' +
+            '</div>' +
+            '<textarea class="matrix-textarea matrix-textarea-auto matrix-textarea-tags matrix-field-input" data-slug="' + sSlug + '" data-field="tags" rows="4" placeholder="comma, separated, tags..." aria-label="Tags for ' + sSlug + '">' + escapeHtmlText(cur.tags) + '</textarea>' +
+            '</td>';
+
+          // Row 7: Affiliate Links / Products
+          rowAff +=
+            '<td class="model-col-cell' + dirtyClass + '" data-col-slug="' + sSlug + '">' +
+            renderMatrixAffiliateBoxHtml(m.slug, cur.products) +
+            '</td>';
+
+          // Row 8: Print Settings
+          rowSettings +=
+            '<td class="model-col-cell' + dirtyClass + '" data-col-slug="' + sSlug + '">' +
+            '<textarea class="matrix-textarea matrix-field-input" data-slug="' + sSlug + '" data-field="printSettings" rows="4" style="min-height:90px;" placeholder="Recommended Print Settings..." aria-label="Print settings for ' + sSlug + '">' + escapeHtmlText(cur.printSettings) + '</textarea>' +
+            '</td>';
+
+          // Row 9: Save & Push
+          var saveBtnLabel = isDirty ? 'Save &amp; Push' : isSaved ? 'Saved &#10003;' : 'Save &amp; Push';
+          var saveBtnClass = 'btn-row-save' + (isDirty ? ' is-dirty' : isSaved ? ' is-saved' : '');
+          rowSave +=
+            '<td class="model-col-cell' + dirtyClass + '" data-col-slug="' + sSlug + '" style="text-align:center;">' +
+            '<div style="display:flex;align-items:center;justify-content:center;gap:0.4rem;">' +
+            '<button type="button" class="' + saveBtnClass + ' btn-col-save" data-slug="' + sSlug + '" title="Save changes for ' + sSlug + ' and push to GitHub">' + saveBtnLabel + '</button>' +
+            '<a href="/?edit=' + encodeURIComponent(m.slug) + '" class="btn-ghost" style="padding:0.32rem 0.55rem;font-size:0.75rem;text-decoration:none;" title="Open in main page editor">Edit &#8599;</a>' +
+            '</div>' +
+            '</td>';
+        });
+
+        rowCover += '</tr>';
+        rowTitle += '</tr>';
+        rowExtTitle += '</tr>';
+        rowTagline += '</tr>';
+        rowDesc += '</tr>';
+        rowTags += '</tr>';
+        rowAff += '</tr>';
+        rowSettings += '</tr>';
+        rowSave += '</tr>';
+
+        matrixModelsTableBody.innerHTML =
+          rowCover + rowTitle + rowExtTitle + rowTagline + rowDesc + rowTags + rowAff + rowSettings + rowSave;
+
+        // Auto-fit heights across rows so whole row expands to largest cell
+        syncMatrixRowHeights();
+      }
+
+      function syncMatrixRowHeights(targetRowType) {
+        if (!matrixModelsTableBody) return;
+
+        // Update sticky offset for Row 2 based on actual rendered height of Row 1
+        var row1 = matrixModelsTableBody.querySelector('tr.frozen-row-1');
+        if (row1) {
+          var row1Height = Math.round(row1.getBoundingClientRect().height);
+          if (row1Height > 0) {
+            var scrollEl = document.getElementById('matrix-table-scroll');
+            if (scrollEl) {
+              scrollEl.style.setProperty('--matrix-row1-height', row1Height + 'px');
+            }
+          }
+        }
+
+        // Auto-resize textarea rows to the maximum content height across columns
+        var autoRowTypes = targetRowType ? [targetRowType] : ['title', 'extended_title', 'tagline', 'tags'];
+        autoRowTypes.forEach(function (rowType) {
+          var tr = matrixModelsTableBody.querySelector('tr[data-row-type="' + rowType + '"]');
+          if (!tr) return;
+
+          var textareas = tr.querySelectorAll('textarea.matrix-textarea-auto');
+          if (!textareas.length) return;
+
+          // Reset heights to calculate true scrollHeight
+          var minH = rowType === 'tags' ? 95 : 36;
+          textareas.forEach(function (ta) {
+            ta.style.height = minH + 'px';
+          });
+
+          // Find maximum required height among all columns in this row
+          var maxScroll = minH;
+          textareas.forEach(function (ta) {
+            if (ta.scrollHeight > maxScroll) {
+              maxScroll = ta.scrollHeight;
+            }
+          });
+
+          // Apply maximum height to all textareas in this row so the whole row is uniform
+          textareas.forEach(function (ta) {
+            ta.style.height = maxScroll + 'px';
+          });
+        });
+      }
+
+      function updateMatrixColumnDirtyState(slug) {
+        var m = catalogModelsCache.find(function (item) { return item.slug === slug; });
+        if (!m) return;
+        var isDirty = isModelMatrixDirty(m);
+        var cells = matrixModelsTableBody.querySelectorAll('[data-col-slug="' + slug + '"]');
+        cells.forEach(function (el) {
+          el.classList.toggle('is-col-dirty', isDirty);
+        });
+
+        var saveBtn = matrixModelsTableBody.querySelector('.btn-col-save[data-slug="' + slug + '"]');
+        if (saveBtn) {
+          saveBtn.className = 'btn-row-save btn-col-save' + (isDirty ? ' is-dirty' : '');
+          saveBtn.innerHTML = 'Save &amp; Push';
+        }
+        syncMatrixToolbarCounts();
+      }
+
+      function saveSingleModelMatrix(slug, btnEl) {
+        var m = catalogModelsCache.find(function (item) { return item.slug === slug; });
+        if (!m) return;
+
+        var cur = getModelCurrentMatrix(m);
+        if (btnEl) {
+          btnEl.disabled = true;
+          btnEl.textContent = 'Saving...';
+        }
+        if (matrixTableStatus) {
+          matrixTableStatus.className = 'status-msg';
+          matrixTableStatus.textContent = 'Saving "' + (cur.title || slug) + '" & pushing...';
+        }
+
+        var updatePayload = {
+          updates: [{
+            slug: slug,
+            fields: {
+              title: cur.title,
+              extended_title: cur.extended_title,
+              tagline: cur.tagline,
+              description: cur.description,
+              tags: cur.tags,
+              printSettings: cur.printSettings,
+              products: cur.products
+            }
+          }],
+          autoDeploy: autoDeployCheckbox ? autoDeployCheckbox.checked : true
+        };
+
+        fetch('/api/models/bulk-update', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatePayload)
+        })
+          .then(function (r) {
+            return r.json().then(function (b) { return { ok: r.ok, body: b }; });
+          })
+          .then(function (res) {
+            if (!res.ok || res.body.error) {
+              if (btnEl) {
+                btnEl.disabled = false;
+                btnEl.textContent = 'Save & Push';
+              }
+              if (matrixTableStatus) {
+                matrixTableStatus.className = 'status-msg is-error';
+                matrixTableStatus.textContent = '⚠ ' + (res.body.error || 'Failed to save model.');
+              }
+              return;
+            }
+
+            var updated = res.body.models && res.body.models[0];
+            if (updated) {
+              catalogModelsCache = catalogModelsCache.map(function (item) {
+                return item.slug === slug ? updated : item;
+              });
+            }
+            delete matrixDrafts[slug];
+            recentlySavedMatrixSlugs[slug] = true;
+
+            if (matrixTableStatus) {
+              matrixTableStatus.className = 'status-msg is-success';
+              matrixTableStatus.textContent =
+                '✓ Saved "' + (cur.title || slug) + '"' + (res.body.deployed ? ' & pushed to GitHub!' : ' locally.');
+            }
+            renderMatrixTable();
+          })
+          .catch(function (err) {
+            if (btnEl) {
+              btnEl.disabled = false;
+              btnEl.textContent = 'Save & Push';
+            }
+            if (matrixTableStatus) {
+              matrixTableStatus.className = 'status-msg is-error';
+              matrixTableStatus.textContent = '⚠ Network error: ' + err.message;
+            }
+          });
+      }
+
+      function saveAllDirtyMatrix() {
+        var dirtySlugs = getDirtyMatrixSlugs();
+        if (!dirtySlugs.length) return;
+
+        var updates = dirtySlugs.map(function (slug) {
+          var m = catalogModelsCache.find(function (item) { return item.slug === slug; });
+          var cur = getModelCurrentMatrix(m);
+          return {
+            slug: slug,
+            fields: {
+              title: cur.title,
+              extended_title: cur.extended_title,
+              tagline: cur.tagline,
+              description: cur.description,
+              tags: cur.tags,
+              printSettings: cur.printSettings,
+              products: cur.products
+            }
+          };
+        });
+
+        btnSaveAllMatrix.disabled = true;
+        btnSaveAllMatrix.textContent = 'Saving & Pushing...';
+        if (matrixTableStatus) {
+          matrixTableStatus.className = 'status-msg';
+          matrixTableStatus.textContent = 'Saving ' + updates.length + ' model(s) & pushing...';
+        }
+
+        fetch('/api/models/bulk-update', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            updates: updates,
+            autoDeploy: autoDeployCheckbox ? autoDeployCheckbox.checked : true
+          })
+        })
+          .then(function (r) {
+            return r.json().then(function (b) { return { ok: r.ok, body: b }; });
+          })
+          .then(function (res) {
+            btnSaveAllMatrix.innerHTML = 'Save All Changes &amp; Push (<span id="dirty-matrix-count">0</span>)';
+            dirtyMatrixCountEl = document.getElementById('dirty-matrix-count');
+
+            if (!res.ok || res.body.error) {
+              syncMatrixToolbarCounts();
+              if (matrixTableStatus) {
+                matrixTableStatus.className = 'status-msg is-error';
+                matrixTableStatus.textContent = '⚠ ' + (res.body.error || 'Failed to save models.');
+              }
+              return;
+            }
+
+            var updatedMap = {};
+            (res.body.models || []).forEach(function (u) {
+              updatedMap[u.slug] = u;
+              delete matrixDrafts[u.slug];
+              recentlySavedMatrixSlugs[u.slug] = true;
+            });
+
+            catalogModelsCache = catalogModelsCache.map(function (m) {
+              return updatedMap[m.slug] ? updatedMap[m.slug] : m;
+            });
+
+            if (matrixTableStatus) {
+              matrixTableStatus.className = 'status-msg is-success';
+              matrixTableStatus.textContent =
+                '✓ Updated ' + res.body.updatedCount + ' model(s)' + (res.body.deployed ? ' & pushed to GitHub!' : ' locally.');
+            }
+            renderMatrixTable();
+          })
+          .catch(function (err) {
+            btnSaveAllMatrix.innerHTML = 'Save All Changes &amp; Push (<span id="dirty-matrix-count">0</span>)';
+            dirtyMatrixCountEl = document.getElementById('dirty-matrix-count');
+            syncMatrixToolbarCounts();
+            if (matrixTableStatus) {
+              matrixTableStatus.className = 'status-msg is-error';
+              matrixTableStatus.textContent = '⚠ Network error: ' + err.message;
+            }
+          });
+      }
+
+      // Event delegation for table inputs & buttons
+      matrixModelsTableBody.addEventListener('input', function (e) {
+        var inputEl = e.target.closest('.matrix-field-input');
+        if (inputEl) {
+          var slug = inputEl.getAttribute('data-slug');
+          var field = inputEl.getAttribute('data-field');
+          if (!slug || !field) return;
+
+          var m = catalogModelsCache.find(function (item) { return item.slug === slug; });
+          if (!m) return;
+
+          if (!matrixDrafts[slug]) {
+            matrixDrafts[slug] = getModelSavedMatrix(m);
+          }
+          matrixDrafts[slug][field] = inputEl.value;
+          delete recentlySavedMatrixSlugs[slug];
+
+          if (!isModelMatrixDirty(m)) {
+            delete matrixDrafts[slug];
+          }
+          if (field === 'tags') {
+            var countPill = matrixModelsTableBody.querySelector('[data-role="matrix-tag-counter"][data-slug="' + slug + '"]');
+            if (countPill) {
+              var tCount = parseTagsArray(inputEl.value).length;
+              var tOver = tCount > 20;
+              countPill.className = 'matrix-tag-count-pill' + (tOver ? ' is-over-limit' : '');
+              countPill.textContent = tCount + ' / 20 tags' + (tOver ? ' (+' + (tCount - 20) + ')' : '');
+            }
+          }
+
+          updateMatrixColumnDirtyState(slug);
+
+          if (inputEl.classList.contains('matrix-textarea-auto')) {
+            var tr = inputEl.closest('tr');
+            var rowType = tr ? tr.getAttribute('data-row-type') : null;
+            syncMatrixRowHeights(rowType);
+          }
+          return;
+        }
+
+        var prodField = e.target.closest('.matrix-prod-field');
+        if (prodField) {
+          var pSlug = prodField.getAttribute('data-slug');
+          var pIdx = parseInt(prodField.getAttribute('data-product-idx'), 10);
+          var pProp = prodField.getAttribute('data-prop');
+          if (!pSlug || isNaN(pIdx) || !pProp) return;
+
+          var pModel = catalogModelsCache.find(function (item) { return item.slug === pSlug; });
+          if (!pModel) return;
+
+          if (!matrixDrafts[pSlug]) {
+            matrixDrafts[pSlug] = getModelSavedMatrix(pModel);
+          }
+          if (!Array.isArray(matrixDrafts[pSlug].products)) {
+            matrixDrafts[pSlug].products = [];
+          }
+          if (matrixDrafts[pSlug].products[pIdx]) {
+            matrixDrafts[pSlug].products[pIdx][pProp] = prodField.value;
+          }
+          delete recentlySavedMatrixSlugs[pSlug];
+
+          if (!isModelMatrixDirty(pModel)) {
+            delete matrixDrafts[pSlug];
+          }
+          updateMatrixColumnDirtyState(pSlug);
+        }
+      });
+
+      matrixModelsTableBody.addEventListener('click', function (e) {
+        var saveBtn = e.target.closest('.btn-col-save');
+        if (saveBtn) {
+          var sSlug = saveBtn.getAttribute('data-slug');
+          if (sSlug) saveSingleModelMatrix(sSlug, saveBtn);
+          return;
+        }
+
+        var addProdBtn = e.target.closest('.btn-matrix-add-prod');
+        if (addProdBtn) {
+          var aSlug = addProdBtn.getAttribute('data-slug');
+          var aModel = catalogModelsCache.find(function (item) { return item.slug === aSlug; });
+          if (!aModel) return;
+
+          if (!matrixDrafts[aSlug]) {
+            matrixDrafts[aSlug] = getModelSavedMatrix(aModel);
+          }
+          if (!Array.isArray(matrixDrafts[aSlug].products)) {
+            matrixDrafts[aSlug].products = [];
+          }
+          matrixDrafts[aSlug].products.push({
+            name: '',
+            category: 'Filament & Materials',
+            badge: '',
+            description: '',
+            url: '',
+            cta: 'Buy on Amazon'
+          });
+          delete recentlySavedMatrixSlugs[aSlug];
+
+          var affCell = addProdBtn.closest('td');
+          if (affCell) {
+            affCell.innerHTML = renderMatrixAffiliateBoxHtml(aSlug, matrixDrafts[aSlug].products);
+          }
+          updateMatrixColumnDirtyState(aSlug);
+          return;
+        }
+
+        var delProdBtn = e.target.closest('.btn-matrix-del-prod');
+        if (delProdBtn) {
+          var dSlug = delProdBtn.getAttribute('data-slug');
+          var dIdx = parseInt(delProdBtn.getAttribute('data-product-idx'), 10);
+          var dModel = catalogModelsCache.find(function (item) { return item.slug === dSlug; });
+          if (!dModel || isNaN(dIdx)) return;
+
+          if (!matrixDrafts[dSlug]) {
+            matrixDrafts[dSlug] = getModelSavedMatrix(dModel);
+          }
+          if (Array.isArray(matrixDrafts[dSlug].products)) {
+            matrixDrafts[dSlug].products.splice(dIdx, 1);
+          }
+          delete recentlySavedMatrixSlugs[dSlug];
+
+          if (!isModelMatrixDirty(dModel)) {
+            delete matrixDrafts[dSlug];
+          }
+          var dCell = delProdBtn.closest('td');
+          if (dCell) {
+            dCell.innerHTML = renderMatrixAffiliateBoxHtml(dSlug, getModelCurrentMatrix(dModel).products);
+          }
+          updateMatrixColumnDirtyState(dSlug);
+          return;
+        }
+      });
+
+      if (matrixTableSearch) {
+        matrixTableSearch.addEventListener('input', function () {
+          renderMatrixTable();
+        });
+      }
+
+      if (btnDiscardMatrix) {
+        btnDiscardMatrix.addEventListener('click', function () {
+          matrixDrafts = {};
+          if (matrixTableStatus) {
+            matrixTableStatus.className = 'status-msg';
+            matrixTableStatus.textContent = 'Unsaved changes reset.';
+          }
+          renderMatrixTable();
+        });
+      }
+
+      if (btnSaveAllMatrix) {
+        btnSaveAllMatrix.addEventListener('click', function () {
+          saveAllDirtyMatrix();
+        });
+      }
+
+      // Initial Fetch
+      fetch('/api/models')
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          catalogModelsCache = data.models || [];
+          renderMatrixTable();
+        })
+        .catch(function (err) {
+          if (matrixTableStatus) {
+            matrixTableStatus.className = 'status-msg is-error';
+            matrixTableStatus.textContent = 'Failed to load models: ' + err.message;
+          }
+        });
+
+      // Window resize re-sync
+      window.addEventListener('resize', function () {
+        syncMatrixRowHeights();
+      });
+    })();
+  </script>
+</body>
+</html>

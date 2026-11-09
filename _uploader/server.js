@@ -16,6 +16,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Serve repository /images so existing model thumbnails & gallery WebP files display in the UI
 app.use('/images', express.static(path.join(REPO_ROOT, 'images')));
 
+app.get('/columns', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'columns.html'));
+});
+
 /**
  * Helper: Slugify a string into a clean SEO shortname
  */

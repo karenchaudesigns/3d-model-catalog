@@ -2353,6 +2353,133 @@
     .is-col-dirty .matrix-col-dirty-pill {
       display: inline-block;
     }
+
+    /* Multi-select and Search Toolbar in Catalog Library */
+    .catalog-selection-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 0.65rem 1rem;
+      margin-bottom: 1.15rem;
+      flex-wrap: wrap;
+      box-shadow: var(--shadow-card);
+    }
+
+    .catalog-toolbar-left,
+    .catalog-toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    .catalog-search-input {
+      font-family: var(--font-sans);
+      font-size: 0.82rem;
+      padding: 0.38rem 0.75rem;
+      border: 1px solid var(--border-subtle);
+      border-radius: 999px;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-width: 240px;
+      outline: none;
+    }
+
+    .catalog-search-input:focus {
+      border-color: var(--accent-terracotta);
+      background: #fff;
+    }
+
+    .btn-catalog-action {
+      appearance: none;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.34rem 0.75rem;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-catalog-action:hover {
+      border-color: var(--border-strong);
+      background: var(--bg-subtle);
+    }
+
+    .btn-open-columns {
+      appearance: none;
+      border: none;
+      background: var(--accent-terracotta);
+      color: #fff;
+      font-family: var(--font-sans);
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 0.42rem 1rem;
+      border-radius: 999px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      text-decoration: none;
+      transition: background-color 0.16s ease, transform 0.16s ease;
+    }
+
+    .btn-open-columns:hover {
+      background: var(--accent-terracotta-hover);
+      transform: translateY(-1px);
+    }
+
+    /* Model card checkbox overlay */
+    .model-thumb-media {
+      position: relative;
+    }
+
+    .model-card-checkbox-label {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      z-index: 15;
+      background: hsla(24, 18%, 14%, 0.75);
+      backdrop-filter: blur(4px);
+      width: 1.65rem;
+      height: 1.65rem;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border: 1px solid hsla(0, 0%, 100%, 0.25);
+      transition: all 0.15s ease;
+    }
+
+    .model-card-checkbox-label:hover {
+      background: var(--accent-terracotta);
+      border-color: var(--accent-terracotta);
+    }
+
+    .model-card-checkbox {
+      width: 1.05rem;
+      height: 1.05rem;
+      accent-color: var(--accent-terracotta);
+      cursor: pointer;
+    }
+
+    .model-thumb-card.is-selected {
+      border: 2px solid var(--accent-terracotta);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    .model-thumb-card.is-selected .model-card-checkbox-label {
+      background: var(--accent-terracotta);
+      border-color: var(--accent-terracotta);
+    }
   </style>
 </head>
 <body>
@@ -2366,7 +2493,7 @@
       <nav class="site-nav" aria-label="Editor navigation">
         <button type="button" class="nav-btn is-active" id="btn-nav-new">+ Upload New Model</button>
         <button type="button" class="nav-btn" id="btn-nav-library">Existing Catalog Models (<span id="nav-model-count">0</span>)</button>
-        <button type="button" class="nav-btn" id="btn-nav-matrix">Columns Table View</button>
+        <a href="/columns.html" class="nav-btn" id="btn-nav-matrix" style="text-decoration:none;">Columns Table View</a>
         <button type="button" class="nav-btn" id="btn-nav-table">Download Links Table</button>
       </nav>
     </div>
@@ -2742,16 +2869,37 @@
               <span aria-hidden="true">&#9638;</span>
               <span>Grid View</span>
             </button>
-            <button type="button" class="view-switch-btn" id="btn-view-matrix" role="tab" aria-selected="false">
+            <a href="/columns.html" class="view-switch-btn" id="btn-view-matrix" style="text-decoration:none;">
               <span aria-hidden="true">&#9635;</span>
-              <span>Columns Table View</span>
-            </button>
+              <span>Columns Table View &#8599;</span>
+            </a>
             <button type="button" class="view-switch-btn" id="btn-view-table" role="tab" aria-selected="false">
               <span aria-hidden="true">&#9776;</span>
               <span>Links Table View</span>
             </button>
           </div>
           <button type="button" class="btn-ghost" id="btn-new-from-library">+ Upload New Model</button>
+        </div>
+      </div>
+
+      <!-- Selection & Search Toolbar for Catalog Library -->
+      <div class="catalog-selection-toolbar" id="catalog-selection-toolbar">
+        <div class="catalog-toolbar-left">
+          <input
+            type="search"
+            class="catalog-search-input"
+            id="catalog-library-search"
+            placeholder="Search catalog models by title, slug, or tags..."
+            aria-label="Search catalog models"
+          >
+          <button type="button" class="btn-catalog-action" id="btn-select-all-models">Select All</button>
+          <button type="button" class="btn-catalog-action" id="btn-deselect-all-models" style="display:none;">Deselect All</button>
+          <span style="font-size:0.78rem;font-weight:600;color:var(--text-muted);" id="catalog-selection-count">0 selected</span>
+        </div>
+        <div class="catalog-toolbar-right">
+          <a href="/columns.html" class="btn-open-columns" id="btn-open-columns-table" title="Open Columns Table View">
+            <span>Open in Columns Table &rarr;</span>
+          </a>
         </div>
       </div>
 
@@ -2991,6 +3139,14 @@
       var editingModelData = null;
       var lastSavedSlug = null;
       var catalogModelsCache = [];
+      var catalogSelectedSlugs = new Set();
+      var catalogSearchQuery = '';
+      var catalogLibrarySearch = document.getElementById('catalog-library-search');
+      var btnSelectAllModels = document.getElementById('btn-select-all-models');
+      var btnDeselectAllModels = document.getElementById('btn-deselect-all-models');
+      var catalogSelectionCount = document.getElementById('catalog-selection-count');
+      var btnOpenColumnsTable = document.getElementById('btn-open-columns-table');
+
       var libraryViewMode = 'grid'; // 'grid', 'table', or 'matrix'
       var linksFilterMode = 'all'; // 'all', 'missing', or 'complete'
       var tableLinkDrafts = {}; // { [slug]: { makerworld, printables, thangs, cults3d } }
@@ -5295,30 +5451,74 @@
           });
       }
 
+      function syncCatalogSelectionBar() {
+        var count = catalogSelectedSlugs.size;
+        if (catalogSelectionCount) {
+          catalogSelectionCount.textContent = count + ' selected';
+        }
+        if (btnSelectAllModels && btnDeselectAllModels) {
+          btnDeselectAllModels.style.display = count > 0 ? 'inline-block' : 'none';
+        }
+        if (btnOpenColumnsTable) {
+          if (count > 0) {
+            var slugArr = Array.from(catalogSelectedSlugs);
+            btnOpenColumnsTable.href = '/columns.html?models=' + encodeURIComponent(slugArr.join(','));
+            btnOpenColumnsTable.innerHTML = '<span>Open Selected in Columns Table (' + count + ') &rarr;</span>';
+          } else {
+            btnOpenColumnsTable.href = '/columns.html';
+            btnOpenColumnsTable.innerHTML = '<span>Open All in Columns Table &rarr;</span>';
+          }
+        }
+      }
+
       function renderExistingModelsList() {
         navModelCount.textContent = catalogModelsCache.length;
         renderExistingModelsTable();
         renderMatrixTable();
+        syncCatalogSelectionBar();
 
         if (!catalogModelsCache.length) {
           existingModelsList.innerHTML = '<p style="font-size:0.86rem;color:var(--text-muted);">No models found in <code>_models/</code>.</p>';
           return;
         }
 
-        existingModelsList.innerHTML = catalogModelsCache
+        var q = String(catalogSearchQuery || '').trim().toLowerCase();
+        var modelsToShow = catalogModelsCache.filter(function (m) {
+          if (!q) return true;
+          var cur = getModelCurrentMatrix(m);
+          var hay = (
+            (cur.title || '') + ' ' +
+            (cur.extended_title || '') + ' ' +
+            (cur.tagline || '') + ' ' +
+            (m.slug || '') + ' ' +
+            (cur.tags || '')
+          ).toLowerCase();
+          return hay.indexOf(q) !== -1;
+        });
+
+        if (!modelsToShow.length) {
+          existingModelsList.innerHTML = '<p style="font-size:0.86rem;color:var(--text-muted);grid-column:1/-1;padding:1.5rem 0;text-align:center;">No models match "<strong>' + escapeHtmlText(q) + '</strong>".</p>';
+          return;
+        }
+
+        existingModelsList.innerHTML = modelsToShow
           .map(function (m) {
             var isCurrentEdit = editingSlug === m.slug;
+            var isSelected = catalogSelectedSlugs.has(m.slug);
             var thumbUrl = m.thumbnail_image || m.cover_image || '';
             var hiddenBadge = m.hidden
               ? '<span style="position:absolute;top:0.55rem;left:0.55rem;font-family:var(--font-mono);font-size:0.68rem;background:var(--danger);color:#fff;padding:0.15rem 0.5rem;border-radius:999px;font-weight:600;">HIDDEN</span>'
               : '';
             return (
-              '<article class="model-thumb-card' + (isCurrentEdit ? ' is-editing' : '') + '" style="' + (m.hidden ? 'opacity:0.75;' : '') + '">' +
+              '<article class="model-thumb-card' + (isCurrentEdit ? ' is-editing' : '') + (isSelected ? ' is-selected' : '') + '" style="' + (m.hidden ? 'opacity:0.75;' : '') + '" data-card-slug="' + m.slug + '">' +
               '<div class="model-thumb-media" data-slug="' + m.slug + '" title="Edit ' + (m.title || m.slug).replace(/"/g, '&quot;') + '">' +
               (thumbUrl
                 ? '<img src="' + thumbUrl + '" class="model-thumb-img" alt="' + (m.title || m.slug) + '" loading="lazy">'
                 : '') +
               hiddenBadge +
+              '<label class="model-card-checkbox-label" title="Select ' + (m.title || m.slug).replace(/"/g, '&quot;') + ' for Columns Table" onclick="event.stopPropagation();">' +
+              '<input type="checkbox" class="model-card-checkbox" data-select-slug="' + m.slug + '"' + (isSelected ? ' checked' : '') + '>' +
+              '</label>' +
               '</div>' +
               '<div class="model-thumb-body">' +
               '<span class="model-card-category">' + (CATEGORY_LABELS[m.category] || m.category || 'Useful Prints') + '</span>' +
@@ -5767,13 +5967,71 @@
       }
 
       if (btnViewMatrix) {
-        btnViewMatrix.addEventListener('click', function () {
-          setLibraryViewMode('matrix');
-          renderMatrixTable();
+        btnViewMatrix.addEventListener('click', function (e) {
+          if (catalogSelectedSlugs && catalogSelectedSlugs.size > 0) {
+            e.preventDefault();
+            var slugArr = Array.from(catalogSelectedSlugs);
+            window.location.href = '/columns.html?models=' + encodeURIComponent(slugArr.join(','));
+          }
         });
       }
 
+      // Selection & Search Event Listeners for Catalog Library
+      if (catalogLibrarySearch) {
+        catalogLibrarySearch.addEventListener('input', function () {
+          catalogSearchQuery = catalogLibrarySearch.value;
+          renderExistingModelsList();
+        });
+      }
+
+      if (btnSelectAllModels) {
+        btnSelectAllModels.addEventListener('click', function () {
+          var q = String(catalogSearchQuery || '').trim().toLowerCase();
+          var visibleModels = catalogModelsCache.filter(function (m) {
+            if (!q) return true;
+            var cur = getModelCurrentMatrix(m);
+            var hay = ((cur.title || '') + ' ' + (cur.extended_title || '') + ' ' + (cur.tagline || '') + ' ' + (m.slug || '') + ' ' + (cur.tags || '')).toLowerCase();
+            return hay.indexOf(q) !== -1;
+          });
+          visibleModels.forEach(function (m) {
+            catalogSelectedSlugs.add(m.slug);
+          });
+          renderExistingModelsList();
+        });
+      }
+
+      if (btnDeselectAllModels) {
+        btnDeselectAllModels.addEventListener('click', function () {
+          catalogSelectedSlugs.clear();
+          renderExistingModelsList();
+        });
+      }
+
+      existingModelsList.addEventListener('change', function (e) {
+        var cb = e.target.closest('.model-card-checkbox');
+        if (cb) {
+          var sSlug = cb.getAttribute('data-select-slug');
+          if (sSlug) {
+            if (cb.checked) {
+              catalogSelectedSlugs.add(sSlug);
+            } else {
+              catalogSelectedSlugs.delete(sSlug);
+            }
+            var card = cb.closest('.model-thumb-card');
+            if (card) {
+              card.classList.toggle('is-selected', cb.checked);
+            }
+            syncCatalogSelectionBar();
+          }
+        }
+      });
+
       existingModelsList.addEventListener('click', function (e) {
+        // If clicking checkbox or checkbox label, let change handler handle it
+        if (e.target.closest('.model-card-checkbox-label')) {
+          return;
+        }
+
         var toggleBtn = e.target.closest('.btn-toggle-hidden');
         if (toggleBtn) {
           var tSlug = toggleBtn.getAttribute('data-slug');
@@ -5863,14 +6121,13 @@
       });
 
       if (btnNavMatrix) {
-        btnNavMatrix.addEventListener('click', function () {
-          setLibraryViewMode('matrix');
-          renderMatrixTable();
-          btnNavMatrix.classList.add('is-active');
-          btnNavNew.classList.remove('is-active');
-          btnNavLibrary.classList.remove('is-active');
-          btnNavTable.classList.remove('is-active');
-          document.getElementById('existing-models-section').scrollIntoView({ behavior: 'smooth' });
+        btnNavMatrix.addEventListener('click', function (e) {
+          // If any models are selected, carry them over to /columns.html
+          if (catalogSelectedSlugs && catalogSelectedSlugs.size > 0) {
+            e.preventDefault();
+            var slugArr = Array.from(catalogSelectedSlugs);
+            window.location.href = '/columns.html?models=' + encodeURIComponent(slugArr.join(','));
+          }
         });
       }
 
@@ -5992,8 +6249,11 @@
       fetchExistingModels(function () {
         var params = new URLSearchParams(window.location.search);
         var editParam = params.get('edit');
+        var viewParam = params.get('view');
         if (viewParam === 'matrix' || window.location.hash === '#matrix') {
-          setLibraryViewMode('matrix');
+          // If matrix requested, redirect to dedicated /columns.html
+          window.location.href = '/columns.html';
+          return;
         } else if (viewParam === 'table' || window.location.hash === '#table') {
           setLibraryViewMode('table');
         }
