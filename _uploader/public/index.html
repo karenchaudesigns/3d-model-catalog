@@ -805,9 +805,64 @@
       font-weight: 600;
     }
 
-    /* Tag List Block (matches <ul class="tag-list"> in _layouts/model.html) */
     .tag-editor-block {
       margin-bottom: 1.4rem;
+    }
+
+    .tag-editor-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .model-tags-counter {
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--bg-surface);
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      transition: all 0.18s ease;
+      white-space: nowrap;
+    }
+
+    .model-tags-counter.is-over-limit {
+      color: #fff;
+      background: var(--danger, #d9534f);
+      border-color: var(--danger, #d9534f);
+      font-weight: 700;
+      animation: pulse-danger 1.8s infinite;
+    }
+
+    .matrix-tag-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.35rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .matrix-tag-count-pill {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--bg-subtle);
+      padding: 0.1rem 0.42rem;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      white-space: nowrap;
+    }
+
+    .matrix-tag-count-pill.is-over-limit {
+      color: #fff;
+      background: var(--danger, #d9534f);
+      border-color: var(--danger, #d9534f);
+      font-weight: 700;
     }
 
     .tag-list {
@@ -830,6 +885,13 @@
       border-radius: 6px;
       border: 1px solid transparent;
       transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .tag-badge.is-over-limit {
+      background-color: hsla(0, 72%, 50%, 0.14);
+      border-color: hsla(0, 72%, 50%, 0.45);
+      color: var(--danger, #d9534f);
+      font-weight: 600;
     }
 
     .tag-badge:hover {
@@ -2488,6 +2550,10 @@
 
           <!-- Tags matching .tag-list in _layouts/model.html -->
           <div class="tag-editor-block">
+            <div class="tag-editor-header">
+              <span style="font-size:0.75rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;">Tags</span>
+              <span id="model-tags-counter" class="model-tags-counter" aria-live="polite">0 / 20 tags</span>
+            </div>
             <ul class="tag-list" id="tag-preview-row" aria-label="Model tags preview">
               <li class="tag-badge">#tags-appear-here</li>
             </ul>
@@ -2826,6 +2892,7 @@
       var settingsInput = document.getElementById('model-print-settings');
       var tagsInput = document.getElementById('model-tags');
       var tagPreviewRow = document.getElementById('tag-preview-row');
+      var tagsCounterEl = document.getElementById('model-tags-counter');
       var youtubeAddInput = document.getElementById('model-youtube-input');
       var btnAddYoutube = document.getElementById('btn-add-youtube');
 
@@ -3816,21 +3883,39 @@
           .replace(/"/g, '&quot;');
       }
 
-      function renderTagPills() {
-        var tags = tagsInput.value
+      function parseTagsArray(raw) {
+        if (Array.isArray(raw)) {
+          return raw.map(function (t) { return String(t || '').trim(); }).filter(Boolean);
+        }
+        return String(raw || '')
           .split(',')
           .map(function (t) { return t.trim(); })
           .filter(Boolean);
+      }
+
+      function renderTagPills() {
+        var tags = parseTagsArray(tagsInput.value);
+        var count = tags.length;
+
+        if (tagsCounterEl) {
+          tagsCounterEl.textContent = count + ' / 20 tags' + (count > 20 ? ' (' + (count - 20) + ' over limit)' : '');
+          tagsCounterEl.classList.toggle('is-over-limit', count > 20);
+        }
+
         if (!tags.length) {
           tagPreviewRow.innerHTML = '<li class="tag-badge" style="opacity:0.55;">#tags-appear-here</li>';
           return;
         }
+
         tagPreviewRow.innerHTML = tags
           .map(function (t, idx) {
             var safeTag = escapeHtmlText(t);
+            var isOver = idx >= 20;
+            var overClass = isOver ? ' is-over-limit' : '';
+            var overTitle = isOver ? 'Tag #' + (idx + 1) + ' (exceeds recommended 20 max)' : 'Remove tag #' + safeTag;
             return (
-              '<li class="tag-badge">' +
-              '<span>#' + safeTag + '</span>' +
+              '<li class="tag-badge' + overClass + '" title="' + overTitle + '">' +
+              '<span>#' + safeTag + (isOver ? ' <strong style="font-size:0.68rem;opacity:0.9;">(#' + (idx + 1) + ')</strong>' : '') + '</span>' +
               '<button type="button" class="tag-remove-btn" data-tag-idx="' + idx + '" title="Remove tag #' + safeTag + '" aria-label="Remove tag ' + safeTag + '">&times;</button>' +
               '</li>'
             );
@@ -4930,8 +5015,18 @@
             '</td>';
 
           // Row 6: Tags (auto-resizing to largest needed, with min-height of 4 lines)
+          var modelTagsArr = parseTagsArray(cur.tags);
+          var mTagCount = modelTagsArr.length;
+          var mTagOver = mTagCount > 20;
+          var mTagPillClass = 'matrix-tag-count-pill' + (mTagOver ? ' is-over-limit' : '');
+          var mTagPillText = mTagCount + ' / 20 tags' + (mTagOver ? ' (+' + (mTagCount - 20) + ')' : '');
+
           rowTags +=
             '<td class="model-col-cell' + dirtyClass + '" data-col-slug="' + sSlug + '">' +
+            '<div class="matrix-tag-header">' +
+            '<span style="font-size:0.68rem;font-weight:600;color:var(--text-muted);">TAGS</span>' +
+            '<span class="' + mTagPillClass + '" data-role="matrix-tag-counter" data-slug="' + sSlug + '">' + mTagPillText + '</span>' +
+            '</div>' +
             '<textarea class="matrix-textarea matrix-textarea-auto matrix-textarea-tags matrix-field-input" data-slug="' + sSlug + '" data-field="tags" rows="4" placeholder="comma, separated, tags..." aria-label="Tags for ' + sSlug + '">' + escapeHtmlText(cur.tags) + '</textarea>' +
             '</td>';
 
@@ -5526,6 +5621,16 @@
             if (!isModelMatrixDirty(m)) {
               delete matrixDrafts[slug];
             }
+            if (field === 'tags') {
+              var countPill = matrixModelsTableBody.querySelector('[data-role="matrix-tag-counter"][data-slug="' + slug + '"]');
+              if (countPill) {
+                var tCount = parseTagsArray(inputEl.value).length;
+                var tOver = tCount > 20;
+                countPill.className = 'matrix-tag-count-pill' + (tOver ? ' is-over-limit' : '');
+                countPill.textContent = tCount + ' / 20 tags' + (tOver ? ' (+' + (tCount - 20) + ')' : '');
+              }
+            }
+
             updateMatrixColumnDirtyState(slug);
 
             if (inputEl.classList.contains('matrix-textarea-auto')) {
