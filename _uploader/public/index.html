@@ -1036,7 +1036,45 @@
       padding: 0.2rem 0.45rem 0.2rem 0.6rem;
       border-radius: 6px;
       border: 1px solid transparent;
-      transition: background-color 0.15s ease, border-color 0.15s ease;
+      transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
+      cursor: grab;
+      user-select: none;
+    }
+
+    .tag-badge:active {
+      cursor: grabbing;
+    }
+
+    .tag-badge.is-dragging {
+      opacity: 0.35;
+      transform: scale(0.96);
+      border-color: var(--accent-terracotta);
+    }
+
+    .tag-badge.is-drag-over-left {
+      border-left: 3px solid var(--accent-terracotta);
+      padding-left: calc(0.6rem - 2px);
+    }
+
+    .tag-badge.is-drag-over-right {
+      border-right: 3px solid var(--accent-terracotta);
+      padding-right: calc(0.45rem - 2px);
+    }
+
+    .tag-drag-handle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      cursor: grab;
+      margin-right: 0.1rem;
+      opacity: 0.6;
+      transition: opacity 0.14s ease, color 0.14s ease;
+    }
+
+    .tag-badge:hover .tag-drag-handle {
+      opacity: 1;
+      color: var(--accent-terracotta);
     }
 
     .tag-badge.is-over-limit {
@@ -4400,6 +4438,8 @@
           .filter(Boolean);
       }
 
+      var draggedTagIdx = null;
+
       function renderTagPills() {
         var tags = parseTagsArray(tagsInput.value);
         var count = tags.length;
@@ -4410,7 +4450,7 @@
         }
 
         if (!tags.length) {
-          tagPreviewRow.innerHTML = '<li class="tag-badge" style="opacity:0.55;">#tags-appear-here</li>';
+          tagPreviewRow.innerHTML = '<li class="tag-badge" style="opacity:0.55;cursor:default;">#tags-appear-here</li>';
           return;
         }
 
@@ -4419,15 +4459,107 @@
             var safeTag = escapeHtmlText(t);
             var isOver = idx >= 20;
             var overClass = isOver ? ' is-over-limit' : '';
-            var overTitle = isOver ? 'Tag #' + (idx + 1) + ' (exceeds recommended 20 max)' : 'Remove tag #' + safeTag;
+            var overTitle = isOver ? 'Tag #' + (idx + 1) + ' (exceeds recommended 20 max) — drag to reorder' : 'Drag to reorder tag #' + safeTag;
             return (
-              '<li class="tag-badge' + overClass + '" title="' + overTitle + '">' +
+              '<li class="tag-badge' + overClass + '" draggable="true" data-tag-idx="' + idx + '" title="' + overTitle + '">' +
+              '<span class="tag-drag-handle" aria-hidden="true">' +
+              '<svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="2"></circle><circle cx="15" cy="5" r="2"></circle><circle cx="9" cy="12" r="2"></circle><circle cx="15" cy="12" r="2"></circle><circle cx="9" cy="19" r="2"></circle><circle cx="15" cy="19" r="2"></circle></svg>' +
+              '</span>' +
               '<span>#' + safeTag + (isOver ? ' <strong style="font-size:0.68rem;opacity:0.9;">(#' + (idx + 1) + ')</strong>' : '') + '</span>' +
               '<button type="button" class="tag-remove-btn" data-tag-idx="' + idx + '" title="Remove tag #' + safeTag + '" aria-label="Remove tag ' + safeTag + '">&times;</button>' +
               '</li>'
             );
           })
           .join('');
+
+        // Attach drag & drop listeners to each tag pill
+        var pills = tagPreviewRow.querySelectorAll('.tag-badge[draggable="true"]');
+        pills.forEach(function (pill) {
+          pill.addEventListener('dragstart', function (e) {
+            draggedTagIdx = parseInt(pill.getAttribute('data-tag-idx'), 10);
+            pill.classList.add('is-dragging');
+            if (e.dataTransfer) {
+              e.dataTransfer.effectAllowed = 'move';
+              e.dataTransfer.setData('text/plain', String(draggedTagIdx));
+            }
+          });
+
+          pill.addEventListener('dragend', function () {
+            pill.classList.remove('is-dragging');
+            clearTagDragStyles();
+            draggedTagIdx = null;
+          });
+
+          pill.addEventListener('dragover', function (e) {
+            e.preventDefault();
+            if (draggedTagIdx === null) return;
+            var targetIdx = parseInt(pill.getAttribute('data-tag-idx'), 10);
+            if (targetIdx === draggedTagIdx) {
+              clearTagDragStyles();
+              return;
+            }
+            if (e.dataTransfer) {
+              e.dataTransfer.dropEffect = 'move';
+            }
+
+            var rect = pill.getBoundingClientRect();
+            var midX = rect.left + rect.width / 2;
+            clearTagDragStyles();
+            if (e.clientX < midX) {
+              pill.classList.add('is-drag-over-left');
+            } else {
+              pill.classList.add('is-drag-over-right');
+            }
+          });
+
+          pill.addEventListener('dragleave', function (e) {
+            if (!pill.contains(e.relatedTarget)) {
+              pill.classList.remove('is-drag-over-left', 'is-drag-over-right');
+            }
+          });
+
+          pill.addEventListener('drop', function (e) {
+            e.preventDefault();
+            if (draggedTagIdx === null) return;
+            var targetIdx = parseInt(pill.getAttribute('data-tag-idx'), 10);
+            if (isNaN(targetIdx) || isNaN(draggedTagIdx) || targetIdx === draggedTagIdx) {
+              clearTagDragStyles();
+              return;
+            }
+
+            var rect = pill.getBoundingClientRect();
+            var midX = rect.left + rect.width / 2;
+            var placeAfter = e.clientX >= midX;
+
+            var curTags = parseTagsArray(tagsInput.value);
+            if (draggedTagIdx < 0 || draggedTagIdx >= curTags.length) return;
+
+            var movedTag = curTags.splice(draggedTagIdx, 1)[0];
+            var insertIdx = targetIdx;
+            if (draggedTagIdx < targetIdx) {
+              insertIdx = placeAfter ? targetIdx : targetIdx - 1;
+            } else {
+              insertIdx = placeAfter ? targetIdx + 1 : targetIdx;
+            }
+            if (insertIdx < 0) insertIdx = 0;
+            if (insertIdx > curTags.length) insertIdx = curTags.length;
+
+            curTags.splice(insertIdx, 0, movedTag);
+            tagsInput.value = curTags.join(', ');
+            clearTagDragStyles();
+            draggedTagIdx = null;
+
+            renderTagPills();
+            updateMarkdownPreview();
+          });
+        });
+      }
+
+      function clearTagDragStyles() {
+        var pills = tagPreviewRow.querySelectorAll('.tag-badge');
+        pills.forEach(function (p) {
+          p.classList.remove('is-drag-over-left', 'is-drag-over-right', 'is-dragging');
+        });
       }
 
       tagPreviewRow.addEventListener('click', function (e) {
