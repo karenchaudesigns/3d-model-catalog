@@ -1,5 +1,7 @@
 ---
-title: "Washi tape tool | Cut washi tape into fun shapes and patterns! | straight edge, zig zag edge, arrows, chevrons"
+title: "Washi tape tool"
+extended_title: "straight edge, zig zag edge, arrows, chevrons"
+tagline: "Cut washi tape into fun shapes and patterns!"
 shortname: "washi-tape-tool"
 category: "useful-prints"
 hidden: false
@@ -7,6 +9,7 @@ thumbnail_image: "/images/models/washi-tape-tool/3d-model-washi-tape-tool-thumb.
 cover_image: "/images/models/washi-tape-tool/3d-model-washi-tape-tool-main.webp"
 gallery_images:
   - "/images/models/washi-tape-tool/3d-model-washi-tape-tool-angle1.webp"
+detailed_images: []
 tags:
   - "tool"
   - "cute"
@@ -30,9 +33,10 @@ downloads:
   printables: "https://www.printables.com/model/546271-washi-tape-tool-cut-washi-tape-into-fun-shapes-and"
   thangs: ""
   cults3d: ""
-youtube_id: "bCoseiuAyY8"
 youtube_shorts:
   - "bCoseiuAyY8"
+youtube_videos: []
+youtube_id: "bCoseiuAyY8"
 ---
 Tear your washi tape into fun shapes!
 
