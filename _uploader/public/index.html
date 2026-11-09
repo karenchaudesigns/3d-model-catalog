@@ -2577,9 +2577,124 @@
       background: var(--accent-terracotta);
       border-color: var(--accent-terracotta);
     }
+
+    /* Unsaved Changes Confirmation Modal */
+    .unsaved-modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(4px);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem;
+    }
+
+    .unsaved-modal-backdrop.is-open {
+      display: flex;
+    }
+
+    .unsaved-modal-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
+      max-width: 32rem;
+      width: 100%;
+      padding: 1.75rem 1.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.1rem;
+      animation: unsavedModalPop 0.18s ease-out;
+    }
+
+    @keyframes unsavedModalPop {
+      from {
+        transform: scale(0.95);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .unsaved-modal-header {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .unsaved-modal-icon {
+      font-size: 1.6rem;
+      line-height: 1;
+    }
+
+    .unsaved-modal-title {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 0;
+    }
+
+    .unsaved-modal-desc {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    .unsaved-modal-status {
+      display: none;
+      font-size: 0.82rem;
+      padding: 0.5rem 0.75rem;
+      border-radius: var(--radius-xs);
+    }
+
+    .unsaved-modal-status.is-saving {
+      display: block;
+      background: var(--bg-subtle);
+      color: var(--text-secondary);
+    }
+
+    .unsaved-modal-status.is-error {
+      display: block;
+      background: hsl(0, 75%, 96%);
+      border: 1px solid var(--danger);
+      color: var(--danger);
+    }
+
+    .unsaved-modal-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+      margin-top: 0.5rem;
+    }
   </style>
 </head>
 <body>
+  <!-- Unsaved Changes Confirmation Modal -->
+  <div class="unsaved-modal-backdrop" id="unsaved-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="unsaved-modal-title">
+    <div class="unsaved-modal-card">
+      <div class="unsaved-modal-header">
+        <span class="unsaved-modal-icon" aria-hidden="true">&#9888;&#65039;</span>
+        <h3 class="unsaved-modal-title" id="unsaved-modal-title">Unsaved Changes</h3>
+      </div>
+      <p class="unsaved-modal-desc" id="unsaved-modal-desc">
+        You have unsaved changes on <strong id="unsaved-modal-model-name">this model</strong>. If you navigate away without saving, your edits will be lost.
+      </p>
+      <div class="unsaved-modal-status" id="unsaved-modal-status"></div>
+      <div class="unsaved-modal-actions">
+        <button type="button" class="btn-ghost" id="btn-unsaved-cancel">Stay Here</button>
+        <button type="button" class="btn-secondary" id="btn-unsaved-discard" style="color:var(--danger);border-color:var(--danger);">Discard Changes</button>
+        <button type="button" class="btn-primary" id="btn-unsaved-save">Save &amp; Push Update &rarr;</button>
+      </div>
+    </div>
+  </div>
   <!-- Header matching _layouts/default.html -->
   <header class="site-header">
     <div class="container header-inner">
@@ -3251,6 +3366,17 @@
       var editingSlug = null;
       var editingModelData = null;
       var lastSavedSlug = null;
+      var editBaselineSnapshot = null;
+      var pendingNavigationAction = null;
+
+      // Unsaved Changes Confirmation Modal Elements
+      var unsavedModalBackdrop = document.getElementById('unsaved-modal-backdrop');
+      var unsavedModalModelName = document.getElementById('unsaved-modal-model-name');
+      var unsavedModalStatus = document.getElementById('unsaved-modal-status');
+      var btnUnsavedCancel = document.getElementById('btn-unsaved-cancel');
+      var btnUnsavedDiscard = document.getElementById('btn-unsaved-discard');
+      var btnUnsavedSave = document.getElementById('btn-unsaved-save');
+
       var catalogModelsCache = [];
       var catalogSelectedSlugs = new Set();
       var catalogSearchQuery = '';
@@ -4743,6 +4869,7 @@
       function resetToNewModel(hideSuccessCard) {
         editingSlug = null;
         editingModelData = null;
+        editBaselineSnapshot = null;
         shortnameManuallyEdited = false;
         activeStageSelection = { type: 'image', index: 0 };
 
@@ -4879,12 +5006,87 @@
             }
 
             renderExistingModelsList();
+            editBaselineSnapshot = getCurrentFormSnapshot();
             window.scrollTo({ top: 0, behavior: 'smooth' });
           })
           .catch(function (err) {
             statusBox.className = 'status-box is-error';
             statusBox.textContent = 'Could not load model for editing: ' + err.message;
           });
+      }
+
+      function getCurrentFormSnapshot() {
+        return {
+          title: nameInput ? nameInput.value.trim() : '',
+          extendedTitle: extendedTitleInput ? extendedTitleInput.value.trim() : '',
+          tagline: taglineInput ? taglineInput.value.trim() : '',
+          shortname: shortnameInput ? shortnameInput.value.trim() : '',
+          category: categorySelect ? categorySelect.value : '',
+          hidden: hiddenCheckbox ? Boolean(hiddenCheckbox.checked) : false,
+          description: descInput ? descInput.value : '',
+          printSettings: settingsInput ? settingsInput.value : '',
+          tags: tagsInput ? tagsInput.value.trim() : '',
+          makerworld: dlMakerworld ? dlMakerworld.value.trim() : '',
+          printables: dlPrintables ? dlPrintables.value.trim() : '',
+          thangs: dlThangs ? dlThangs.value.trim() : '',
+          cults3d: dlCults3d ? dlCults3d.value.trim() : '',
+          products: JSON.stringify(modelProducts || []),
+          youtubeShorts: JSON.stringify(youtubeShorts || []),
+          youtubeVideos: JSON.stringify(youtubeVideos || []),
+          sourceImagesCount: Array.isArray(sourceImages) ? sourceImages.length : 0,
+          detailedImagesCount: Array.isArray(detailedImages) ? detailedImages.length : 0,
+          hasNewMainImage: Boolean(generatedWebP && generatedWebP.main)
+        };
+      }
+
+      function isEditorDirty() {
+        if (!editingSlug || !editBaselineSnapshot) return false;
+        var current = getCurrentFormSnapshot();
+        return JSON.stringify(editBaselineSnapshot) !== JSON.stringify(current);
+      }
+
+      function showUnsavedModal(onProceed) {
+        pendingNavigationAction = onProceed;
+        if (unsavedModalModelName) {
+          unsavedModalModelName.textContent = (nameInput && nameInput.value.trim()) || editingSlug || 'this model';
+        }
+        if (unsavedModalStatus) {
+          unsavedModalStatus.className = 'unsaved-modal-status';
+          unsavedModalStatus.textContent = '';
+          unsavedModalStatus.style.display = 'none';
+        }
+        if (btnUnsavedSave) {
+          btnUnsavedSave.disabled = false;
+          btnUnsavedSave.textContent = 'Save & Push Update \u2192';
+        }
+        if (btnUnsavedDiscard) {
+          btnUnsavedDiscard.disabled = false;
+        }
+        if (btnUnsavedCancel) {
+          btnUnsavedCancel.disabled = false;
+        }
+        if (unsavedModalBackdrop) {
+          unsavedModalBackdrop.classList.add('is-open');
+        }
+      }
+
+      function hideUnsavedModal() {
+        if (unsavedModalBackdrop) {
+          unsavedModalBackdrop.classList.remove('is-open');
+        }
+        if (unsavedModalStatus) {
+          unsavedModalStatus.className = 'unsaved-modal-status';
+          unsavedModalStatus.textContent = '';
+          unsavedModalStatus.style.display = 'none';
+        }
+      }
+
+      function confirmUnsavedChanges(onProceed) {
+        if (!isEditorDirty()) {
+          if (typeof onProceed === 'function') onProceed();
+          return;
+        }
+        showUnsavedModal(onProceed);
       }
 
       function toggleModelVisibility(slug, targetHidden) {
@@ -5913,7 +6115,12 @@
         var editTrigger = e.target.closest('.btn-edit-model, .table-model-thumb, .table-model-title-btn');
         if (editTrigger) {
           var eSlug = editTrigger.getAttribute('data-slug');
-          if (eSlug) openEditModel(eSlug);
+          if (eSlug) {
+            if (eSlug === editingSlug) return;
+            confirmUnsavedChanges(function () {
+              openEditModel(eSlug);
+            });
+          }
         }
       });
 
@@ -6091,7 +6298,12 @@
           var editBtn = e.target.closest('.btn-matrix-load-editor');
           if (editBtn) {
             var eSlug = editBtn.getAttribute('data-slug');
-            if (eSlug) openEditModel(eSlug);
+            if (eSlug) {
+              if (eSlug === editingSlug) return;
+              confirmUnsavedChanges(function () {
+                openEditModel(eSlug);
+              });
+            }
             return;
           }
         });
@@ -6122,11 +6334,15 @@
 
       if (btnViewMatrix) {
         btnViewMatrix.addEventListener('click', function (e) {
+          e.preventDefault();
+          var targetHref = '/columns.html';
           if (catalogSelectedSlugs && catalogSelectedSlugs.size > 0) {
-            e.preventDefault();
             var slugArr = Array.from(catalogSelectedSlugs);
-            window.location.href = '/columns.html?models=' + encodeURIComponent(slugArr.join(','));
+            targetHref = '/columns.html?models=' + encodeURIComponent(slugArr.join(','));
           }
+          confirmUnsavedChanges(function () {
+            window.location.href = targetHref;
+          });
         });
       }
 
@@ -6329,7 +6545,12 @@
         var editTrigger = e.target.closest('.btn-edit-model, .model-thumb-media');
         if (!editTrigger) return;
         var slug = editTrigger.getAttribute('data-slug');
-        if (slug) openEditModel(slug);
+        if (slug) {
+          if (slug === editingSlug) return;
+          confirmUnsavedChanges(function () {
+            openEditModel(slug);
+          });
+        }
       });
 
       function fetchExistingModels(cb) {
@@ -6359,32 +6580,42 @@
       });
 
       btnCancelEdit.addEventListener('click', function () {
-        resetToNewModel(true);
+        confirmUnsavedChanges(function () {
+          resetToNewModel(true);
+        });
       });
 
       resetBtn.addEventListener('click', function () {
-        resetToNewModel(true);
+        confirmUnsavedChanges(function () {
+          resetToNewModel(true);
+        });
       });
 
       btnNewFromLibrary.addEventListener('click', function () {
-        resetToNewModel(true);
-        nameInput.focus();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        confirmUnsavedChanges(function () {
+          resetToNewModel(true);
+          nameInput.focus();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
       });
 
       btnNavNew.addEventListener('click', function () {
-        btnNavNew.classList.add('is-active');
-        btnNavLibrary.classList.remove('is-active');
-        btnNavTable.classList.remove('is-active');
-        resetToNewModel(true);
-        nameInput.focus();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        confirmUnsavedChanges(function () {
+          btnNavNew.classList.add('is-active');
+          btnNavLibrary.classList.remove('is-active');
+          btnNavTable.classList.remove('is-active');
+          resetToNewModel(true);
+          nameInput.focus();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
       });
 
       brandResetLink.addEventListener('click', function (e) {
         e.preventDefault();
-        resetToNewModel(true);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        confirmUnsavedChanges(function () {
+          resetToNewModel(true);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
       });
 
       btnNavLibrary.addEventListener('click', function () {
@@ -6396,23 +6627,139 @@
       });
 
       btnNavTable.addEventListener('click', function () {
-        setLibraryViewMode('table');
-        renderExistingModelsTable();
-        btnNavTable.classList.add('is-active');
-        btnNavNew.classList.remove('is-active');
-        btnNavLibrary.classList.remove('is-active');
-        if (btnNavMatrix) btnNavMatrix.classList.remove('is-active');
-        document.getElementById('existing-models-section').scrollIntoView({ behavior: 'smooth' });
+        confirmUnsavedChanges(function () {
+          setLibraryViewMode('table');
+          renderExistingModelsTable();
+          btnNavTable.classList.add('is-active');
+          btnNavNew.classList.remove('is-active');
+          btnNavLibrary.classList.remove('is-active');
+          if (btnNavMatrix) btnNavMatrix.classList.remove('is-active');
+          document.getElementById('existing-models-section').scrollIntoView({ behavior: 'smooth' });
+        });
       });
 
       if (btnNavMatrix) {
         btnNavMatrix.addEventListener('click', function (e) {
-          // If any models are selected, carry them over to /columns.html
+          e.preventDefault();
+          var targetHref = '/columns.html';
           if (catalogSelectedSlugs && catalogSelectedSlugs.size > 0) {
-            e.preventDefault();
             var slugArr = Array.from(catalogSelectedSlugs);
-            window.location.href = '/columns.html?models=' + encodeURIComponent(slugArr.join(','));
+            targetHref = '/columns.html?models=' + encodeURIComponent(slugArr.join(','));
           }
+          confirmUnsavedChanges(function () {
+            window.location.href = targetHref;
+          });
+        });
+      }
+
+      function saveCurrentModelPromise() {
+        return new Promise(function (resolve, reject) {
+          var title = nameInput.value.trim();
+          var shortname = getShortname();
+
+          if (!title) {
+            var errTitle = new Error('Please enter a Model Title.');
+            statusBox.className = 'status-box is-error';
+            statusBox.textContent = errTitle.message;
+            nameInput.focus();
+            return reject(errTitle);
+          }
+          if (!generatedWebP.main && !(editingModelData && editingModelData.cover_image)) {
+            var errImg = new Error('Please paste or select at least one showcase image on the left stage.');
+            statusBox.className = 'status-box is-error';
+            statusBox.textContent = errImg.message;
+            return reject(errImg);
+          }
+
+          submitBtn.disabled = true;
+          submitBtn.textContent = editingSlug ? 'Saving Changes & Pushing Update...' : 'Saving WebP & Pushing to GitHub...';
+
+          var payload = {
+            originalSlug: editingSlug,
+            title: title,
+            extendedTitle: extendedTitleInput.value.trim(),
+            tagline: taglineInput.value.trim(),
+            shortname: shortname,
+            category: categorySelect.value,
+            hidden: Boolean(hiddenCheckbox.checked),
+            description: descInput.value,
+            printSettings: settingsInput.value,
+            tags: tagsInput.value,
+            youtubeShorts: youtubeShorts,
+            youtubeVideos: youtubeVideos,
+            youtubeId: youtubeShorts[0] || youtubeVideos[0] || '',
+            downloads: {
+              makerworld: dlMakerworld.value.trim(),
+              printables: dlPrintables.value.trim(),
+              thangs: dlThangs.value.trim(),
+              cults3d: dlCults3d.value.trim()
+            },
+            products: modelProducts,
+            mainImage: generatedWebP.main,
+            thumbImage: generatedWebP.thumb,
+            galleryImages: generatedWebP.gallery,
+            detailedImages: generatedWebP.detailed,
+            existingCoverImage: editingModelData ? editingModelData.cover_image : '',
+            existingThumbImage: editingModelData ? editingModelData.thumbnail_image : '',
+            existingGalleryImages: editingModelData ? editingModelData.gallery_images : [],
+            existingDetailedImages: editingModelData ? editingModelData.detailed_images : [],
+            existingAnimation: editingModelData ? editingModelData.animation : '',
+            autoDeploy: autoDeployCheckbox.checked
+          };
+
+          var endpoint = editingSlug ? '/api/models/' + encodeURIComponent(editingSlug) : '/api/models';
+          var method = editingSlug ? 'PUT' : 'POST';
+
+          fetch(endpoint, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          })
+            .then(function (res) {
+              return res.json().then(function (body) {
+                return { ok: res.ok, body: body };
+              });
+            })
+            .then(function (result) {
+              submitBtn.disabled = false;
+              submitBtn.textContent = editingSlug
+                ? 'Save Changes & Push Update to GitHub →'
+                : 'Save Model & Push to GitHub →';
+
+              if (!result.ok) {
+                var errRes = new Error(result.body.error || 'Failed to save model.');
+                statusBox.className = 'status-box is-error';
+                statusBox.textContent = errRes.message;
+                return reject(errRes);
+              }
+
+              var b = result.body;
+              lastSavedSlug = b.slug || b.shortname;
+
+              postUploadTitle.textContent = b.isEdit
+                ? 'Model Updated & Pushed to GitHub!'
+                : 'New Model Published & Pushed to GitHub!';
+              postUploadSubtitle.textContent =
+                '"' + b.title + '" has been saved to ' + b.markdownPath + (b.deployed ? ' and pushed to origin/main.' : '.');
+              postUploadFiles.innerHTML = (b.savedFiles || [])
+                .map(function (f) { return '&bull; ' + f; })
+                .join('<br>');
+              postUploadGitlog.textContent = b.gitLog || 'Saved locally.';
+              postUploadCard.classList.add('is-visible');
+
+              resetToNewModel(false);
+              fetchExistingModels();
+              resolve(b);
+            })
+            .catch(function (err) {
+              submitBtn.disabled = false;
+              submitBtn.textContent = editingSlug
+                ? 'Save Changes & Push Update to GitHub →'
+                : 'Save Model & Push to GitHub →';
+              statusBox.className = 'status-box is-error';
+              statusBox.textContent = 'Network error: ' + err.message;
+              reject(err);
+            });
         });
       }
 
@@ -6421,108 +6768,82 @@
         statusBox.className = 'status-box';
         statusBox.innerHTML = '';
 
-        var title = nameInput.value.trim();
-        var shortname = getShortname();
-
-        if (!title) {
-          statusBox.className = 'status-box is-error';
-          statusBox.textContent = 'Please enter a Model Title.';
-          nameInput.focus();
-          return;
-        }
-        if (!generatedWebP.main && !(editingModelData && editingModelData.cover_image)) {
-          statusBox.className = 'status-box is-error';
-          statusBox.textContent = 'Please paste or select at least one showcase image on the left stage.';
-          return;
-        }
-
-        submitBtn.disabled = true;
-        submitBtn.textContent = editingSlug ? 'Saving Changes & Pushing Update...' : 'Saving WebP & Pushing to GitHub...';
-
-        var payload = {
-          originalSlug: editingSlug,
-          title: title,
-          extendedTitle: extendedTitleInput.value.trim(),
-          tagline: taglineInput.value.trim(),
-          shortname: shortname,
-          category: categorySelect.value,
-          hidden: Boolean(hiddenCheckbox.checked),
-          description: descInput.value,
-          printSettings: settingsInput.value,
-          tags: tagsInput.value,
-          youtubeShorts: youtubeShorts,
-          youtubeVideos: youtubeVideos,
-          youtubeId: youtubeShorts[0] || youtubeVideos[0] || '',
-          downloads: {
-            makerworld: dlMakerworld.value.trim(),
-            printables: dlPrintables.value.trim(),
-            thangs: dlThangs.value.trim(),
-            cults3d: dlCults3d.value.trim()
-          },
-          products: modelProducts,
-          mainImage: generatedWebP.main,
-          thumbImage: generatedWebP.thumb,
-          galleryImages: generatedWebP.gallery,
-          detailedImages: generatedWebP.detailed,
-          existingCoverImage: editingModelData ? editingModelData.cover_image : '',
-          existingThumbImage: editingModelData ? editingModelData.thumbnail_image : '',
-          existingGalleryImages: editingModelData ? editingModelData.gallery_images : [],
-          existingDetailedImages: editingModelData ? editingModelData.detailed_images : [],
-          existingAnimation: editingModelData ? editingModelData.animation : '',
-          autoDeploy: autoDeployCheckbox.checked
-        };
-
-        var endpoint = editingSlug ? '/api/models/' + encodeURIComponent(editingSlug) : '/api/models';
-        var method = editingSlug ? 'PUT' : 'POST';
-
-        fetch(endpoint, {
-          method: method,
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        })
-          .then(function (res) {
-            return res.json().then(function (body) {
-              return { ok: res.ok, body: body };
-            });
-          })
-          .then(function (result) {
-            submitBtn.disabled = false;
-            submitBtn.textContent = editingSlug
-              ? 'Save Changes & Push Update to GitHub →'
-              : 'Save Model & Push to GitHub →';
-
-            if (!result.ok) {
-              statusBox.className = 'status-box is-error';
-              statusBox.textContent = result.body.error || 'Failed to save model.';
-              return;
-            }
-
-            var b = result.body;
-            lastSavedSlug = b.slug || b.shortname;
-
-            postUploadTitle.textContent = b.isEdit
-              ? 'Model Updated & Pushed to GitHub!'
-              : 'New Model Published & Pushed to GitHub!';
-            postUploadSubtitle.textContent =
-              '"' + b.title + '" has been saved to ' + b.markdownPath + (b.deployed ? ' and pushed to origin/main.' : '.');
-            postUploadFiles.innerHTML = (b.savedFiles || [])
-              .map(function (f) { return '&bull; ' + f; })
-              .join('<br>');
-            postUploadGitlog.textContent = b.gitLog || 'Saved locally.';
-            postUploadCard.classList.add('is-visible');
-
-            resetToNewModel(false);
-            fetchExistingModels();
+        saveCurrentModelPromise()
+          .then(function () {
             window.scrollTo({ top: 0, behavior: 'smooth' });
           })
-          .catch(function (err) {
-            submitBtn.disabled = false;
-            submitBtn.textContent = editingSlug
-              ? 'Save Changes & Push Update to GitHub →'
-              : 'Save Model & Push to GitHub →';
-            statusBox.className = 'status-box is-error';
-            statusBox.textContent = 'Network error: ' + err.message;
-          });
+          .catch(function () {});
+      });
+
+      // Wire up Unsaved Changes Confirmation Modal Actions
+      if (btnUnsavedCancel) {
+        btnUnsavedCancel.addEventListener('click', function () {
+          hideUnsavedModal();
+          pendingNavigationAction = null;
+        });
+      }
+
+      if (btnUnsavedDiscard) {
+        btnUnsavedDiscard.addEventListener('click', function () {
+          hideUnsavedModal();
+          var action = pendingNavigationAction;
+          pendingNavigationAction = null;
+          if (typeof action === 'function') {
+            action();
+          }
+        });
+      }
+
+      if (btnUnsavedSave) {
+        btnUnsavedSave.addEventListener('click', function () {
+          if (unsavedModalStatus) {
+            unsavedModalStatus.className = 'unsaved-modal-status is-saving';
+            unsavedModalStatus.textContent = 'Saving changes & pushing update to GitHub...';
+            unsavedModalStatus.style.display = 'block';
+          }
+          btnUnsavedSave.disabled = true;
+          btnUnsavedDiscard.disabled = true;
+          btnUnsavedCancel.disabled = true;
+
+          saveCurrentModelPromise()
+            .then(function () {
+              hideUnsavedModal();
+              var action = pendingNavigationAction;
+              pendingNavigationAction = null;
+              if (typeof action === 'function') {
+                action();
+              }
+            })
+            .catch(function (err) {
+              btnUnsavedSave.disabled = false;
+              btnUnsavedDiscard.disabled = false;
+              btnUnsavedCancel.disabled = false;
+              if (unsavedModalStatus) {
+                unsavedModalStatus.className = 'unsaved-modal-status is-error';
+                unsavedModalStatus.textContent = 'Save failed: ' + (err.message || 'Unknown error');
+                unsavedModalStatus.style.display = 'block';
+              }
+            });
+        });
+      }
+
+      // Close modal on backdrop click
+      if (unsavedModalBackdrop) {
+        unsavedModalBackdrop.addEventListener('click', function (e) {
+          if (e.target === unsavedModalBackdrop) {
+            hideUnsavedModal();
+            pendingNavigationAction = null;
+          }
+        });
+      }
+
+      // Native browser warning on page unload / reload if dirty
+      window.addEventListener('beforeunload', function (e) {
+        if (isEditorDirty()) {
+          e.preventDefault();
+          e.returnValue = '';
+          return '';
+        }
       });
 
       renderTagPills();
