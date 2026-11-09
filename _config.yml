@@ -28,6 +28,11 @@ defaults:
 
 # Product Categories Configuration (SEO naming: category-[name]-3dmodels.webp, 800x800px)
 catalog_categories:
+  - slug: "fan-favorites"
+    title: "Fan Favorites"
+    description: "Most downloaded articulated models, fidgets, and community-loved prints."
+    image: "/images/categories/category-fan-favorites-3dmodels.webp"
+    url: "/categories/fan-favorites/"
   - slug: "useful-prints"
     title: "Useful Prints"
     description: "Modular desk organizers, workshop helpers, and everyday functional prints."
@@ -43,11 +48,6 @@ catalog_categories:
     description: "Festive tabletop decor, geometric ornaments, and holiday printables."
     image: "/images/categories/category-seasonal-3dmodels.webp"
     url: "/categories/seasonal/"
-  - slug: "fan-favorites"
-    title: "Fan Favorites"
-    description: "Most downloaded articulated models, fidgets, and community-loved prints."
-    image: "/images/categories/category-fan-favorites-3dmodels.webp"
-    url: "/categories/fan-favorites/"
 
 exclude:
   - Gemfile

@@ -4,7 +4,11 @@ layout: default
 {% assign current_slug = page.category_slug | default: page.slug %}
 {% assign category_meta = site.catalog_categories | where: "slug", current_slug | first %}
 {% assign visible_models = site.models | where_exp: "item", "item.hidden != true" %}
-{% assign category_models = visible_models | where: "category", current_slug %}
+{% if current_slug == "fan-favorites" %}
+  {% assign category_models = visible_models | where_exp: "item", "item.category == 'fan-favorites' or item.fan_favorite == true" %}
+{% else %}
+  {% assign category_models = visible_models | where: "category", current_slug %}
+{% endif %}
 
 <section class="category-page container" id="category-page-{{ current_slug }}">
   <nav class="breadcrumb" aria-label="Breadcrumb">
@@ -87,11 +91,19 @@ layout: default
               >
             </div>
             <div class="model-thumb-body">
-              {% if category_meta %}
-                <span class="model-card-category">{{ category_meta.title }}</span>
-              {% elsif model.category %}
-                <span class="model-card-category">{{ model.category }}</span>
-              {% endif %}
+              {% assign card_cat = site.catalog_categories | where: "slug", model.category | first %}
+              <div class="model-card-meta-row">
+                {% if card_cat %}
+                  <span class="model-card-category">{{ card_cat.title }}</span>
+                {% elsif category_meta %}
+                  <span class="model-card-category">{{ category_meta.title }}</span>
+                {% elsif model.category %}
+                  <span class="model-card-category">{{ model.category }}</span>
+                {% endif %}
+                {% if model.fan_favorite == true %}
+                  <span class="fan-favorite-badge">⭐ Fan Favorite</span>
+                {% endif %}
+              </div>
               <h2 class="model-card-title">{{ model.title }}</h2>
               {% if model.tags and model.tags.size > 0 %}
                 <div class="model-card-tags">

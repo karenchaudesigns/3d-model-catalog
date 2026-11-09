@@ -206,13 +206,20 @@ layout: default
     <!-- Right Column: Metadata, Conditional Download Buttons, Tags -->
     <div class="model-info-column">
       <div class="model-meta-header">
-        {% if category_obj %}
-          <a href="{{ category_obj.url | relative_url }}" class="category-pill" id="model-category-badge">
-            {{ category_obj.title }}
-          </a>
-        {% elsif page.category %}
-          <span class="category-pill" id="model-category-badge">{{ page.category }}</span>
-        {% endif %}
+        <div class="model-meta-pills" style="display:flex;align-items:center;gap:0.45rem;flex-wrap:wrap;margin-bottom:0.65rem;">
+          {% if category_obj %}
+            <a href="{{ category_obj.url | relative_url }}" class="category-pill" id="model-category-badge" style="margin-bottom:0;">
+              {{ category_obj.title }}
+            </a>
+          {% elsif page.category %}
+            <span class="category-pill" id="model-category-badge" style="margin-bottom:0;">{{ page.category }}</span>
+          {% endif %}
+          {% if page.fan_favorite == true %}
+            <a href="{{ '/categories/fan-favorites/' | relative_url }}" class="category-pill fan-favorite-pill" id="model-fan-favorite-badge" style="margin-bottom:0;">
+              ⭐ Fan Favorite
+            </a>
+          {% endif %}
+        </div>
         <h1 class="model-title">{{ page.title }}</h1>
         {% if page.extended_title and page.extended_title != "" %}
           <p class="model-extended-title">{{ page.extended_title }}</p>

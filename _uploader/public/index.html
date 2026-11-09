@@ -754,6 +754,36 @@
       font-weight: 600;
     }
 
+    /* Fan Favorite Toggle Pill */
+    .fan-favorite-pill-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: var(--font-mono);
+      font-size: 0.73rem;
+      padding: 0.25rem 0.7rem;
+      border-radius: 999px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease;
+    }
+
+    .fan-favorite-pill-toggle:has(input:checked) {
+      background: hsl(45, 95%, 90%);
+      border-color: hsl(38, 90%, 45%);
+      color: hsl(32, 90%, 25%);
+      font-weight: 600;
+    }
+
+    [data-theme="dark"] .fan-favorite-pill-toggle:has(input:checked) {
+      background: hsl(42, 60%, 20%);
+      border-color: hsl(42, 70%, 45%);
+      color: hsl(45, 95%, 85%);
+    }
+
     /* Model Title Input styled identically to <h1 class="model-title"> */
     .model-title-wrapper {
       position: relative;
@@ -2915,8 +2945,12 @@
                 <option value="useful-prints">Useful Prints</option>
                 <option value="gifts-decor">Gifts &amp; Decor</option>
                 <option value="seasonal">Seasonal</option>
-                <option value="fan-favorites">Fan Favorites</option>
               </select>
+
+              <label class="fan-favorite-pill-toggle" title="When checked, marks this model as a Fan Favorite (fan_favorite: true) so it appears in the Fan Favorites collection">
+                <input type="checkbox" id="model-fan-favorite">
+                <span>⭐ Fan Favorite</span>
+              </label>
 
               <label class="hidden-pill-toggle" title="When checked, sets hidden: true in front matter to hide from home and category pages">
                 <input type="checkbox" id="model-hidden">
@@ -3323,6 +3357,7 @@
       var shortnameInput = document.getElementById('model-shortname');
       var slugLiveLink = document.getElementById('slug-live-link');
       var categorySelect = document.getElementById('model-category');
+      var fanFavoriteCheckbox = document.getElementById('model-fan-favorite');
       var hiddenCheckbox = document.getElementById('model-hidden');
       var descInput = document.getElementById('model-description');
       var settingsInput = document.getElementById('model-print-settings');
@@ -4665,6 +4700,10 @@
               categorySelect.value = d.suggestedCategory;
               populatedParts.push('Category');
             }
+            if (d.suggestedFanFavorite && !editingSlug) {
+              fanFavoriteCheckbox.checked = true;
+              populatedParts.push('Fan Favorite');
+            }
 
             var addedShorts = 0;
             var addedVideos = 0;
@@ -4757,7 +4796,7 @@
         }
       });
 
-      [extendedTitleInput, taglineInput, hiddenCheckbox, descInput, settingsInput, dlMakerworld, dlPrintables, dlThangs, dlCults3d].forEach(
+      [extendedTitleInput, taglineInput, fanFavoriteCheckbox, hiddenCheckbox, descInput, settingsInput, dlMakerworld, dlPrintables, dlThangs, dlCults3d].forEach(
         function (el) {
           el.addEventListener('input', function () {
             if (el === descInput || el === settingsInput || el === extendedTitleInput || el === taglineInput) {
@@ -4803,6 +4842,7 @@
         var shortname = getShortname();
         var category = categorySelect.value;
         var isHidden = Boolean(hiddenCheckbox.checked);
+        var isFanFavorite = Boolean(fanFavoriteCheckbox.checked);
         var thumbPath =
           !generatedWebP.thumb && editingModelData && editingModelData.thumbnail_image
             ? editingModelData.thumbnail_image
@@ -4819,6 +4859,7 @@
           'tagline: ' + yamlEscape(tagline),
           'shortname: ' + yamlEscape(shortname),
           'category: ' + yamlEscape(category),
+          'fan_favorite: ' + (isFanFavorite ? 'true' : 'false'),
           'hidden: ' + (isHidden ? 'true' : 'false'),
           'thumbnail_image: ' + yamlEscape(thumbPath),
           'cover_image: ' + yamlEscape(mainPath)
@@ -4947,6 +4988,7 @@
         taglineInput.value = '';
         shortnameInput.value = '';
         categorySelect.value = 'useful-prints';
+        fanFavoriteCheckbox.checked = false;
         hiddenCheckbox.checked = false;
         descInput.value = '';
         settingsInput.value = '';
@@ -5008,7 +5050,8 @@
             extendedTitleInput.value = m.extended_title || '';
             taglineInput.value = m.tagline || '';
             shortnameInput.value = m.shortname || m.slug || '';
-            categorySelect.value = m.category || 'useful-prints';
+            categorySelect.value = m.category === 'fan-favorites' ? 'useful-prints' : (m.category || 'useful-prints');
+            fanFavoriteCheckbox.checked = Boolean(m.fan_favorite || m.category === 'fan-favorites');
             hiddenCheckbox.checked = Boolean(m.hidden);
             descInput.value = m.description || '';
             settingsInput.value = m.printSettings || '';
@@ -5091,6 +5134,7 @@
           tagline: taglineInput ? taglineInput.value.trim() : '',
           shortname: shortnameInput ? shortnameInput.value.trim() : '',
           category: categorySelect ? categorySelect.value : '',
+          fanFavorite: fanFavoriteCheckbox ? Boolean(fanFavoriteCheckbox.checked) : false,
           hidden: hiddenCheckbox ? Boolean(hiddenCheckbox.checked) : false,
           description: descInput ? descInput.value : '',
           printSettings: settingsInput ? settingsInput.value : '',
@@ -6780,6 +6824,7 @@
             tagline: taglineInput.value.trim(),
             shortname: shortname,
             category: categorySelect.value,
+            fan_favorite: Boolean(fanFavoriteCheckbox.checked),
             hidden: Boolean(hiddenCheckbox.checked),
             description: descInput.value,
             printSettings: settingsInput.value,

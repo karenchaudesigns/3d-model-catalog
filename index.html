@@ -25,7 +25,11 @@ description: "Browse original 3D printable models by category—Useful Prints, G
 
   <div class="category-grid">
     {% for cat in site.catalog_categories %}
-      {% assign cat_models = visible_models | where: "category", cat.slug %}
+      {% if cat.slug == "fan-favorites" %}
+        {% assign cat_models = visible_models | where_exp: "item", "item.category == 'fan-favorites' or item.fan_favorite == true" %}
+      {% else %}
+        {% assign cat_models = visible_models | where: "category", cat.slug %}
+      {% endif %}
       <a href="{{ cat.url | relative_url }}" class="category-card" id="category-card-{{ cat.slug }}">
         <div class="category-card-media">
           <img
@@ -109,11 +113,16 @@ description: "Browse original 3D printable models by category—Useful Prints, G
             >
           </div>
           <div class="model-thumb-body">
-            {% if cat_info %}
-              <span class="model-card-category">{{ cat_info.title }}</span>
-            {% elsif model.category %}
-              <span class="model-card-category">{{ model.category }}</span>
-            {% endif %}
+            <div class="model-card-meta-row">
+              {% if cat_info %}
+                <span class="model-card-category">{{ cat_info.title }}</span>
+              {% elsif model.category %}
+                <span class="model-card-category">{{ model.category }}</span>
+              {% endif %}
+              {% if model.fan_favorite == true %}
+                <span class="fan-favorite-badge">⭐ Fan Favorite</span>
+              {% endif %}
+            </div>
             <h3 class="model-card-title">{{ model.title }}</h3>
             {% if model.tags and model.tags.size > 0 %}
               <div class="model-card-tags">

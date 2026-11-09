@@ -97,6 +97,7 @@ function parseModelMarkdown(filename) {
     tagline: '',
     shortname: slug,
     category: 'useful-prints',
+    fan_favorite: false,
     hidden: false,
     thumbnail_image: '',
     cover_image: '',
@@ -199,6 +200,9 @@ function parseModelMarkdown(filename) {
       } else if (key === 'hidden') {
         const unquoted = yamlUnquote(rawVal).toLowerCase();
         result.hidden = unquoted === 'true' || unquoted === 'yes';
+      } else if (key === 'fan_favorite') {
+        const unquoted = yamlUnquote(rawVal).toLowerCase();
+        result.fan_favorite = unquoted === 'true' || unquoted === 'yes';
       } else if (key in result) {
         result[key] = yamlUnquote(rawVal);
       }
@@ -320,6 +324,8 @@ function saveAndDeployModel(req, res) {
       tagline = '',
       shortname: rawShortname,
       category = 'useful-prints',
+      fan_favorite = false,
+      fanFavorite = false,
       hidden = false,
       description = '',
       printSettings = '',
@@ -458,6 +464,7 @@ function saveAndDeployModel(req, res) {
       `tagline: ${yamlQuote(resolvedTagline)}`,
       `shortname: ${yamlQuote(shortname)}`,
       `category: ${yamlQuote(category || 'useful-prints')}`,
+      `fan_favorite: ${Boolean(fan_favorite || fanFavorite)}`,
       `hidden: ${Boolean(hidden)}`,
       `thumbnail_image: ${yamlQuote(thumbWebPath)}`,
       `cover_image: ${yamlQuote(mainWebPath)}`
@@ -886,6 +893,7 @@ function updateModelFieldsOnDisk(slug, fields = {}) {
   const resolvedTagline = fields.tagline !== undefined ? String(fields.tagline || '').trim() : existing.tagline;
   const shortname = existing.shortname || slug;
   const category = fields.category !== undefined ? fields.category : existing.category;
+  const fanFavorite = fields.fan_favorite !== undefined ? Boolean(fields.fan_favorite) : (fields.fanFavorite !== undefined ? Boolean(fields.fanFavorite) : Boolean(existing.fan_favorite));
   const hidden = fields.hidden !== undefined ? Boolean(fields.hidden) : existing.hidden;
   const thumbWebPath = existing.thumbnail_image;
   const mainWebPath = existing.cover_image;
@@ -931,6 +939,7 @@ function updateModelFieldsOnDisk(slug, fields = {}) {
     `tagline: ${yamlQuote(resolvedTagline)}`,
     `shortname: ${yamlQuote(shortname)}`,
     `category: ${yamlQuote(category || 'useful-prints')}`,
+    `fan_favorite: ${Boolean(fanFavorite)}`,
     `hidden: ${Boolean(hidden)}`,
     `thumbnail_image: ${yamlQuote(thumbWebPath)}`,
     `cover_image: ${yamlQuote(mainWebPath)}`
@@ -1334,14 +1343,20 @@ app.post('/api/import/printables', async (req, res) => {
     // Guess best matching catalog category if possible
     const combinedText = `${decodedFullTitle} ${tags.join(' ')} ${categoryPath.join(' ')}`.toLowerCase();
     let suggestedCategory = null;
+    let suggestedFanFavorite = false;
     if (/(christmas|halloween|autumn|fall|pumpkin|easter|valentine|holiday|seasonal|ornament|winter|thanksgiving)/.test(combinedText)) {
       suggestedCategory = 'seasonal';
     } else if (/(organizer|holder|mount|stand|bracket|clip|adapter|tool|tray|sorter|box|hook|storage|functional)/.test(combinedText)) {
       suggestedCategory = 'useful-prints';
     } else if (/(fidget|articulated|flexi|toy|game|puzzle)/.test(combinedText)) {
-      suggestedCategory = 'fan-favorites';
+      suggestedCategory = 'gifts-decor';
+      suggestedFanFavorite = true;
     } else if (/(decor|vase|coaster|planter|gift|statue|art|sign|duck|figurine|cute)/.test(combinedText)) {
       suggestedCategory = 'gifts-decor';
+    }
+
+    if (/(favorite|popular|viral|bestseller)/.test(combinedText)) {
+      suggestedFanFavorite = true;
     }
 
     return res.json({
@@ -1359,6 +1374,7 @@ app.post('/api/import/printables', async (req, res) => {
       youtubeVideos,
       youtubeId,
       suggestedCategory,
+      suggestedFanFavorite,
       imageUrls,
       descriptionImageUrls
     });
