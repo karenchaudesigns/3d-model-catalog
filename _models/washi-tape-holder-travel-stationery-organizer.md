@@ -1,7 +1,7 @@
 ---
 title: "Washi tape holder / travel stationery organizer"
 extended_title: "25mm diameter"
-tagline: ""
+tagline: "Keep your washi tape organized at your desk and on the go!"
 shortname: "washi-tape-holder-travel-stationery-organizer"
 category: "useful-prints"
 hidden: false
