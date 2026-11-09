@@ -797,6 +797,10 @@ layout: default
         document.body.removeChild(ta);
       }
     })();
+
+    // Showcase gallery interactivity (skipped when the model has no thumbnail selectors,
+    // without returning early so the recommendations below still render)
+    (function setupShowcase() {
     if (!selectors.length) return;
 
     function activateSelector(btn) {
@@ -868,6 +872,7 @@ layout: default
         thumbStrip.scrollBy({ left: 260, behavior: 'smooth' });
       });
     }
+    })();
 
     // Recommendation Engine: Pick related models to promote at bottom of model page
     (function renderRecommendations() {
