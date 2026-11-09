@@ -253,6 +253,26 @@
       color: var(--text-secondary);
     }
 
+    .slug-live-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      transition: color 0.16s ease;
+      cursor: pointer;
+    }
+
+    .slug-live-link code {
+      font-family: var(--font-mono);
+      color: inherit;
+    }
+
+    .slug-live-link:hover {
+      color: var(--accent-terracotta);
+      text-decoration: underline;
+    }
+
     .slug-badge-editor input {
       border: none;
       background: transparent;
@@ -2610,10 +2630,20 @@
           <span class="breadcrumb-current" id="breadcrumb-title-label">New 3D Model</span>
         </nav>
 
-        <label class="slug-badge-editor" title="SEO shortname used for /models/[shortname]/ and image filenames">
-          <span>URL Slug: <code>/models/</code></span>
-          <input type="text" id="model-shortname" required placeholder="model-shortname">
-        </label>
+        <div class="slug-badge-editor">
+          <a
+            id="slug-live-link"
+            class="slug-live-link"
+            href="https://models.karenchaudesigns.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Click to open this model's live page on models.karenchaudesigns.com"
+          >
+            <span>URL Slug: <code>/models/</code></span>
+            <span style="font-size:0.7rem;opacity:0.75;" aria-hidden="true">&#8599;</span>
+          </a>
+          <input type="text" id="model-shortname" required placeholder="model-shortname" title="SEO shortname used for /models/[shortname]/ and image filenames">
+        </div>
       </div>
 
       <!-- Model Hero Grid: Left Column (Media Stage + Thumbnails) | Right Column (Title, Tags, Downloads, Prose) -->
@@ -3116,6 +3146,7 @@
       var taglineInput = document.getElementById('model-tagline');
       var taglineCharCounter = document.getElementById('tagline-char-counter');
       var shortnameInput = document.getElementById('model-shortname');
+      var slugLiveLink = document.getElementById('slug-live-link');
       var categorySelect = document.getElementById('model-category');
       var hiddenCheckbox = document.getElementById('model-hidden');
       var descInput = document.getElementById('model-description');
@@ -3399,6 +3430,18 @@
       function syncBreadcrumbs() {
         breadcrumbCategoryLabel.textContent = CATEGORY_LABELS[categorySelect.value] || categorySelect.value;
         breadcrumbTitleLabel.textContent = nameInput.value.trim() || (editingSlug ? editingSlug : 'New 3D Model');
+
+        if (slugLiveLink) {
+          var currentSlug = (shortnameInput && shortnameInput.value.trim()) || editingSlug || (nameInput && slugifyShortname(nameInput.value.trim())) || '';
+          if (currentSlug) {
+            var liveUrl = 'https://models.karenchaudesigns.com/models/' + encodeURIComponent(currentSlug) + '/';
+            slugLiveLink.setAttribute('href', liveUrl);
+            slugLiveLink.setAttribute('title', 'Open live page: ' + liveUrl);
+          } else {
+            slugLiveLink.setAttribute('href', 'https://models.karenchaudesigns.com/');
+            slugLiveLink.setAttribute('title', 'Open live catalog on models.karenchaudesigns.com');
+          }
+        }
       }
 
       function updateMainStageDisplay() {
@@ -4108,6 +4151,7 @@
 
       shortnameInput.addEventListener('input', function () {
         shortnameManuallyEdited = Boolean(shortnameInput.value.trim());
+        syncBreadcrumbs();
         rebuildWebPAssets();
       });
 
