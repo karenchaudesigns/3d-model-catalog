@@ -4,6 +4,7 @@ extended_title: "Multi-color 3mf included | Free to a good home"
 tagline: "One of my cutest creations!"
 shortname: "baby-ducks"
 category: "gifts-decor"
+fan_favorite: true
 hidden: false
 thumbnail_image: "/images/models/baby-ducks/3d-model-baby-ducks-thumb.webp"
 cover_image: "/images/models/baby-ducks/3d-model-baby-ducks-main.webp"
