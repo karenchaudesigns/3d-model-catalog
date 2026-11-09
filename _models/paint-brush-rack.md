@@ -1,7 +1,7 @@
 ---
 title: "Paint brush rack"
 extended_title: ""
-tagline: ""
+tagline: "Dry and store your paint brushes with the bristles down!"
 shortname: "paint-brush-rack"
 category: "useful-prints"
 hidden: false
@@ -47,16 +47,4 @@ products:
     url: "https://amzn.to/45rLxSr"
     cta: "View on Amazon"
 ---
-*Dry and store your paint brushes with the bristles down!*
-
-### SEE IT IN ACTION!
-
-[https://youtube.com/shorts/UcwQ7rw-pG4?feature=share](https://youtube.com/shorts/UcwQ7rw-pG4?feature=share)
-
-### FEATURES
-
 This rack is designed to hold your brushes with bristles down so water doesn't cause damage to the glue and wood inside the ferrule.
-
-Pictured: [Acrylic/oil/watercolor brushes](https://amzn.to/45rLxSr)
-
-*As an Amazon Associate I earn from qualifying purchases. Shopping through my link does NOT cost extra to you, but I may earn commission which helps support my design process so I can continue providing free 3D models to the community. Thanks for your support!*
