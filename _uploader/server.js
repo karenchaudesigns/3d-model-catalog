@@ -1748,7 +1748,8 @@ app.post('/api/models/export-zip', async (req, res) => {
 
     function sanitizeDirName(title, fallback) {
       let name = String(title || fallback || 'model').trim();
-      name = name.replace(/[\/\\\\?%*:|"<>\\x00-\\x1f]/g, ' ').replace(/\s+/g, ' ').trim();
+      name = name.replace(/[/\\?%*:|"<>]/g, ' ').replace(/[\x00-\x1f\x7f]/g, '').replace(/\s+/g, ' ').trim();
+      name = name.replace(/[. ]+$/, '');
       return name || fallback || 'model';
     }
 
