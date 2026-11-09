@@ -4,7 +4,7 @@ extended_title: "Flexible fidget toy"
 tagline: "Print-in-place articulated moon. Super satisfying sounds, flexible and fun to fidget! Contains cute craters!"
 shortname: "articulated-moon"
 category: "gifts-decor"
-fan_favorite: true
+fan_favorite: false
 hidden: false
 thumbnail_image: "/images/models/articulated-moon/3d-model-articulated-moon-thumb.webp"
 cover_image: "/images/models/articulated-moon/3d-model-articulated-moon-main.webp"
