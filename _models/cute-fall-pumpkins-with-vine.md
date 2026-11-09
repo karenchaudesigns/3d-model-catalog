@@ -33,5 +33,12 @@ youtube_shorts: []
 youtube_videos:
   - "4XcHzY97t9o"
 youtube_id: "4XcHzY97t9o"
+products:
+  - name: "Neodymium Craft Magnets (Small Round Discs)"
+    category: "Hardware"
+    badge: "Recommended"
+    description: "Strong small disc magnets ideal for adhering to the back of the pumpkin for refrigerators and magnet boards."
+    url: "https://www.amazon.com/dp/B07B3S464L"
+    cta: "View on Amazon"
 ---
 Cute pumpkins for the cozy season! Add any size magnet you want to the back and stick it everywhere!

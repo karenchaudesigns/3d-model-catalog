@@ -107,6 +107,7 @@ function parseModelMarkdown(filename) {
     youtube_shorts: [],
     youtube_videos: [],
     youtube_id: '',
+    products: [],
     description: '',
     printSettings: ''
   };
@@ -126,7 +127,21 @@ function parseModelMarkdown(filename) {
   let hasExplicitExtendedTitle = false;
 
   for (const line of lines) {
-    if (!line.trim() || line.trim().startsWith('#')) continue;
+    // Nested item under products list (e.g. "  - name: ..." or "    url: ...")
+    if (currentKey === 'products') {
+      const prodNewItemMatch = line.match(/^\s+-\s+([a-zA-Z0-9_]+):\s*(.*)$/);
+      if (prodNewItemMatch) {
+        const itemObj = {};
+        itemObj[prodNewItemMatch[1]] = yamlUnquote(prodNewItemMatch[2]);
+        result.products.push(itemObj);
+        continue;
+      }
+      const prodPropMatch = line.match(/^\s+([a-zA-Z0-9_]+):\s*(.*)$/);
+      if (prodPropMatch && result.products.length > 0) {
+        result.products[result.products.length - 1][prodPropMatch[1]] = yamlUnquote(prodPropMatch[2]);
+        continue;
+      }
+    }
 
     // List item under gallery_images, detailed_images, tags, youtube_shorts, or youtube_videos
     const listMatch = line.match(/^\s+-\s+(.*)$/);
@@ -305,6 +320,7 @@ function saveAndDeployModel(req, res) {
       youtubeShorts = [],
       youtubeVideos = [],
       youtubeId = '',
+      products = null,
       downloads = {},
       mainImage = null,
       thumbImage = null,
@@ -496,6 +512,31 @@ function saveAndDeployModel(req, res) {
     }
 
     yamlLines.push(`youtube_id: ${yamlQuote(primaryYoutubeId)}`);
+
+    let finalProducts = Array.isArray(products) ? products : null;
+    if (!finalProducts && isEdit && originalSlug) {
+      const origFile = `${originalSlug}.md`;
+      const origPath = path.join(MODELS_DIR, origFile);
+      if (fs.existsSync(origPath)) {
+        const parsedOrig = parseModelMarkdown(origFile);
+        if (Array.isArray(parsedOrig.products) && parsedOrig.products.length > 0) {
+          finalProducts = parsedOrig.products;
+        }
+      }
+    }
+
+    if (Array.isArray(finalProducts) && finalProducts.length > 0) {
+      yamlLines.push('products:');
+      finalProducts.forEach((p) => {
+        yamlLines.push(`  - name: ${yamlQuote(p.name || p.title || '')}`);
+        if (p.category) yamlLines.push(`    category: ${yamlQuote(p.category)}`);
+        if (p.badge) yamlLines.push(`    badge: ${yamlQuote(p.badge)}`);
+        if (p.description) yamlLines.push(`    description: ${yamlQuote(p.description)}`);
+        yamlLines.push(`    url: ${yamlQuote(p.url || '')}`);
+        if (p.cta) yamlLines.push(`    cta: ${yamlQuote(p.cta)}`);
+      });
+    }
+
     yamlLines.push('---');
     yamlLines.push('');
 
@@ -627,6 +668,7 @@ app.patch('/api/models/:slug/visibility', (req, res) => {
       youtubeShorts: existing.youtube_shorts,
       youtubeVideos: existing.youtube_videos,
       youtubeId: existing.youtube_id,
+      products: existing.products,
       downloads: existing.downloads,
       existingCoverImage: existing.cover_image,
       existingThumbImage: existing.thumbnail_image,

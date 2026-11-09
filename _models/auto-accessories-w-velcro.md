@@ -49,6 +49,13 @@ downloads:
 youtube_shorts: []
 youtube_videos: []
 youtube_id: ""
+products:
+  - name: "Self-Adhesive Hook & Loop Fastener Strips"
+    category: "Hardware"
+    badge: "Required"
+    description: "Hard 'hook' side latch strips used on the underside of each corner piece to grip car floor mats."
+    url: "https://amzn.to/3YvkR0R"
+    cta: "View on Amazon"
 ---
 ### FEATURES
 

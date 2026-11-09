@@ -39,6 +39,13 @@ youtube_shorts:
   - "UcwQ7rw-pG4"
 youtube_videos: []
 youtube_id: "UcwQ7rw-pG4"
+products:
+  - name: "Artist Paint Brush Set (Watercolor, Acrylic, Oil)"
+    category: "Art Supplies"
+    badge: "Pictured"
+    description: "Multi-size brush set featured in the photos and designed to hang bristles-down in this drying rack."
+    url: "https://amzn.to/45rLxSr"
+    cta: "View on Amazon"
 ---
 *Dry and store your paint brushes with the bristles down!*
 

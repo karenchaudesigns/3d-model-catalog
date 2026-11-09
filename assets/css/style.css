@@ -1180,133 +1180,50 @@ a {
 }
 
 /* ==========================================================================
-   Affiliate Recommendations Section (Filament & Workshop Gear)
+   Model Specific Relevant Products & Materials (Filament, Magnets, Hardware)
    ========================================================================== */
-.affiliate-showcase-section {
-  padding-top: 1.5rem;
-  padding-bottom: 3.5rem;
+.model-products-section {
+  padding-top: 2.5rem;
+  border-top: 1px solid var(--border-subtle);
+  margin-bottom: 3rem;
 }
 
-.affiliate-card-wrapper {
-  background-color: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  padding: 2.25rem 2rem;
-  box-shadow: var(--shadow-card);
-}
-
-.affiliate-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 1.25rem;
-  margin-bottom: 2rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid var(--border-subtle);
-}
-
-.affiliate-header-left {
-  max-width: 44rem;
-}
-
-.affiliate-eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--accent-terracotta);
-  background-color: var(--accent-soft);
-  padding: 0.3rem 0.65rem;
-  border-radius: 999px;
-  margin-bottom: 0.75rem;
-}
-
-.affiliate-disclosure-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  font-family: var(--font-mono);
-  font-size: 0.74rem;
-  color: var(--text-muted);
-  background: var(--bg-subtle);
-  border: 1px solid var(--border-subtle);
-  padding: 0.3rem 0.7rem;
-  border-radius: 999px;
-  white-space: nowrap;
-}
-
-.disclosure-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: var(--accent-terracotta);
-}
-
-.affiliate-group {
-  margin-bottom: 2rem;
-}
-
-.affiliate-group:last-of-type {
-  margin-bottom: 1rem;
-}
-
-.affiliate-group-title {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-family: var(--font-display);
-  font-size: 1.15rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 1.15rem;
-}
-
-.group-bullet {
-  color: var(--accent-terracotta);
-  font-size: 1.4rem;
-  line-height: 1;
-}
-
-.affiliate-grid {
+.model-products-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1.15rem;
 }
 
 @media (min-width: 640px) {
-  .affiliate-grid {
+  .model-products-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (min-width: 1040px) {
-  .affiliate-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+  .model-products-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
-.affiliate-card {
+.model-product-card {
   display: flex;
   flex-direction: column;
-  background-color: var(--bg-primary);
+  background-color: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  padding: 1.25rem;
+  padding: 1.35rem;
+  box-shadow: var(--shadow-card);
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-.affiliate-card:hover {
+.model-product-card:hover {
   transform: translateY(-2px);
   border-color: var(--border-strong);
-  box-shadow: var(--shadow-card);
+  box-shadow: var(--shadow-hover);
 }
 
-.affiliate-card-top {
+.model-product-card-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1314,15 +1231,15 @@ a {
   margin-bottom: 0.65rem;
 }
 
-.affiliate-category-tag {
+.model-product-category {
   font-family: var(--font-mono);
   font-size: 0.72rem;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   color: var(--text-muted);
 }
 
-.affiliate-badge {
+.model-product-badge {
   font-size: 0.7rem;
   font-weight: 600;
   color: var(--accent-terracotta);
@@ -1331,34 +1248,34 @@ a {
   border-radius: 4px;
 }
 
-.affiliate-item-title {
+.model-product-title {
   font-family: var(--font-sans);
-  font-size: 0.96rem;
+  font-size: 1rem;
   font-weight: 600;
   line-height: 1.35;
   color: var(--text-primary);
   margin-bottom: 0.5rem;
 }
 
-.affiliate-item-desc {
-  font-size: 0.84rem;
+.model-product-desc {
+  font-size: 0.85rem;
   color: var(--text-secondary);
   line-height: 1.45;
   margin-bottom: 1.25rem;
   flex-grow: 1;
 }
 
-.affiliate-card-footer {
+.model-product-card-footer {
   margin-top: auto;
 }
 
-.btn-affiliate {
+.btn-model-product {
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 0.5rem 0.85rem;
-  background-color: var(--bg-surface);
+  padding: 0.55rem 0.85rem;
+  background-color: var(--bg-primary);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
   color: var(--text-primary);
@@ -1368,27 +1285,18 @@ a {
   transition: all 0.16s ease;
 }
 
-.btn-affiliate:hover {
+.btn-model-product:hover {
   background-color: var(--accent-terracotta);
   border-color: var(--accent-terracotta);
   color: #fff;
 }
 
-.btn-affiliate .btn-arrow {
+.btn-model-product .btn-arrow {
   transition: transform 0.16s ease;
 }
 
-.btn-affiliate:hover .btn-arrow {
+.btn-model-product:hover .btn-arrow {
   transform: translateX(3px);
-}
-
-.affiliate-footer-note {
-  margin-top: 1.75rem;
-  padding-top: 1.25rem;
-  border-top: 1px dashed var(--border-subtle);
-  color: var(--text-muted);
-  font-size: 0.8rem;
-  line-height: 1.4;
 }
 
 /* ==========================================================================

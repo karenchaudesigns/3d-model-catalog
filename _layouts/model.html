@@ -313,9 +313,8 @@ layout: default
         {% endif %}
       {% endif %}
 
-      <!-- Quick Filament / Materials Callout -->
-      {% assign aff_filaments = site.data.affiliates.categories | where: "id", "filaments" | first %}
-      {% if aff_filaments and aff_filaments.items.size > 0 %}
+      <!-- Model-Specific Related Products (e.g. Filament, Hardware, Magnets) -->
+      {% if page.products and page.products.size > 0 %}
         <div class="sidebar-materials-card">
           <div class="sidebar-materials-header">
             <span class="sidebar-materials-title">
@@ -325,16 +324,23 @@ layout: default
                 <line x1="4.93" y1="4.93" x2="9.17" y2="9.17"></line>
                 <line x1="14.83" y1="14.83" x2="19.07" y2="19.07"></line>
               </svg>
-              Recommended Filament
+              Relevant Products &amp; Materials
             </span>
-            <span class="sidebar-aff-pill">Affiliate</span>
           </div>
-          <p class="sidebar-materials-subtext">Quality filaments tested for clean layer lines and reliable print results:</p>
+          <p class="sidebar-materials-subtext">Materials and hardware used for this 3D design:</p>
           <ul class="sidebar-materials-list">
-            {% for item in aff_filaments.items limit: 3 %}
+            {% for item in page.products %}
               <li>
                 <a href="{{ item.url }}" target="_blank" rel="noopener noreferrer sponsored" class="sidebar-material-link">
-                  <span class="material-name">{{ item.title | truncate: 32 }}</span>
+                  <span class="material-name">
+                    {% if item.name %}
+                      {{ item.name }}
+                    {% elsif item.title %}
+                      {{ item.title }}
+                    {% else %}
+                      Product Link
+                    {% endif %}
+                  </span>
                   <span class="material-cta">&rarr;</span>
                 </a>
               </li>
@@ -364,6 +370,44 @@ layout: default
       </div>
       <div class="model-description prose">
         {{ content }}
+      </div>
+    </section>
+  {% endif %}
+
+  <!-- Model Products Showcase (Dedicated Section if model has relevant products) -->
+  {% if page.products and page.products.size > 0 %}
+    <section class="model-products-section" aria-labelledby="model-products-heading">
+      <div class="section-header">
+        <h2 class="section-title" id="model-products-heading">Relevant Materials &amp; Hardware</h2>
+        <p class="section-subtitle">Recommended filament, hardware, or parts used for {{ page.title }}</p>
+      </div>
+      <div class="model-products-grid">
+        {% for item in page.products %}
+          <article class="model-product-card">
+            <div class="model-product-card-top">
+              {% if item.category %}
+                <span class="model-product-category">{{ item.category }}</span>
+              {% elsif item.type %}
+                <span class="model-product-category">{{ item.type }}</span>
+              {% else %}
+                <span class="model-product-category">Recommended</span>
+              {% endif %}
+              {% if item.badge %}
+                <span class="model-product-badge">{{ item.badge }}</span>
+              {% endif %}
+            </div>
+            <h3 class="model-product-title">{{ item.name | default: item.title }}</h3>
+            {% if item.description %}
+              <p class="model-product-desc">{{ item.description }}</p>
+            {% endif %}
+            <div class="model-product-card-footer">
+              <a href="{{ item.url }}" target="_blank" rel="noopener noreferrer sponsored" class="btn-model-product">
+                <span>{{ item.cta | default: "View Product" }}</span>
+                <span class="btn-arrow" aria-hidden="true">&rarr;</span>
+              </a>
+            </div>
+          </article>
+        {% endfor %}
       </div>
     </section>
   {% endif %}
@@ -429,9 +473,6 @@ layout: default
       </div>
     </section>
   {% endif %}
-
-  <!-- Recommended Gear & Filament (Affiliate Showcase) -->
-  {% include affiliate_section.html %}
 </article>
 
 <script>
