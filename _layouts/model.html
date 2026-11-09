@@ -346,6 +346,15 @@ layout: default
               </li>
             {% endfor %}
           </ul>
+          {% assign has_amazon_link = false %}
+          {% for item in page.products %}
+            {% if item.url contains "amazon." or item.url contains "amzn.to" %}
+              {% assign has_amazon_link = true %}
+            {% endif %}
+          {% endfor %}
+          {% if has_amazon_link %}
+            <p class="affiliate-disclaimer">As an Amazon Associate I earn from qualifying purchases at no extra cost to you.</p>
+          {% endif %}
         </div>
       {% endif %}
     </div>
@@ -409,6 +418,9 @@ layout: default
           </article>
         {% endfor %}
       </div>
+      {% if has_amazon_link %}
+        <p class="affiliate-disclaimer affiliate-disclaimer-grid">As an Amazon Associate I earn from qualifying purchases at no extra cost to you.</p>
+      {% endif %}
     </section>
   {% endif %}
 

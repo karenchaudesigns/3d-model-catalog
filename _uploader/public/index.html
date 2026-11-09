@@ -4213,7 +4213,7 @@
               '  </div>' +
               '  <div class="product-field-row">' +
               '    <div class="product-field-group" style="flex:2;min-width:160px;">' +
-              '      <label>Product Name / Title *</label>' +
+              '      <label>Product Name / Title</label>' +
               '      <input type="text" class="product-field-input" data-field="name" value="' + nameVal + '" placeholder="e.g. Bambu Lab Matte PLA Yellow">' +
               '    </div>' +
               '    <div class="product-field-group">' +
@@ -4223,7 +4223,7 @@
               '  </div>' +
               '  <div class="product-field-row">' +
               '    <div class="product-field-group" style="flex:2;min-width:160px;">' +
-              '      <label>Affiliate / Product URL *</label>' +
+              '      <label>Affiliate / Product URL</label>' +
               '      <input type="url" class="product-field-input" data-field="url" value="' + urlVal + '" placeholder="https://amazon.com/dp/B08P1QJ56J...">' +
               '    </div>' +
               '    <div class="product-field-group">' +
@@ -4239,6 +4239,16 @@
             );
           })
           .join('');
+
+        var hasAmazonProduct = modelProducts.some(function (p) {
+          return p && p.url && (p.url.indexOf('amazon.') !== -1 || p.url.indexOf('amzn.to') !== -1);
+        });
+        if (hasAmazonProduct) {
+          productsEditorList.innerHTML +=
+            '<div style="font-size:0.73rem;color:var(--text-muted);font-style:italic;margin-top:0.35rem;padding:0.4rem 0.65rem;background:var(--bg-subtle);border-radius:var(--radius-xs);border:1px solid var(--border-subtle);">' +
+            '&#9432; Amazon Disclaimer automatically included: "As an Amazon Associate I earn from qualifying purchases at no extra cost to you."' +
+            '</div>';
+        }
       }
 
       if (btnAddProduct) {

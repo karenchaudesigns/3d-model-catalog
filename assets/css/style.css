@@ -1419,6 +1419,18 @@ a {
   transform: translateX(3px);
 }
 
+.affiliate-disclaimer {
+  font-size: 0.73rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  margin-top: 0.75rem;
+  font-style: italic;
+}
+
+.affiliate-disclaimer-grid {
+  margin-top: 1rem;
+}
+
 /* ==========================================================================
    Footer
    ========================================================================== */
