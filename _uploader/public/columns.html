@@ -566,6 +566,33 @@
       font-weight: 700;
     }
 
+    .matrix-field-wrapper {
+      position: relative;
+      width: 100%;
+    }
+
+    .matrix-tagline-counter {
+      position: absolute;
+      right: 0.55rem;
+      bottom: 0.35rem;
+      font-family: var(--font-sans);
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      pointer-events: none;
+      user-select: none;
+      background: var(--bg-surface);
+      padding: 0 0.2rem;
+      border-radius: var(--radius-xs);
+      line-height: 1.2;
+      transition: color 0.16s ease;
+    }
+
+    .matrix-tagline-counter.is-over-limit {
+      color: var(--danger, #d9534f);
+      font-weight: 600;
+    }
+
     .matrix-affiliate-box {
       display: flex;
       flex-direction: column;
@@ -961,9 +988,15 @@
             '</td>';
 
           // Row 4: Tagline
+          var mTaglineLen = (cur.tagline || '').length;
+          var mTaglineOver = mTaglineLen > 120;
+          var mTaglineCounterClass = 'matrix-tagline-counter' + (mTaglineOver ? ' is-over-limit' : '');
           rowTagline +=
             '<td class="model-col-cell' + dirtyClass + '" data-col-slug="' + sSlug + '">' +
-            '<textarea class="matrix-textarea matrix-textarea-auto matrix-field-input" data-slug="' + sSlug + '" data-field="tagline" rows="1" placeholder="Tagline (summary)..." aria-label="Tagline for ' + sSlug + '">' + escapeHtmlText(cur.tagline) + '</textarea>' +
+            '<div class="matrix-field-wrapper">' +
+            '<textarea class="matrix-textarea matrix-textarea-auto matrix-field-input" data-slug="' + sSlug + '" data-field="tagline" rows="1" placeholder="Tagline (summary)..." aria-label="Tagline for ' + sSlug + '" style="padding-bottom:1.35rem;">' + escapeHtmlText(cur.tagline) + '</textarea>' +
+            '<span class="' + mTaglineCounterClass + '" data-role="matrix-tagline-counter" data-slug="' + sSlug + '" aria-live="polite">' + mTaglineLen + '/120</span>' +
+            '</div>' +
             '</td>';
 
           // Row 5: Description (defaults to 8 lines of text, with scroll if longer)
@@ -1278,6 +1311,15 @@
               var tOver = tCount > 20;
               countPill.className = 'matrix-tag-count-pill' + (tOver ? ' is-over-limit' : '');
               countPill.textContent = tCount + ' / 20 tags' + (tOver ? ' (+' + (tCount - 20) + ')' : '');
+            }
+          }
+          if (field === 'tagline') {
+            var taglineCounter = matrixModelsTableBody.querySelector('[data-role="matrix-tagline-counter"][data-slug="' + slug + '"]');
+            if (taglineCounter) {
+              var tlCount = (inputEl.value || '').length;
+              var tlOver = tlCount > 120;
+              taglineCounter.className = 'matrix-tagline-counter' + (tlOver ? ' is-over-limit' : '');
+              taglineCounter.textContent = tlCount + '/120';
             }
           }
 
