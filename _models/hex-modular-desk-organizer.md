@@ -1,13 +1,16 @@
 ---
 title: "Hexagonal Modular Desk Organizer"
+extended_title: ""
+tagline: ""
 shortname: "hex-organizer"
 category: "useful-prints"
-hidden: true
+hidden: false
 thumbnail_image: "/images/models/hex-organizer/3d-model-hex-organizer-thumb.webp"
 cover_image: "/images/models/hex-organizer/3d-model-hex-organizer-main.webp"
 gallery_images:
   - "/images/models/hex-organizer/3d-model-hex-organizer-angle1.webp"
   - "/images/models/hex-organizer/3d-model-hex-organizer-angle2.webp"
+detailed_images: []
 animation: "/images/models/hex-organizer/3d-model-hex-organizer-loop.mp4"
 tags:
   - "desk-organization"
@@ -20,6 +23,9 @@ downloads:
   printables: "https://www.printables.com/model/000000-hexagonal-modular-desk-organizer"
   thangs: "https://thangs.com/designer/karenchaudesigns/3d-model/hexagonal-modular-desk-organizer-000000"
   cults3d: "https://cults3d.com/en/3d-model/home/hexagonal-modular-desk-organizer"
+youtube_shorts: []
+youtube_videos:
+  - "M7lc1UVf-VE"
 youtube_id: "M7lc1UVf-VE"
 ---
 A clean, infinitely expandable **Hexagonal Modular Desk Organizer** engineered specifically for support-free FDM 3D printing. Each hexagonal module locks securely to its neighbors using concealed snap-fit dovetail keys, allowing you to mix tall pen cups, smartphone docks, and shallow paperclip trays in any colorway.
