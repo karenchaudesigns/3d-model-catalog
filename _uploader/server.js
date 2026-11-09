@@ -182,7 +182,8 @@ function parseModelMarkdown(filename) {
         key === 'detailed_images' ||
         key === 'tags' ||
         key === 'youtube_shorts' ||
-        key === 'youtube_videos'
+        key === 'youtube_videos' ||
+        key === 'products'
       ) {
         if (rawVal === '[]') {
           result[key] = [];
