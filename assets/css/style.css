@@ -279,7 +279,7 @@ a {
 }
 
 .hero-content {
-  max-width: 48rem;
+  max-width: none;
 }
 
 .eyebrow {
