@@ -2,6 +2,7 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const zlib = require('zlib');
 const { execFileSync } = require('child_process');
 
 const app = express();
@@ -1557,6 +1558,144 @@ app.post('/api/youtube/classify', async (req, res) => {
   }
 });
 
+// CRC32 table for pure-Node zip packaging
+let crc32LookupTable = null;
+function getCrc32LookupTable() {
+  if (crc32LookupTable) return crc32LookupTable;
+  crc32LookupTable = new Int32Array(256);
+  for (let i = 0; i < 256; i++) {
+    let c = i;
+    for (let k = 0; k < 8; k++) {
+      c = (c & 1) ? (0xedb88320 ^ (c >>> 1)) : (c >>> 1);
+    }
+    crc32LookupTable[i] = c;
+  }
+  return crc32LookupTable;
+}
+
+function computeBufferCrc32(buf) {
+  if (typeof zlib.crc32 === 'function') {
+    return zlib.crc32(buf);
+  }
+  const table = getCrc32LookupTable();
+  let c = 0 ^ -1;
+  for (let i = 0; i < buf.length; i++) {
+    c = (c >>> 8) ^ table[(c ^ buf[i]) & 0xff];
+  }
+  return (c ^ -1) >>> 0;
+}
+
+/**
+ * Pure Node.js ZIP archive creator (PKZIP 2.0 with DEFLATE / STORE)
+ * Zero external CLI dependencies (works on all platforms: Linux, macOS, Windows without zip binary).
+ * @param {Array<{ name: string, data: Buffer }>} files
+ * @returns {Buffer}
+ */
+function buildZipArchiveBuffer(files) {
+  const localHeaders = [];
+  const centralDirHeaders = [];
+  let offset = 0;
+
+  for (const file of files) {
+    const nameBuf = Buffer.from(file.name.replace(/\\/g, '/'), 'utf8');
+    const uncompressedData = file.data;
+    const uncompressedSize = uncompressedData.length;
+    const crc = computeBufferCrc32(uncompressedData);
+
+    let compressionMethod = 8; // DEFLATE
+    let dataToWrite;
+    try {
+      const compressedData = zlib.deflateRawSync(uncompressedData);
+      if (compressedData.length < uncompressedSize) {
+        dataToWrite = compressedData;
+      } else {
+        compressionMethod = 0; // STORE
+        dataToWrite = uncompressedData;
+      }
+    } catch (e) {
+      compressionMethod = 0;
+      dataToWrite = uncompressedData;
+    }
+    const compressedSize = dataToWrite.length;
+
+    // Local file header (30 bytes + name length)
+    const localHeader = Buffer.alloc(30 + nameBuf.length);
+    localHeader.writeUInt32LE(0x04034b50, 0); // Local header signature
+    localHeader.writeUInt16LE(20, 4); // Version needed (2.0)
+    localHeader.writeUInt16LE(0x0800, 6); // UTF-8 filename flag
+    localHeader.writeUInt16LE(compressionMethod, 8);
+    localHeader.writeUInt16LE(0, 10); // Mod time
+    localHeader.writeUInt16LE(0, 12); // Mod date
+    localHeader.writeUInt32LE(crc, 14);
+    localHeader.writeUInt32LE(compressedSize, 18);
+    localHeader.writeUInt32LE(uncompressedSize, 22);
+    localHeader.writeUInt16LE(nameBuf.length, 26);
+    localHeader.writeUInt16LE(0, 28); // Extra field len
+    nameBuf.copy(localHeader, 30);
+
+    localHeaders.push(localHeader, dataToWrite);
+
+    // Central directory header (46 bytes + name length)
+    const cdHeader = Buffer.alloc(46 + nameBuf.length);
+    cdHeader.writeUInt32LE(0x02014b50, 0); // Central directory signature
+    cdHeader.writeUInt16LE(20, 4); // Made by (2.0)
+    cdHeader.writeUInt16LE(20, 6); // Needed (2.0)
+    cdHeader.writeUInt16LE(0x0800, 8); // UTF-8 filename flag
+    cdHeader.writeUInt16LE(compressionMethod, 10);
+    cdHeader.writeUInt16LE(0, 12);
+    cdHeader.writeUInt16LE(0, 14);
+    cdHeader.writeUInt32LE(crc, 16);
+    cdHeader.writeUInt32LE(compressedSize, 20);
+    cdHeader.writeUInt32LE(uncompressedSize, 24);
+    cdHeader.writeUInt16LE(nameBuf.length, 28);
+    cdHeader.writeUInt16LE(0, 30); // Extra field len
+    cdHeader.writeUInt16LE(0, 32); // Comment len
+    cdHeader.writeUInt16LE(0, 34); // Disk num
+    cdHeader.writeUInt16LE(0, 36); // Internal attr
+    cdHeader.writeUInt32LE(0, 38); // External attr
+    cdHeader.writeUInt32LE(offset, 42); // Offset of local header
+    nameBuf.copy(cdHeader, 46);
+
+    centralDirHeaders.push(cdHeader);
+    offset += localHeader.length + dataToWrite.length;
+  }
+
+  const cdOffset = offset;
+  let cdSize = 0;
+  for (const c of centralDirHeaders) cdSize += c.length;
+
+  // End of central directory record (22 bytes)
+  const eocd = Buffer.alloc(22);
+  eocd.writeUInt32LE(0x06054b50, 0);
+  eocd.writeUInt16LE(0, 4);
+  eocd.writeUInt16LE(0, 6);
+  eocd.writeUInt16LE(files.length, 8);
+  eocd.writeUInt16LE(files.length, 10);
+  eocd.writeUInt32LE(cdSize, 12);
+  eocd.writeUInt32LE(cdOffset, 16);
+  eocd.writeUInt16LE(0, 20);
+
+  return Buffer.concat([...localHeaders, ...centralDirHeaders, eocd]);
+}
+
+/**
+ * Helper: Convert an image to JPG format. Tries convert, then magick, or copies file as fallback.
+ */
+function convertImageFileToJpg(srcPath, destPath) {
+  try {
+    execFileSync('convert', [srcPath, '-quality', '92', destPath]);
+    return true;
+  } catch (err1) {
+    try {
+      execFileSync('magick', [srcPath, '-quality', '92', destPath]);
+      return true;
+    } catch (err2) {
+      fs.copyFileSync(srcPath, destPath);
+      return false;
+    }
+  }
+}
+
 /**
  * POST /api/models/export-zip — Export selected models' data and photos into a zip archive.
  * If includePhotos is true:
@@ -1578,7 +1717,6 @@ app.post('/api/models/export-zip', async (req, res) => {
 
     // Prepare temp working directory
     tmpExportDir = fs.mkdtempSync(path.join(os.tmpdir(), 'catalog-models-export-'));
-    const zipFilePath = path.join(os.tmpdir(), `catalog-export-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.zip`);
 
     function sanitizeDirName(title, fallback) {
       let name = String(title || fallback || 'model').trim();
@@ -1600,6 +1738,7 @@ app.post('/api/models/export-zip', async (req, res) => {
 
     // Track folder names to avoid collisions
     const usedFolderNames = new Set();
+    const zipFilesList = [];
 
     for (const slug of slugs) {
       const mdFilename = `${slug}.md`;
@@ -1673,11 +1812,12 @@ app.post('/api/models/export-zip', async (req, res) => {
           if (coverFile) {
             const srcPath = path.join(sourceDir, coverFile);
             const destPath = path.join(modelFolder, 'cover.jpg');
-            try {
-              execFileSync('convert', [srcPath, '-quality', '92', destPath]);
-            } catch (convErr) {
-              // Fallback copy if convert fails
-              fs.copyFileSync(srcPath, destPath);
+            convertImageFileToJpg(srcPath, destPath);
+            if (fs.existsSync(destPath)) {
+              zipFilesList.push({
+                name: `${folderCandidate}/cover.jpg`,
+                data: fs.readFileSync(destPath)
+              });
             }
           }
 
@@ -1694,10 +1834,12 @@ app.post('/api/models/export-zip', async (req, res) => {
             const baseName = path.parse(imgFile).name;
             const srcPath = path.join(sourceDir, imgFile);
             const destPath = path.join(modelFolder, `${baseName}.jpg`);
-            try {
-              execFileSync('convert', [srcPath, '-quality', '92', destPath]);
-            } catch (convErr) {
-              fs.copyFileSync(srcPath, destPath);
+            convertImageFileToJpg(srcPath, destPath);
+            if (fs.existsSync(destPath)) {
+              zipFilesList.push({
+                name: `${folderCandidate}/${baseName}.jpg`,
+                data: fs.readFileSync(destPath)
+              });
             }
           }
         }
@@ -1706,22 +1848,28 @@ app.post('/api/models/export-zip', async (req, res) => {
 
     // Write CSV file with UTF-8 BOM
     const csvContent = '\uFEFF' + csvRows.join('\r\n');
-    fs.writeFileSync(path.join(tmpExportDir, 'catalog-models-export.csv'), csvContent, 'utf8');
-
-    // Create zip archive
-    execFileSync('zip', ['-r', zipFilePath, '.'], { cwd: tmpExportDir });
-
-    res.download(zipFilePath, 'catalog-models-export.zip', (downloadErr) => {
-      // Cleanup temp directory and zip file
-      try {
-        if (fs.existsSync(zipFilePath)) fs.unlinkSync(zipFilePath);
-        if (tmpExportDir && fs.existsSync(tmpExportDir)) {
-          fs.rmSync(tmpExportDir, { recursive: true, force: true });
-        }
-      } catch (cleanupErr) {
-        console.error('Export cleanup error:', cleanupErr);
-      }
+    zipFilesList.push({
+      name: 'catalog-models-export.csv',
+      data: Buffer.from(csvContent, 'utf8')
     });
+
+    // Build zip buffer using pure Node.js (no external zip binary needed)
+    const zipBuffer = buildZipArchiveBuffer(zipFilesList);
+
+    // Send zip buffer
+    res.setHeader('Content-Type', 'application/zip');
+    res.setHeader('Content-Disposition', 'attachment; filename="catalog-models-export.zip"');
+    res.setHeader('Content-Length', zipBuffer.length);
+    res.send(zipBuffer);
+
+    // Clean up temp directory
+    try {
+      if (tmpExportDir && fs.existsSync(tmpExportDir)) {
+        fs.rmSync(tmpExportDir, { recursive: true, force: true });
+      }
+    } catch (cleanupErr) {
+      console.error('Export cleanup error:', cleanupErr);
+    }
   } catch (err) {
     if (tmpExportDir && fs.existsSync(tmpExportDir)) {
       try {
