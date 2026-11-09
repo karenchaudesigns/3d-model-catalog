@@ -95,6 +95,7 @@ function parseModelMarkdown(filename) {
     thumbnail_image: '',
     cover_image: '',
     gallery_images: [],
+    detailed_images: [],
     animation: '',
     tags: [],
     downloads: {
@@ -127,11 +128,12 @@ function parseModelMarkdown(filename) {
   for (const line of lines) {
     if (!line.trim() || line.trim().startsWith('#')) continue;
 
-    // List item under gallery_images, tags, youtube_shorts, or youtube_videos
+    // List item under gallery_images, detailed_images, tags, youtube_shorts, or youtube_videos
     const listMatch = line.match(/^\s+-\s+(.*)$/);
     if (
       listMatch &&
       (currentKey === 'gallery_images' ||
+        currentKey === 'detailed_images' ||
         currentKey === 'tags' ||
         currentKey === 'youtube_shorts' ||
         currentKey === 'youtube_videos')
@@ -162,6 +164,7 @@ function parseModelMarkdown(filename) {
 
       if (
         key === 'gallery_images' ||
+        key === 'detailed_images' ||
         key === 'tags' ||
         key === 'youtube_shorts' ||
         key === 'youtube_videos'
@@ -1124,7 +1127,7 @@ function getPrintablesImageDedupKeys(rawUrl) {
     .trim()
     .replace(/#.*$/, '')
     .replace(/\?.*$/, '');
-  if (!cleanUrl) return { cleanUrl: '', pathKey: '', fileKey: '' };
+  if (!cleanUrl) return { cleanUrl: '', pathKey: '' };
 
   let pathname = cleanUrl;
   try {
@@ -1133,49 +1136,76 @@ function getPrintablesImageDedupKeys(rawUrl) {
     // keep cleanUrl
   }
   const pathKey = pathname.toLowerCase().replace(/^\/+/, '');
-  const base = pathKey.split('/').pop() || '';
-  // Generic filenames like image.png / image.jpg are reused across different rich_content UUID folders
-  const isGeneric = /^(image|img|photo|picture|unnamed|untitled|screenshot)\.(png|jpe?g|webp|gif)$/i.test(base);
-  const fileKey = isGeneric ? '' : base;
-  return { cleanUrl, pathKey, fileKey };
+  return { cleanUrl, pathKey };
 }
 
 /**
- * Extract all <img src="..."> URLs from Printables description HTML that are not already in galleryImageUrls
+ * Extract all image URLs from Printables description HTML/Markdown that are not already in galleryImageUrls
  */
 function extractDescriptionImages(descriptionHtml, galleryImageUrls = []) {
   if (!descriptionHtml || typeof descriptionHtml !== 'string') return [];
 
   const seenPaths = new Set();
-  const seenFiles = new Set();
 
   (Array.isArray(galleryImageUrls) ? galleryImageUrls : []).forEach((u) => {
-    const { pathKey, fileKey } = getPrintablesImageDedupKeys(u);
+    const { pathKey } = getPrintablesImageDedupKeys(u);
     if (pathKey) seenPaths.add(pathKey);
-    if (fileKey) seenFiles.add(fileKey);
   });
 
+  const candidateUrls = [];
+
+  // 1. HTML <img> tags (src or data-src, single/double/unquoted)
+  const imgTagRegex = /<img\b[^>]*>/gi;
+  let tagMatch;
+  while ((tagMatch = imgTagRegex.exec(descriptionHtml)) !== null) {
+    const tag = tagMatch[0];
+    const srcMatch =
+      tag.match(/\bsrc\s*=\s*["']([^"']+)["']/i) ||
+      tag.match(/\bdata-src\s*=\s*["']([^"']+)["']/i) ||
+      tag.match(/\bsrc\s*=\s*([^\s"'<>]+)/i);
+    if (srcMatch && srcMatch[1]) {
+      candidateUrls.push(srcMatch[1]);
+    }
+  }
+
+  // 2. Markdown image syntax ![alt](url)
+  const mdImgRegex = /!\[[^\]]*\]\(\s*([^)\s"']+)(?:\s+["'][^"']*["'])?\s*\)/g;
+  let mdMatch;
+  while ((mdMatch = mdImgRegex.exec(descriptionHtml)) !== null) {
+    if (mdMatch[1]) {
+      candidateUrls.push(mdMatch[1]);
+    }
+  }
+
+  // 3. Any direct media.printables.com image URLs in the description
+  const directMediaRegex =
+    /(https?:\/\/media\.printables\.com\/media\/prints\/[^\s"'<>()]+\.(?:png|jpe?g|webp|gif))/gi;
+  let directMatch;
+  while ((directMatch = directMediaRegex.exec(descriptionHtml)) !== null) {
+    if (directMatch[1]) {
+      candidateUrls.push(directMatch[1]);
+    }
+  }
+
   const out = [];
-  const imgRegex = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi;
-  let match;
-  while ((match = imgRegex.exec(descriptionHtml)) !== null) {
-    let rawSrc = decodeHtmlEntities(match[1] || '').trim();
+  for (const rawCandidate of candidateUrls) {
+    let rawSrc = decodeHtmlEntities(rawCandidate || '').trim();
     if (!rawSrc) continue;
     rawSrc = rawSrc.replace(/#.*$/, '').trim();
     if (!rawSrc) continue;
-    if (rawSrc.startsWith('/')) {
+    if (rawSrc.startsWith('//')) {
+      rawSrc = `https:${rawSrc}`;
+    } else if (rawSrc.startsWith('/')) {
       rawSrc = `https://media.printables.com${rawSrc}`;
     } else if (!rawSrc.startsWith('http')) {
       rawSrc = `https://media.printables.com/${rawSrc}`;
     }
 
-    const { cleanUrl, pathKey, fileKey } = getPrintablesImageDedupKeys(rawSrc);
+    const { cleanUrl, pathKey } = getPrintablesImageDedupKeys(rawSrc);
     if (!cleanUrl || !pathKey) continue;
     if (seenPaths.has(pathKey)) continue;
-    if (fileKey && seenFiles.has(fileKey)) continue;
 
     seenPaths.add(pathKey);
-    if (fileKey) seenFiles.add(fileKey);
     out.push(cleanUrl);
   }
 
@@ -1280,7 +1310,7 @@ app.post('/api/youtube/classify', async (req, res) => {
 });
 
 /**
- * GET /api/proxy-image — Safely proxy Printables media images so the browser Canvas can convert them to WebP
+ * GET /api/proxy-image — Safely proxy remote media images so the browser Canvas can convert them to WebP
  */
 app.get('/api/proxy-image', async (req, res) => {
   try {
@@ -1289,8 +1319,12 @@ app.get('/api/proxy-image', async (req, res) => {
       return res.status(400).send('Missing url parameter');
     }
     const parsed = new URL(rawUrl);
-    if (!parsed.hostname.endsWith('printables.com')) {
-      return res.status(403).send('Only printables.com media URLs are allowed');
+    if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
+      return res.status(400).send('Only http/https image URLs are allowed');
+    }
+    const host = parsed.hostname.toLowerCase();
+    if (host === 'localhost' || host === '127.0.0.1' || host === '0.0.0.0' || host === '::1') {
+      return res.status(403).send('Localhost URLs are not allowed');
     }
 
     const imgRes = await fetch(rawUrl, {

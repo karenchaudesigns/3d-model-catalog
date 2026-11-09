@@ -1111,6 +1111,29 @@
       color: var(--text-secondary);
     }
 
+    .detailed-drop-banner {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      font-size: 0.81rem;
+      color: var(--text-secondary);
+      background: var(--bg-surface);
+      border: 1px dashed var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 0.55rem 0.85rem;
+      margin-bottom: 1.15rem;
+      transition: border-color 0.16s ease, background-color 0.16s ease;
+      cursor: pointer;
+    }
+
+    .detailed-drop-banner:hover,
+    .model-gallery-section.is-dragover .detailed-drop-banner,
+    .detailed-drop-banner.is-dragover {
+      border-color: var(--accent-terracotta);
+      background: hsla(16, 68%, 56%, 0.08);
+      color: var(--text-primary);
+    }
+
     .model-gallery-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
@@ -2138,7 +2161,7 @@
       </section>
 
       <!-- Below-the-Fold Section 2: Detailed Views & Print Showcase (matches .model-gallery-section in _layouts/model.html) -->
-      <section class="model-gallery-section" aria-labelledby="gallery-heading">
+      <section class="model-gallery-section" id="detailed-views-section" aria-labelledby="gallery-heading">
         <div class="section-header">
           <div>
             <h2 class="section-title" id="gallery-heading">Detailed Views &amp; Generated WebP Showcase</h2>
@@ -2147,10 +2170,17 @@
             </p>
           </div>
           <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+            <button type="button" class="btn-ghost" id="btn-paste-detailed-photo" title="Paste image from clipboard directly into detailed views">&#128203; Paste from Clipboard</button>
             <button type="button" class="btn-ghost" id="btn-add-detailed-photo">+ Add Detailed Photo</button>
             <input type="file" id="detailed-file-picker" accept="image/*" multiple style="display:none">
           </div>
         </div>
+
+        <div class="detailed-drop-banner" id="detailed-drop-banner">
+          <span style="font-size:1.1rem;">&#128203;</span>
+          <span><strong>Tip:</strong> Click anywhere here and press <kbd style="background:var(--bg-surface);border:1px solid var(--border-subtle);padding:0.1rem 0.35rem;border-radius:4px;font-family:var(--font-mono);font-size:0.75rem;">Ctrl+V</kbd> / <kbd style="background:var(--bg-surface);border:1px solid var(--border-subtle);padding:0.1rem 0.35rem;border-radius:4px;font-family:var(--font-mono);font-size:0.75rem;">Cmd+V</kbd> to paste images directly into this section. Drag &amp; drop is also supported.</span>
+        </div>
+
         <div class="model-gallery-grid" id="webp-output-list"></div>
       </section>
     </form>
@@ -2306,6 +2336,9 @@
       var btnThumbScrollLeft = document.getElementById('btn-thumb-scroll-left');
       var btnThumbScrollRight = document.getElementById('btn-thumb-scroll-right');
       var btnAddDetailedPhoto = document.getElementById('btn-add-detailed-photo');
+      var btnPasteDetailedPhoto = document.getElementById('btn-paste-detailed-photo');
+      var detailedViewsSection = document.getElementById('detailed-views-section');
+      var detailedDropBanner = document.getElementById('detailed-drop-banner');
       var detailedFilePicker = document.getElementById('detailed-file-picker');
       var filePicker = document.getElementById('file-picker');
       var btnBrowse = document.getElementById('btn-browse-files');
@@ -3088,25 +3121,99 @@
         reader.readAsDataURL(fileOrBlob);
       }
 
-      btnAddDetailedPhoto.addEventListener('click', function () {
-        detailedFilePicker.click();
-      });
+      if (btnAddDetailedPhoto && detailedFilePicker) {
+        btnAddDetailedPhoto.addEventListener('click', function () {
+          detailedFilePicker.click();
+        });
 
-      detailedFilePicker.addEventListener('change', function () {
-        Array.from(detailedFilePicker.files || []).forEach(addDetailedImageBlob);
-        detailedFilePicker.value = '';
-      });
+        detailedFilePicker.addEventListener('change', function () {
+          Array.from(detailedFilePicker.files || []).forEach(addDetailedImageBlob);
+          detailedFilePicker.value = '';
+        });
+      }
+
+      if (btnPasteDetailedPhoto) {
+        btnPasteDetailedPhoto.addEventListener('click', function () {
+          if (navigator.clipboard && navigator.clipboard.read) {
+            navigator.clipboard.read().then(function (items) {
+              var found = false;
+              for (var i = 0; i < items.length; i++) {
+                var item = items[i];
+                var imgType = item.types.find(function (t) { return t.indexOf('image/') === 0; });
+                if (imgType) {
+                  item.getType(imgType).then(addDetailedImageBlob);
+                  found = true;
+                }
+              }
+              if (!found && btnPasteDetailedPhoto) {
+                var oldText = btnPasteDetailedPhoto.textContent;
+                btnPasteDetailedPhoto.textContent = 'No image on clipboard — copy image & press Ctrl+V!';
+                setTimeout(function () { btnPasteDetailedPhoto.textContent = oldText; }, 3000);
+              }
+            }).catch(function () {
+              var oldText = btnPasteDetailedPhoto.textContent;
+              btnPasteDetailedPhoto.textContent = 'Click here & press Ctrl+V to paste!';
+              setTimeout(function () { btnPasteDetailedPhoto.textContent = oldText; }, 3000);
+            });
+          } else {
+            var oldText = btnPasteDetailedPhoto.textContent;
+            btnPasteDetailedPhoto.textContent = 'Click here & press Ctrl+V to paste!';
+            setTimeout(function () { btnPasteDetailedPhoto.textContent = oldText; }, 3000);
+          }
+        });
+      }
+
+      if (detailedDropBanner) {
+        detailedDropBanner.addEventListener('click', function () {
+          if (detailedFilePicker) detailedFilePicker.click();
+        });
+      }
+
+      var detailedDropTarget = detailedViewsSection || detailedDropBanner;
+      if (detailedDropTarget) {
+        detailedDropTarget.addEventListener('dragover', function (e) {
+          e.preventDefault();
+          detailedDropTarget.classList.add('is-dragover');
+          if (detailedDropBanner) detailedDropBanner.classList.add('is-dragover');
+        });
+        detailedDropTarget.addEventListener('dragleave', function (e) {
+          if (!detailedDropTarget.contains(e.relatedTarget)) {
+            detailedDropTarget.classList.remove('is-dragover');
+            if (detailedDropBanner) detailedDropBanner.classList.remove('is-dragover');
+          }
+        });
+        detailedDropTarget.addEventListener('drop', function (e) {
+          e.preventDefault();
+          detailedDropTarget.classList.remove('is-dragover');
+          if (detailedDropBanner) detailedDropBanner.classList.remove('is-dragover');
+          if (e.dataTransfer && e.dataTransfer.files) {
+            Array.from(e.dataTransfer.files).forEach(addDetailedImageBlob);
+          }
+        });
+      }
 
       window.addEventListener('paste', function (e) {
         var clipboardData = e.clipboardData || window.clipboardData;
         if (!clipboardData || !clipboardData.items) return;
+
+        // Check active focused element or selection to decide whether paste is directed into Detailed Views
+        var targetEl = e.target || document.activeElement;
+        var inDetailed = Boolean(
+          (targetEl && targetEl.closest && (targetEl.closest('#detailed-views-section') || targetEl.closest('#detailed-drop-banner') || targetEl.closest('#webp-output-list'))) ||
+          (window.getSelection && window.getSelection().anchorNode && window.getSelection().anchorNode.parentElement && window.getSelection().anchorNode.parentElement.closest && window.getSelection().anchorNode.parentElement.closest('#detailed-views-section'))
+        );
+
         var foundImage = false;
         for (var i = 0; i < clipboardData.items.length; i++) {
           var item = clipboardData.items[i];
           if (item.type && item.type.indexOf('image/') === 0) {
             var blob = item.getAsFile();
             if (blob) {
-              addImageBlob(blob);
+              if (inDetailed) {
+                addDetailedImageBlob(blob);
+              } else {
+                addImageBlob(blob);
+              }
               foundImage = true;
             }
           }
@@ -3366,6 +3473,19 @@
               populatedParts.push(Math.min(5, d.imageUrls.length) + ' Photos');
             }
 
+            // Load description images into the Detailed Views section
+            if (Array.isArray(d.descriptionImageUrls) && d.descriptionImageUrls.length > 0) {
+              var loadedDetailCount = 0;
+              d.descriptionImageUrls.forEach(function (descImgUrl) {
+                var proxiedUrl = '/api/proxy-image?url=' + encodeURIComponent(descImgUrl);
+                addDetailedImageFromUrl(proxiedUrl);
+                loadedDetailCount++;
+              });
+              if (loadedDetailCount > 0) {
+                populatedParts.push(loadedDetailCount + ' Detailed View Photos');
+              }
+            }
+
             syncBreadcrumbs();
             renderSourceCards();
             updateMarkdownPreview();
@@ -3462,6 +3582,24 @@
           lines.push('gallery_images: []');
         }
 
+        var detailedPaths = [];
+        if (generatedWebP.detailed.length > 0) {
+          generatedWebP.detailed.forEach(function (_, idx) {
+            detailedPaths.push('/images/models/' + shortname + '/3d-model-' + shortname + '-detail' + (idx + 1) + '.webp');
+          });
+        } else if (detailedImages.length === 0 && editingModelData && Array.isArray(editingModelData.detailed_images)) {
+          detailedPaths = editingModelData.detailed_images;
+        }
+
+        if (detailedPaths.length > 0) {
+          lines.push('detailed_images:');
+          detailedPaths.forEach(function (p) {
+            lines.push('  - ' + yamlEscape(p));
+          });
+        } else {
+          lines.push('detailed_images: []');
+        }
+
         var tags = tagsInput.value
           .split(',')
           .map(function (t) { return t.trim(); })
@@ -3544,6 +3682,7 @@
         autoExpandAllProse();
 
         sourceImages = [];
+        detailedImages = [];
         youtubeShorts = [];
         youtubeVideos = [];
         editBanner.classList.remove('is-visible');
@@ -3619,6 +3758,7 @@
             submitBtn.textContent = 'Save Changes & Push Update to GitHub →';
 
             sourceImages = [];
+            detailedImages = [];
             renderSourceCards();
             var allUrls = [];
             if (m.cover_image) allUrls.push(m.cover_image);
@@ -3641,6 +3781,12 @@
               };
               img.src = u;
             });
+
+            if (Array.isArray(m.detailed_images)) {
+              m.detailed_images.forEach(function (du) {
+                addDetailedImageFromUrl(du);
+              });
+            }
 
             if (window.history && window.history.replaceState) {
               window.history.replaceState({}, '', '?edit=' + encodeURIComponent(m.slug));
