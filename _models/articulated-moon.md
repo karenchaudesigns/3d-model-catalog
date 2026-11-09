@@ -8,10 +8,7 @@ hidden: false
 thumbnail_image: "/images/models/articulated-moon/3d-model-articulated-moon-thumb.webp"
 cover_image: "/images/models/articulated-moon/3d-model-articulated-moon-main.webp"
 gallery_images: []
-detailed_images:
-  - "/images/models/articulated-moon/3d-model-articulated-moon-detail1.webp"
-  - "/images/models/articulated-moon/3d-model-articulated-moon-detail2.webp"
-  - "/images/models/articulated-moon/3d-model-articulated-moon-detail3.webp"
+detailed_images: []
 tags:
   - "toy"
   - "space"
