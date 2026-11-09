@@ -514,8 +514,12 @@ function saveAndDeployModel(req, res) {
 
     yamlLines.push(`youtube_id: ${yamlQuote(primaryYoutubeId)}`);
 
-    let finalProducts = Array.isArray(products) ? products : null;
-    if (!finalProducts && isEdit && originalSlug) {
+    let finalProducts;
+    if (Array.isArray(products)) {
+      finalProducts = products.filter(function (p) {
+        return p && ((p.name && p.name.trim()) || (p.url && p.url.trim()));
+      });
+    } else if (isEdit && originalSlug) {
       const origFile = `${originalSlug}.md`;
       const origPath = path.join(MODELS_DIR, origFile);
       if (fs.existsSync(origPath)) {

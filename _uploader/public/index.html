@@ -1126,6 +1126,147 @@
       border-color: var(--text-primary);
     }
 
+    /* Relevant Materials & Related Products Editor in Sidebar */
+    .sidebar-materials-editor {
+      margin-top: 1.25rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1.15rem;
+      box-shadow: var(--shadow-card);
+    }
+
+    .sidebar-materials-editor-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .sidebar-materials-editor-title {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-family: var(--font-display);
+      font-size: 0.96rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .sidebar-materials-editor-title svg {
+      color: var(--accent-terracotta);
+    }
+
+    .sidebar-materials-editor-desc {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+      margin-bottom: 0.85rem;
+    }
+
+    .products-editor-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .product-item-card {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 0.75rem 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      transition: border-color 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .product-item-card:hover {
+      border-color: var(--border-strong);
+    }
+
+    .product-item-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .product-item-badge {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent-terracotta);
+      background: var(--accent-soft);
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+    }
+
+    .btn-remove-product {
+      appearance: none;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.85rem;
+      padding: 0.15rem 0.35rem;
+      border-radius: 4px;
+      line-height: 1;
+      transition: color 0.16s ease, background-color 0.16s ease;
+    }
+
+    .btn-remove-product:hover {
+      color: var(--danger);
+      background-color: hsla(0, 75%, 50%, 0.1);
+    }
+
+    .product-field-row {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .product-field-group {
+      flex: 1;
+      min-width: 130px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .product-field-group label {
+      font-family: var(--font-sans);
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .product-field-input {
+      width: 100%;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xs);
+      padding: 0.38rem 0.55rem;
+      font-family: var(--font-sans);
+      font-size: 0.82rem;
+      color: var(--text-primary);
+      outline: none;
+      transition: border-color 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .product-field-input:focus {
+      border-color: var(--accent-terracotta);
+      box-shadow: 0 0 0 2px var(--accent-soft);
+    }
+
+    .product-field-input::placeholder {
+      color: hsl(24, 8%, 65%);
+    }
+
     .status-box {
       display: none;
       width: 100%;
@@ -2166,6 +2307,24 @@
               </div>
             </div>
           </section>
+
+          <!-- Relevant Products & Materials Editor (e.g. Filament, Hardware, Magnets) -->
+          <section class="sidebar-materials-editor" id="section-model-products" aria-labelledby="products-editor-title">
+            <div class="sidebar-materials-editor-header">
+              <span class="sidebar-materials-editor-title" id="products-editor-title">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <circle cx="12" cy="12" r="4"></circle>
+                  <line x1="4.93" y1="4.93" x2="9.17" y2="9.17"></line>
+                  <line x1="14.83" y1="14.83" x2="19.07" y2="19.07"></line>
+                </svg>
+                Relevant Products &amp; Affiliate Links
+              </span>
+              <button type="button" class="btn-ghost" id="btn-add-product" style="padding:0.25rem 0.6rem;font-size:0.75rem;">+ Add Product</button>
+            </div>
+            <p class="sidebar-materials-editor-desc">Add affiliate links or materials used for this model (e.g. specific filament, magnets, hardware, or tools):</p>
+            <div class="products-editor-list" id="products-editor-list"></div>
+          </section>
         </div>
       </div>
 
@@ -2458,6 +2617,9 @@
       var btnNewFromLibrary = document.getElementById('btn-new-from-library');
       var brandResetLink = document.getElementById('brand-reset-link');
 
+      var productsEditorList = document.getElementById('products-editor-list');
+      var btnAddProduct = document.getElementById('btn-add-product');
+      var modelProducts = []; // Array of { name, category, badge, description, url, cta }
       var shortnameManuallyEdited = false;
       var editingSlug = null;
       var editingModelData = null;
@@ -3396,6 +3558,111 @@
         updateMarkdownPreview();
       });
 
+      /* Relevant Materials & Products Editor */
+      function renderProductsEditor() {
+        if (!productsEditorList) return;
+        if (!modelProducts.length) {
+          productsEditorList.innerHTML = '<p style="font-size:0.78rem;color:var(--text-muted);font-style:italic;margin:0.25rem 0 0.5rem;">No products or affiliate links added for this model yet. Click <strong>+ Add Product</strong> above to add filament, magnets, or hardware.</p>';
+          return;
+        }
+
+        productsEditorList.innerHTML = modelProducts
+          .map(function (prod, idx) {
+            var nameVal = escapeHtmlText(prod.name || prod.title || '');
+            var catVal = escapeHtmlText(prod.category || '');
+            var badgeVal = escapeHtmlText(prod.badge || '');
+            var descVal = escapeHtmlText(prod.description || '');
+            var urlVal = escapeHtmlText(prod.url || '');
+            var ctaVal = escapeHtmlText(prod.cta || '');
+
+            return (
+              '<div class="product-item-card" data-prod-idx="' + idx + '">' +
+              '  <div class="product-item-header">' +
+              '    <div style="display:flex;align-items:center;gap:0.4rem;">' +
+              '      <span class="product-item-badge">' + (catVal || 'Product #' + (idx + 1)) + '</span>' +
+              (badgeVal ? '<span style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text-muted);background:var(--bg-surface);padding:0.1rem 0.35rem;border-radius:3px;">' + badgeVal + '</span>' : '') +
+              '    </div>' +
+              '    <button type="button" class="btn-remove-product" data-prod-idx="' + idx + '" title="Remove product" aria-label="Remove product">&times; Remove</button>' +
+              '  </div>' +
+              '  <div class="product-field-row">' +
+              '    <div class="product-field-group" style="flex:2;min-width:160px;">' +
+              '      <label>Product Name / Title *</label>' +
+              '      <input type="text" class="product-field-input" data-field="name" value="' + nameVal + '" placeholder="e.g. Bambu Lab Matte PLA Yellow">' +
+              '    </div>' +
+              '    <div class="product-field-group">' +
+              '      <label>Category (optional)</label>' +
+              '      <input type="text" class="product-field-input" data-field="category" value="' + catVal + '" placeholder="e.g. Filament, Hardware, Magnets">' +
+              '    </div>' +
+              '  </div>' +
+              '  <div class="product-field-row">' +
+              '    <div class="product-field-group" style="flex:2;min-width:160px;">' +
+              '      <label>Affiliate / Product URL *</label>' +
+              '      <input type="url" class="product-field-input" data-field="url" value="' + urlVal + '" placeholder="https://amazon.com/dp/B08P1QJ56J...">' +
+              '    </div>' +
+              '    <div class="product-field-group">' +
+              '      <label>Button CTA (optional)</label>' +
+              '      <input type="text" class="product-field-input" data-field="cta" value="' + ctaVal + '" placeholder="e.g. View on Amazon">' +
+              '    </div>' +
+              '  </div>' +
+              '  <div class="product-field-group">' +
+              '    <label>Description / Usage Note (optional)</label>' +
+              '    <input type="text" class="product-field-input" data-field="description" value="' + descVal + '" placeholder="e.g. Exact filament used for the body with clean first layers">' +
+              '  </div>' +
+              '</div>'
+            );
+          })
+          .join('');
+      }
+
+      if (btnAddProduct) {
+        btnAddProduct.addEventListener('click', function () {
+          modelProducts.push({
+            name: '',
+            category: 'Filament',
+            badge: '',
+            description: '',
+            url: '',
+            cta: 'View Product'
+          });
+          renderProductsEditor();
+          updateMarkdownPreview();
+          var inputs = productsEditorList.querySelectorAll('.product-field-input');
+          if (inputs.length) {
+            inputs[inputs.length - 5].focus();
+          }
+        });
+      }
+
+      if (productsEditorList) {
+        productsEditorList.addEventListener('click', function (e) {
+          var removeBtn = e.target.closest('.btn-remove-product');
+          if (!removeBtn) return;
+          var idx = parseInt(removeBtn.getAttribute('data-prod-idx'), 10);
+          if (!isNaN(idx) && idx >= 0 && idx < modelProducts.length) {
+            modelProducts.splice(idx, 1);
+            renderProductsEditor();
+            updateMarkdownPreview();
+          }
+        });
+
+        productsEditorList.addEventListener('input', function (e) {
+          var input = e.target.closest('.product-field-input');
+          if (!input) return;
+          var card = input.closest('.product-item-card');
+          if (!card) return;
+          var idx = parseInt(card.getAttribute('data-prod-idx'), 10);
+          var field = input.getAttribute('data-field');
+          if (!isNaN(idx) && idx >= 0 && idx < modelProducts.length && field) {
+            modelProducts[idx][field] = input.value;
+            if (field === 'category') {
+              var badgeEl = card.querySelector('.product-item-badge');
+              if (badgeEl) badgeEl.textContent = input.value.trim() || ('Product #' + (idx + 1));
+            }
+            updateMarkdownPreview();
+          }
+        });
+      }
+
       function updateTaglineCharCounter() {
         if (!taglineInput || !taglineCharCounter) return;
         var count = taglineInput.value.length;
@@ -3757,6 +4024,22 @@
 
         var primaryYt = youtubeShorts[0] || youtubeVideos[0] || '';
         lines.push('youtube_id: ' + yamlEscape(primaryYt));
+
+        var validProducts = (modelProducts || []).filter(function (p) {
+          return p && ((p.name && p.name.trim()) || (p.url && p.url.trim()));
+        });
+        if (validProducts.length > 0) {
+          lines.push('products:');
+          validProducts.forEach(function (p) {
+            lines.push('  - name: ' + yamlEscape(p.name || p.title || ''));
+            if (p.category && p.category.trim()) lines.push('    category: ' + yamlEscape(p.category.trim()));
+            if (p.badge && p.badge.trim()) lines.push('    badge: ' + yamlEscape(p.badge.trim()));
+            if (p.description && p.description.trim()) lines.push('    description: ' + yamlEscape(p.description.trim()));
+            lines.push('    url: ' + yamlEscape(p.url || ''));
+            if (p.cta && p.cta.trim()) lines.push('    cta: ' + yamlEscape(p.cta.trim()));
+          });
+        }
+
         lines.push('---');
         lines.push('');
 
@@ -3802,6 +4085,8 @@
         detailedImages = [];
         youtubeShorts = [];
         youtubeVideos = [];
+        modelProducts = [];
+        renderProductsEditor();
         editBanner.classList.remove('is-visible');
         statusBox.className = 'status-box';
         statusBox.innerHTML = '';
@@ -3863,6 +4148,9 @@
             dlPrintables.value = (m.downloads && m.downloads.printables) || '';
             dlThangs.value = (m.downloads && m.downloads.thangs) || '';
             dlCults3d.value = (m.downloads && m.downloads.cults3d) || '';
+
+            modelProducts = Array.isArray(m.products) ? JSON.parse(JSON.stringify(m.products)) : [];
+            renderProductsEditor();
 
             renderTagPills();
             syncBreadcrumbs();
@@ -4568,6 +4856,7 @@
             thangs: dlThangs.value.trim(),
             cults3d: dlCults3d.value.trim()
           },
+          products: modelProducts,
           mainImage: generatedWebP.main,
           thumbImage: generatedWebP.thumb,
           galleryImages: generatedWebP.gallery,
@@ -4638,6 +4927,7 @@
       syncDownloadButtonHighlights();
       autoExpandAllProse();
       renderSourceCards();
+      renderProductsEditor();
       fetchExistingModels(function () {
         var params = new URLSearchParams(window.location.search);
         var editParam = params.get('edit');
