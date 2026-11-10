@@ -4,6 +4,7 @@ extended_title: "Securely transport cake, pizza and other precious cargo!"
 tagline: "Prevent precious cargo from sliding and tumbling around! Use one of the racks to keep things from touching dirty floors!"
 shortname: "auto-accessories-w-velcro"
 category: "useful-prints"
+fan_favorite: false
 hidden: false
 thumbnail_image: "/images/models/auto-accessories-w-velcro/3d-model-auto-accessories-w-velcro-thumb.webp"
 cover_image: "/images/models/auto-accessories-w-velcro/3d-model-auto-accessories-w-velcro-main.webp"
