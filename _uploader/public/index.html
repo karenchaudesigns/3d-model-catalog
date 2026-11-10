@@ -613,6 +613,32 @@
       background: hsl(352, 78%, 48%);
     }
 
+    .thumb-selector.is-dragging,
+    .gallery-card.is-dragging {
+      opacity: 0.35;
+      transform: scale(0.96);
+    }
+
+    .thumb-selector.is-drag-over {
+      border-color: var(--accent-terracotta) !important;
+      box-shadow: 0 0 0 3px var(--accent-terracotta), 0 4px 12px rgba(0, 0, 0, 0.25) !important;
+      transform: scale(1.05);
+    }
+
+    .gallery-card.is-drag-over {
+      border-color: var(--accent-terracotta) !important;
+      box-shadow: 0 0 0 3px var(--accent-terracotta), 0 8px 24px rgba(0, 0, 0, 0.25) !important;
+      transform: translateY(-2px);
+    }
+
+    .gallery-card[draggable="true"] {
+      cursor: grab;
+    }
+
+    .gallery-card[draggable="true"]:active {
+      cursor: grabbing;
+    }
+
     .thumb-add-btn {
       width: 5.25rem;
       height: 5.25rem;
@@ -1197,6 +1223,21 @@
       border-radius: 50%;
       background-color: rgba(255, 255, 255, 0.85);
       flex-shrink: 0;
+    }
+
+    .btn-platform-logo {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.1rem;
+      height: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .btn-platform-logo svg {
+      width: 100%;
+      height: 100%;
+      fill: currentColor;
     }
 
     .btn-download-editor input {
@@ -2945,6 +2986,8 @@
             <div class="stage-overlay-bar">
               <span class="stage-role-pill is-primary" id="active-stage-badge">MAIN SHOWCASE (1200&times;1200)</span>
               <div class="stage-overlay-actions">
+                <button type="button" class="btn-stage-overlay" id="btn-stage-move-left" title="Move earlier in gallery order" style="display:none;">&larr; Move Left</button>
+                <button type="button" class="btn-stage-overlay" id="btn-stage-move-right" title="Move later in gallery order" style="display:none;">Move Right &rarr;</button>
                 <button type="button" class="btn-stage-overlay" id="btn-stage-set-main" style="display:none;">Set as Main Cover</button>
                 <button type="button" class="btn-stage-overlay" id="btn-stage-toggle-video-kind" style="display:none;">Switch to Short</button>
                 <button type="button" class="btn-stage-overlay" id="btn-stage-add-more">+ Add Photo</button>
@@ -3066,7 +3109,9 @@
               <div class="btn-download-editor btn-makerworld" id="card-dl-makerworld">
                 <div class="btn-download-header">
                   <span style="display:inline-flex;align-items:center;gap:0.45rem;">
-                    <span class="btn-platform-dot" aria-hidden="true"></span>
+                    <span class="btn-platform-logo" aria-hidden="true">
+                      <svg role="img" viewBox="0 0 24 24"><path d="M11.96 0A12 12 0 0 0 0 12.04 12 12 0 0 0 12.04 24 12 12 0 0 0 24 11.96 12 12 0 0 0 11.96 0zm-4.43 5.43h2.37v5.52l3.41-3.69h2.95l-4.14 4.47 4.29 6.84h-2.92l-2.9-4.81-2.98 3.22v1.59H7.53V5.43zm6.65 0h2.37v4.11l-2.37 2.56V5.43z"/></svg>
+                    </span>
                     <span>Download on MakerWorld</span>
                   </span>
                   <span aria-hidden="true">&rarr;</span>
@@ -3077,7 +3122,9 @@
               <div class="btn-download-editor btn-printables" id="card-dl-printables">
                 <div class="btn-download-header">
                   <span style="display:inline-flex;align-items:center;gap:0.45rem;">
-                    <span class="btn-platform-dot" aria-hidden="true"></span>
+                    <span class="btn-platform-logo" aria-hidden="true">
+                      <svg role="img" viewBox="0 0 24 24"><path d="M3.678 4.8 12 9.6v9.6l8.322-4.8V4.8L12 0ZM12 19.2l-8.322-4.8V24Z"/></svg>
+                    </span>
                     <span>Download on Printables</span>
                   </span>
                   <button
@@ -3096,7 +3143,9 @@
               <div class="btn-download-editor btn-thangs" id="card-dl-thangs">
                 <div class="btn-download-header">
                   <span style="display:inline-flex;align-items:center;gap:0.45rem;">
-                    <span class="btn-platform-dot" aria-hidden="true"></span>
+                    <span class="btn-platform-logo" aria-hidden="true">
+                      <svg role="img" viewBox="0 0 24 24"><path d="M20.18 13.902a1.902 1.902 0 1 1 0-3.804 1.902 1.902 0 0 1 0 3.804m0-5.722A3.82 3.82 0 0 0 16.36 12v3.82h3.82a3.82 3.82 0 1 0 0-7.64m-8.656 5.722A1.907 1.907 0 0 1 9.611 12c0-1.05.857-1.902 1.913-1.902s1.913.852 1.913 1.902c0 1.05-.857 1.902-1.913 1.902m-7.683 0A1.907 1.907 0 0 1 1.928 12c0-1.05.857-1.902 1.913-1.902 1.057 0 1.913.852 1.913 1.902 0 1.05-.856 1.902-1.913 1.902m11.514-2.107-.002-.032a3.76 3.76 0 0 0-.04-.37l-.004-.019a3.693 3.693 0 0 0-.081-.373V11a3.836 3.836 0 0 0-3.704-2.82H3.84a3.833 3.833 0 0 0-3.794 3.254l-.001.008c-.018.118-.03.236-.036.357l-.002.02v.016C.006 11.89 0 11.945 0 12c0 .07.007.137.01.206l.002.032c.008.124.021.248.041.37l.003.018a3.833 3.833 0 0 0 3.786 3.194h11.523V12c0-.07-.006-.137-.01-.205"/></svg>
+                    </span>
                     <span>Download on Thangs</span>
                   </span>
                   <span aria-hidden="true">&rarr;</span>
@@ -3107,7 +3156,9 @@
               <div class="btn-download-editor btn-cults3d" id="card-dl-cults3d">
                 <div class="btn-download-header">
                   <span style="display:inline-flex;align-items:center;gap:0.45rem;">
-                    <span class="btn-platform-dot" aria-hidden="true"></span>
+                    <span class="btn-platform-logo" aria-hidden="true">
+                      <svg role="img" viewBox="0 0 100 126"><path d="M27.09 47.56a41.67 41.67 0 0 0 41.69 72h0l-.07 0a41.67 41.67 0 0 0 41.74-72 41.72 41.72 0 0 0-83.33-.1zm9.52-4.8A32.91 32.91 0 1 1 91 73.96l-4.59-2.63-8.83 5.06L91.78 84.5a41.85 41.85 0 0 0 17.88-26.45 32.88 32.88 0 1 1-54.4 31.17L60 86.5V76.41L45.77 84.56A41.66 41.66 0 0 0 60 113.65h0A32.88 32.88 0 1 1 60 50.9l0 5.34 8.8 5V45a41.66 41.66 0 0 0-32.24-2.15z"/></svg>
+                    </span>
                     <span>Download on Cults3D</span>
                   </span>
                   <span aria-hidden="true">&rarr;</span>
@@ -3432,6 +3483,8 @@
       var activeStageIframe = document.getElementById('active-stage-iframe');
       var activeStageBadge = document.getElementById('active-stage-badge');
       var btnStageSetMain = document.getElementById('btn-stage-set-main');
+      var btnStageMoveLeft = document.getElementById('btn-stage-move-left');
+      var btnStageMoveRight = document.getElementById('btn-stage-move-right');
       var btnStageToggleVideoKind = document.getElementById('btn-stage-toggle-video-kind');
       var btnStageAddMore = document.getElementById('btn-stage-add-more');
       var btnStageRemove = document.getElementById('btn-stage-remove');
@@ -3784,6 +3837,13 @@
         pasteZone.classList.remove('is-empty');
         pasteZone.classList.add('has-image');
 
+        if (btnStageMoveLeft) {
+          btnStageMoveLeft.style.display = 'none';
+        }
+        if (btnStageMoveRight) {
+          btnStageMoveRight.style.display = 'none';
+        }
+
         if (imgIdx === 0) {
           activeStageImage.src = generatedWebP.main || sourceImages[0].originalUrl;
           activeStageBadge.textContent = 'MAIN SHOWCASE (1200×1200 + 600×600 THUMB)';
@@ -3795,6 +3855,21 @@
           activeStageBadge.textContent = 'GALLERY ANGLE ' + imgIdx + ' (1000×1000 WebP)';
           activeStageBadge.className = 'stage-role-pill';
           btnStageSetMain.style.display = 'inline-block';
+        }
+
+        if (sourceImages.length > 1) {
+          if (btnStageMoveLeft) {
+            btnStageMoveLeft.style.display = 'inline-block';
+            btnStageMoveLeft.disabled = imgIdx === 0;
+            btnStageMoveLeft.style.opacity = imgIdx === 0 ? '0.4' : '1';
+            btnStageMoveLeft.style.cursor = imgIdx === 0 ? 'not-allowed' : 'pointer';
+          }
+          if (btnStageMoveRight) {
+            btnStageMoveRight.style.display = 'inline-block';
+            btnStageMoveRight.disabled = imgIdx === sourceImages.length - 1;
+            btnStageMoveRight.style.opacity = imgIdx === sourceImages.length - 1 ? '0.4' : '1';
+            btnStageMoveRight.style.cursor = imgIdx === sourceImages.length - 1 ? 'not-allowed' : 'pointer';
+          }
         }
         syncStageCarouselControls();
       }
@@ -3885,16 +3960,20 @@
 
         generatedWebP.detailed.forEach(function (dDataUrl, dIdx) {
           var detailNum = dIdx + 1;
+          var isFirst = dIdx === 0;
+          var isLast = dIdx === generatedWebP.detailed.length - 1;
           cardsHtml +=
-            '<figure class="gallery-card">' +
+            '<figure class="gallery-card" draggable="true" data-detail-idx="' + dIdx + '" title="Detailed View Photo ' + detailNum + ' — drag to reorder">' +
             '<div class="gallery-card-top-bar">' +
             '<span class="gallery-card-badge is-description-photo">DETAIL PHOTO ' + detailNum + '</span>' +
             '<div class="gallery-card-actions">' +
+            '<button type="button" class="btn-gallery-action" data-move-detail-dir="prev" data-detail-idx="' + dIdx + '" title="Move Earlier" ' + (isFirst ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : '') + '>&larr;</button>' +
+            '<button type="button" class="btn-gallery-action" data-move-detail-dir="next" data-detail-idx="' + dIdx + '" title="Move Later" ' + (isLast ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : '') + '>&rarr;</button>' +
             '<button type="button" class="btn-gallery-action" data-promote-detail-idx="' + dIdx + '" title="Move to Top Photo Section">&uarr; Top Photos</button>' +
             '<button type="button" class="btn-gallery-action is-delete" data-delete-detail-idx="' + dIdx + '" title="Delete this detailed view photo">&times; Delete</button>' +
             '</div>' +
             '</div>' +
-            '<img src="' + dDataUrl + '" alt="Detailed view ' + detailNum + '" class="gallery-image">' +
+            '<img src="' + dDataUrl + '" alt="Detailed view ' + detailNum + '" class="gallery-image" draggable="false">' +
             '<figcaption class="gallery-caption">' +
             '<span><strong>Detailed View ' + detailNum + '</strong> (from description) &middot; 1000&times;1000px &middot; ~' + approxKilobytes(dDataUrl) + ' KB</span>' +
             '<code>3d-model-' + shortname + '-detail' + detailNum + '.webp</code>' +
@@ -3905,7 +3984,80 @@
         updateMarkdownPreview();
       }
 
+      var draggedDetailIndex = null;
+
+      webpOutputListEl.addEventListener('dragstart', function (e) {
+        var card = e.target.closest('.gallery-card[data-detail-idx]');
+        if (!card) return;
+        var idx = parseInt(card.getAttribute('data-detail-idx'), 10);
+        if (isNaN(idx)) return;
+        draggedDetailIndex = idx;
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', String(idx));
+        card.classList.add('is-dragging');
+      });
+
+      webpOutputListEl.addEventListener('dragover', function (e) {
+        var card = e.target.closest('.gallery-card[data-detail-idx]');
+        if (card && draggedDetailIndex !== null) {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          card.classList.add('is-drag-over');
+        }
+      });
+
+      webpOutputListEl.addEventListener('dragleave', function (e) {
+        var card = e.target.closest('.gallery-card[data-detail-idx]');
+        if (card) {
+          card.classList.remove('is-drag-over');
+        }
+      });
+
+      webpOutputListEl.addEventListener('drop', function (e) {
+        var card = e.target.closest('.gallery-card[data-detail-idx]');
+        if (card && draggedDetailIndex !== null) {
+          e.preventDefault();
+          var targetIdx = parseInt(card.getAttribute('data-detail-idx'), 10);
+          if (!isNaN(targetIdx) && targetIdx !== draggedDetailIndex && targetIdx >= 0 && targetIdx < detailedImages.length) {
+            var moved = detailedImages.splice(draggedDetailIndex, 1)[0];
+            detailedImages.splice(targetIdx, 0, moved);
+            rebuildWebPAssets();
+          }
+        }
+        draggedDetailIndex = null;
+        webpOutputListEl.querySelectorAll('.is-drag-over').forEach(function (el) {
+          el.classList.remove('is-drag-over');
+        });
+      });
+
+      webpOutputListEl.addEventListener('dragend', function () {
+        draggedDetailIndex = null;
+        webpOutputListEl.querySelectorAll('.is-dragging, .is-drag-over').forEach(function (el) {
+          el.classList.remove('is-dragging', 'is-drag-over');
+        });
+      });
+
       webpOutputListEl.addEventListener('click', function (e) {
+        var moveDetailBtn = e.target.closest('[data-move-detail-dir]');
+        if (moveDetailBtn) {
+          var dir = moveDetailBtn.getAttribute('data-move-detail-dir');
+          var dIdx = parseInt(moveDetailBtn.getAttribute('data-detail-idx'), 10);
+          if (!isNaN(dIdx)) {
+            if (dir === 'prev' && dIdx > 0 && dIdx < detailedImages.length) {
+              var temp = detailedImages[dIdx];
+              detailedImages[dIdx] = detailedImages[dIdx - 1];
+              detailedImages[dIdx - 1] = temp;
+              rebuildWebPAssets();
+            } else if (dir === 'next' && dIdx >= 0 && dIdx < detailedImages.length - 1) {
+              var temp = detailedImages[dIdx];
+              detailedImages[dIdx] = detailedImages[dIdx + 1];
+              detailedImages[dIdx + 1] = temp;
+              rebuildWebPAssets();
+            }
+          }
+          return;
+        }
+
         var delDetailBtn = e.target.closest('[data-delete-detail-idx]');
         if (delDetailBtn) {
           var dIdx = parseInt(delDetailBtn.getAttribute('data-delete-detail-idx'), 10);
@@ -3954,8 +4106,10 @@
             (idx === 0 ? ' is-main-thumb' : '');
           btn.setAttribute('data-media-type', 'image');
           btn.setAttribute('data-idx', String(idx));
+          btn.setAttribute('draggable', 'true');
+          btn.title = (idx === 0 ? 'Main Showcase Photo' : 'Gallery Angle ' + idx) + ' — drag to reorder';
           btn.innerHTML =
-            '<img src="' + item.originalUrl + '" alt="Angle ' + idx + '">' +
+            '<img src="' + item.originalUrl + '" alt="Angle ' + idx + '" draggable="false">' +
             '<span class="thumb-mini-tag">' + (idx === 0 ? 'MAIN' : 'ANGLE ' + idx) + '</span>';
           sourceListEl.appendChild(btn);
         });
@@ -4021,6 +4175,61 @@
         sourceListEl.scrollBy({ left: 280, behavior: 'smooth' });
       });
 
+      var draggedSourceIndex = null;
+
+      sourceListEl.addEventListener('dragstart', function (e) {
+        var thumb = e.target.closest('.thumb-selector[data-media-type="image"]');
+        if (!thumb) return;
+        var idx = parseInt(thumb.getAttribute('data-idx'), 10);
+        if (isNaN(idx)) return;
+        draggedSourceIndex = idx;
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', String(idx));
+        thumb.classList.add('is-dragging');
+      });
+
+      sourceListEl.addEventListener('dragover', function (e) {
+        var targetThumb = e.target.closest('.thumb-selector[data-media-type="image"]');
+        if (targetThumb && draggedSourceIndex !== null) {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          targetThumb.classList.add('is-drag-over');
+        }
+      });
+
+      sourceListEl.addEventListener('dragleave', function (e) {
+        var targetThumb = e.target.closest('.thumb-selector[data-media-type="image"]');
+        if (targetThumb) {
+          targetThumb.classList.remove('is-drag-over');
+        }
+      });
+
+      sourceListEl.addEventListener('drop', function (e) {
+        var targetThumb = e.target.closest('.thumb-selector[data-media-type="image"]');
+        if (targetThumb && draggedSourceIndex !== null) {
+          e.preventDefault();
+          var targetIdx = parseInt(targetThumb.getAttribute('data-idx'), 10);
+          if (!isNaN(targetIdx) && targetIdx !== draggedSourceIndex && targetIdx >= 0 && targetIdx < sourceImages.length) {
+            var movedItem = sourceImages.splice(draggedSourceIndex, 1)[0];
+            sourceImages.splice(targetIdx, 0, movedItem);
+            activeStageSelection = { type: 'image', index: targetIdx };
+            renderSourceCards();
+            scrollActiveThumbnailIntoView();
+          }
+        }
+        draggedSourceIndex = null;
+        sourceListEl.querySelectorAll('.is-drag-over').forEach(function (el) {
+          el.classList.remove('is-drag-over');
+        });
+      });
+
+      sourceListEl.addEventListener('dragend', function () {
+        draggedSourceIndex = null;
+        sourceListEl.querySelectorAll('.is-dragging, .is-drag-over').forEach(function (el) {
+          el.classList.remove('is-dragging', 'is-drag-over');
+        });
+      });
+
       sourceListEl.addEventListener('click', function (e) {
         var addBtn = e.target.closest('#btn-strip-add');
         if (addBtn) {
@@ -4062,6 +4271,38 @@
           renderSourceCards();
         }
       });
+
+      if (btnStageMoveLeft) {
+        btnStageMoveLeft.addEventListener('click', function (e) {
+          e.stopPropagation();
+          if (activeStageSelection.type !== 'image') return;
+          var idx = activeStageSelection.index;
+          if (idx > 0 && idx < sourceImages.length) {
+            var temp = sourceImages[idx];
+            sourceImages[idx] = sourceImages[idx - 1];
+            sourceImages[idx - 1] = temp;
+            activeStageSelection = { type: 'image', index: idx - 1 };
+            renderSourceCards();
+            scrollActiveThumbnailIntoView();
+          }
+        });
+      }
+
+      if (btnStageMoveRight) {
+        btnStageMoveRight.addEventListener('click', function (e) {
+          e.stopPropagation();
+          if (activeStageSelection.type !== 'image') return;
+          var idx = activeStageSelection.index;
+          if (idx >= 0 && idx < sourceImages.length - 1) {
+            var temp = sourceImages[idx];
+            sourceImages[idx] = sourceImages[idx + 1];
+            sourceImages[idx + 1] = temp;
+            activeStageSelection = { type: 'image', index: idx + 1 };
+            renderSourceCards();
+            scrollActiveThumbnailIntoView();
+          }
+        });
+      }
 
       btnStageToggleVideoKind.addEventListener('click', function (e) {
         e.stopPropagation();

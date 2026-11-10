@@ -1108,6 +1108,21 @@ a {
   flex-shrink: 0;
 }
 
+.btn-platform-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.15rem;
+  height: 1.15rem;
+  flex-shrink: 0;
+}
+
+.btn-platform-logo svg {
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+}
+
 .btn-arrow {
   margin-left: auto;
   font-size: 0.95rem;
