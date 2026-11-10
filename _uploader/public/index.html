@@ -3599,6 +3599,9 @@
       var editingModelData = null;
       var lastSavedSlug = null;
       var editBaselineSnapshot = null;
+      var editBaselinePending = false;
+      var editExpectedImageCount = 0;
+      var editLoadStartedAt = 0;
       var pendingNavigationAction = null;
 
       // Unsaved Changes Confirmation Modal Elements
@@ -5732,6 +5735,9 @@
 
             renderExistingModelsList();
             editBaselineSnapshot = getCurrentFormSnapshot();
+            editExpectedImageCount = allUrls.length + (Array.isArray(m.detailed_images) ? m.detailed_images.length : 0);
+            editLoadStartedAt = Date.now();
+            editBaselinePending = true;
             window.scrollTo({ top: 0, behavior: 'smooth' });
           })
           .catch(function (err) {
@@ -5767,6 +5773,15 @@
 
       function isEditorDirty() {
         if (!editingSlug || !editBaselineSnapshot) return false;
+        if (editBaselinePending) {
+          // Images load asynchronously after the form is filled; re-baseline once they settle
+          var loaded = (sourceImages ? sourceImages.length : 0) + (detailedImages ? detailedImages.length : 0);
+          if (loaded >= editExpectedImageCount || Date.now() - editLoadStartedAt > 5000) {
+            editBaselinePending = false;
+            editBaselineSnapshot = getCurrentFormSnapshot();
+          }
+          return false;
+        }
         var current = getCurrentFormSnapshot();
         return JSON.stringify(editBaselineSnapshot) !== JSON.stringify(current);
       }
