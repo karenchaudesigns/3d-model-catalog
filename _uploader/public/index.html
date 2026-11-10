@@ -639,6 +639,40 @@
       cursor: grabbing;
     }
 
+    .cover-designer {
+      margin-top: 0.75rem;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      background: var(--bg-surface);
+      padding: 0.6rem 0.85rem;
+    }
+    .cover-designer summary { cursor: pointer; font-size: 0.88rem; }
+    .cover-designer-hint { color: var(--text-muted); font-size: 0.75rem; }
+    .cover-designer-body { display: flex; flex-direction: column; gap: 0.6rem; margin-top: 0.7rem; }
+    .cover-row { display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; cursor: pointer; }
+    .cover-label { font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); }
+    .cover-picker { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .cover-pick {
+      position: relative; width: 4rem; height: 4rem; padding: 0; overflow: hidden; cursor: pointer;
+      border: 2px solid var(--border-subtle); border-radius: var(--radius-sm); background: var(--bg-subtle);
+    }
+    .cover-pick img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .cover-pick.is-picked { border-color: var(--accent-terracotta); box-shadow: 0 0 0 2px var(--accent-soft); }
+    .cover-pick-num {
+      position: absolute; top: 2px; left: 2px; min-width: 1.15rem; height: 1.15rem; border-radius: 999px;
+      background: var(--accent-terracotta); color: #fff; font-size: 0.7rem; font-weight: 700;
+      display: none; align-items: center; justify-content: center;
+    }
+    .cover-pick.is-picked .cover-pick-num { display: inline-flex; }
+    .cover-grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem 0.9rem; }
+    .cover-field { display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.75rem; color: var(--text-secondary); }
+    .cover-field select, #cover-text {
+      font-family: var(--font-sans); font-size: 0.85rem; padding: 0.3rem 0.45rem;
+      border: 1px solid var(--border-subtle); border-radius: var(--radius-xs); background: var(--bg-primary); color: var(--text-primary);
+    }
+    #cover-text { width: 100%; resize: vertical; }
+    #cover-preview { width: 100%; max-width: 360px; aspect-ratio: 1 / 1; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); }
+
     .thumb-add-btn {
       width: 5.25rem;
       height: 5.25rem;
@@ -3730,6 +3764,178 @@
         return canvas.toDataURL('image/webp', quality);
       }
 
+      // ---------- Custom Cover Designer ----------
+      var coverSel = [];
+      var coverEnabledEl = document.getElementById('cover-enabled');
+      var coverPickerEl = document.getElementById('cover-picker');
+      var coverPreviewEl = document.getElementById('cover-preview');
+      var coverTimer = null;
+
+      var COVER_LAYOUTS = {
+        'single': [[0, 0, 1, 1]],
+        'split-h': [[0, 0, 0.5, 1], [0.5, 0, 0.5, 1]],
+        'split-v': [[0, 0, 1, 0.5], [0, 0.5, 1, 0.5]],
+        'big-left': [[0, 0, 0.62, 1], [0.62, 0, 0.38, 0.5], [0.62, 0.5, 0.38, 0.5]],
+        'big-top': [[0, 0, 1, 0.62], [0, 0.62, 0.5, 0.38], [0.5, 0.62, 0.5, 0.38]],
+        'trio-h': [[0, 0, 1 / 3, 1], [1 / 3, 0, 1 / 3, 1], [2 / 3, 0, 1 / 3, 1]],
+        'trio-v': [[0, 0, 1, 1 / 3], [0, 1 / 3, 1, 1 / 3], [0, 2 / 3, 1, 1 / 3]],
+        'grid': [[0, 0, 0.5, 0.5], [0.5, 0, 0.5, 0.5], [0, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5]]
+      };
+
+      function coverAllItems() {
+        return sourceImages.concat(detailedImages);
+      }
+
+      function coverIsActive() {
+        return !!(coverEnabledEl && coverEnabledEl.checked && coverSelectedItems().length > 0);
+      }
+
+      function coverSelectedItems() {
+        var all = coverAllItems();
+        coverSel = coverSel.filter(function (id) {
+          return all.some(function (it) { return it.id === id; });
+        });
+        return coverSel.map(function (id) {
+          return all.filter(function (it) { return it.id === id; })[0];
+        });
+      }
+
+      function renderCoverPicker() {
+        if (!coverPickerEl) return;
+        coverSelectedItems();
+        coverPickerEl.innerHTML = coverAllItems()
+          .map(function (it) {
+            var pos = coverSel.indexOf(it.id);
+            return '<button type="button" class="cover-pick' + (pos !== -1 ? ' is-picked' : '') + '" data-cover-id="' + it.id + '">' +
+              '<img src="' + it.originalUrl + '" alt="" draggable="false">' +
+              '<span class="cover-pick-num">' + (pos + 1) + '</span></button>';
+          })
+          .join('') || '<span style="font-size:0.78rem;color:var(--text-muted);">Add photos first.</span>';
+      }
+
+      function coverRoundRect(ctx, x, y, w, h, r) {
+        r = Math.min(r, w / 2, h / 2);
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.arcTo(x + w, y, x + w, y + h, r);
+        ctx.arcTo(x + w, y + h, x, y + h, r);
+        ctx.arcTo(x, y + h, x, y, r);
+        ctx.arcTo(x, y, x + w, y, r);
+        ctx.closePath();
+      }
+
+      function renderCoverCanvas(size) {
+        var canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        var ctx = canvas.getContext('2d');
+        var k = size / 1200;
+        var items = coverSelectedItems();
+        var cells = COVER_LAYOUTS[document.getElementById('cover-layout').value] || COVER_LAYOUTS.single;
+        var gap = parseInt(document.getElementById('cover-gap').value, 10) * k;
+        var radius = parseInt(document.getElementById('cover-radius').value, 10) * k;
+
+        ctx.fillStyle = document.getElementById('cover-bg').value;
+        ctx.fillRect(0, 0, size, size);
+
+        if (items.length) {
+          cells.forEach(function (c, i) {
+            var img = items[i % items.length].imgElement;
+            var x = c[0] * size + gap / 2;
+            var y = c[1] * size + gap / 2;
+            var w = c[2] * size - gap;
+            var h = c[3] * size - gap;
+            // outer edges get the full gap as margin as well
+            if (c[0] === 0) { x += gap / 2; w -= gap / 2; }
+            if (c[0] + c[2] > 0.999) { w -= gap / 2; }
+            if (c[1] === 0) { y += gap / 2; h -= gap / 2; }
+            if (c[1] + c[3] > 0.999) { h -= gap / 2; }
+            var sw = img.naturalWidth || img.width;
+            var sh = img.naturalHeight || img.height;
+            var s = Math.max(w / sw, h / sh);
+            ctx.save();
+            coverRoundRect(ctx, x, y, w, h, radius);
+            ctx.clip();
+            ctx.drawImage(img, x + (w - sw * s) / 2, y + (h - sh * s) / 2, sw * s, sh * s);
+            ctx.restore();
+          });
+        }
+
+        var text = document.getElementById('cover-text').value.replace(/\s+$/, '');
+        if (text) {
+          var lines = text.split('\n');
+          var fontPx = Math.round(size * parseInt(document.getElementById('cover-text-size').value, 10) / 100);
+          var style = document.getElementById('cover-text-style').value;
+          var pos = document.getElementById('cover-text-pos').value;
+          var color = document.getElementById('cover-text-color').value;
+          ctx.font = '800 ' + fontPx + 'px "DM Sans", Arial, sans-serif';
+          // shrink to fit width
+          var maxW = size * 0.9;
+          var widest = Math.max.apply(null, lines.map(function (l) { return ctx.measureText(l).width; }));
+          if (widest > maxW) {
+            fontPx = Math.floor(fontPx * maxW / widest);
+            ctx.font = '800 ' + fontPx + 'px "DM Sans", Arial, sans-serif';
+          }
+          var lineH = fontPx * 1.2;
+          var blockH = lineH * lines.length;
+          var padY = fontPx * 0.45;
+          var top = pos === 'top' ? 0 : pos === 'middle' ? (size - blockH - padY * 2) / 2 : size - blockH - padY * 2;
+          if (style === 'band' || style === 'light-band') {
+            ctx.fillStyle = style === 'band' ? 'rgba(20,16,12,0.62)' : 'rgba(255,255,255,0.78)';
+            ctx.fillRect(0, top, size, blockH + padY * 2);
+          }
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          lines.forEach(function (l, i) {
+            var cy = top + padY + lineH * i + lineH / 2;
+            if (style === 'shadow') {
+              ctx.lineJoin = 'round';
+              ctx.lineWidth = Math.max(2, fontPx * 0.16);
+              ctx.strokeStyle = 'rgba(0,0,0,0.75)';
+              ctx.strokeText(l, size / 2, cy);
+            }
+            ctx.fillStyle = color;
+            ctx.fillText(l, size / 2, cy);
+          });
+        }
+        return canvas;
+      }
+
+      function updateCoverPreview() {
+        if (!coverPreviewEl) return;
+        var pctx = coverPreviewEl.getContext('2d');
+        pctx.clearRect(0, 0, coverPreviewEl.width, coverPreviewEl.height);
+        pctx.drawImage(renderCoverCanvas(coverPreviewEl.width), 0, 0);
+      }
+
+      function scheduleCoverRebuild() {
+        clearTimeout(coverTimer);
+        coverTimer = setTimeout(function () {
+          updateCoverPreview();
+          rebuildWebPAssets();
+        }, 150);
+      }
+
+      if (coverPickerEl) {
+        coverPickerEl.addEventListener('click', function (e) {
+          var b = e.target.closest('[data-cover-id]');
+          if (!b) return;
+          var id = b.getAttribute('data-cover-id');
+          var found = coverAllItems().filter(function (it) { return String(it.id) === id; })[0];
+          if (!found) return;
+          var at = coverSel.indexOf(found.id);
+          if (at === -1) coverSel.push(found.id); else coverSel.splice(at, 1);
+          renderCoverPicker();
+          scheduleCoverRebuild();
+        });
+        ['cover-enabled', 'cover-layout', 'cover-gap', 'cover-bg', 'cover-radius', 'cover-text',
+          'cover-text-pos', 'cover-text-style', 'cover-text-size', 'cover-text-color'].forEach(function (id) {
+          var el = document.getElementById(id);
+          el.addEventListener('input', scheduleCoverRebuild);
+          el.addEventListener('change', scheduleCoverRebuild);
+        });
+      }
+
       function approxKilobytes(dataUrl) {
         if (!dataUrl || dataUrl.indexOf(',') === -1) return 0;
         var base64Length = dataUrl.split(',')[1].length;
@@ -3877,6 +4083,8 @@
       function rebuildWebPAssets() {
         var shortname = getShortname();
         var fitMode = getFitMode();
+        renderCoverPicker();
+        updateCoverPreview();
         targetFolderLabel.textContent = '/images/models/' + shortname + '/';
         targetMdLabel.textContent = '/_models/' + (editingSlug || shortname) + '.md';
 
@@ -3902,6 +4110,10 @@
           var primary = sourceImages[0].imgElement;
           generatedWebP.main = renderSquareWebP(primary, 1200, 0.88, fitMode);
           generatedWebP.thumb = renderSquareWebP(primary, 600, 0.85, fitMode);
+          if (coverIsActive()) {
+            generatedWebP.main = renderCoverCanvas(1200).toDataURL('image/webp', 0.88);
+            generatedWebP.thumb = renderCoverCanvas(600).toDataURL('image/webp', 0.85);
+          }
           generatedWebP.gallery = sourceImages.slice(1).map(function (item) {
             return renderSquareWebP(item.imgElement, 1000, 0.86, fitMode);
           });
