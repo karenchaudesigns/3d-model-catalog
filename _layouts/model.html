@@ -456,6 +456,12 @@ layout: default
 
       <!-- Model-Specific Related Products (e.g. Filament, Hardware, Magnets) -->
       {% if page.products and page.products.size > 0 %}
+        {% assign has_amazon_link = false %}
+        {% for item in page.products %}
+          {% if item.url contains "amazon." or item.url contains "amzn.to" %}
+            {% assign has_amazon_link = true %}
+          {% endif %}
+        {% endfor %}
         <div class="sidebar-materials-card">
           <div class="sidebar-materials-header">
             <span class="sidebar-materials-title">
@@ -469,6 +475,9 @@ layout: default
             </span>
           </div>
           <p class="sidebar-materials-subtext">Materials and hardware used for this 3D design:</p>
+          {% if has_amazon_link %}
+            <p class="affiliate-disclaimer affiliate-disclaimer-sidebar">As an Amazon Associate I earn from qualifying purchases at no extra cost to you.</p>
+          {% endif %}
           <ul class="sidebar-materials-list">
             {% for item in page.products %}
               <li>
@@ -487,15 +496,6 @@ layout: default
               </li>
             {% endfor %}
           </ul>
-          {% assign has_amazon_link = false %}
-          {% for item in page.products %}
-            {% if item.url contains "amazon." or item.url contains "amzn.to" %}
-              {% assign has_amazon_link = true %}
-            {% endif %}
-          {% endfor %}
-          {% if has_amazon_link %}
-            <p class="affiliate-disclaimer">As an Amazon Associate I earn from qualifying purchases at no extra cost to you.</p>
-          {% endif %}
         </div>
       {% endif %}
     </div>
@@ -531,6 +531,9 @@ layout: default
         <h2 class="section-title" id="model-products-heading">Relevant Materials &amp; Hardware</h2>
         <p class="section-subtitle">Recommended filament, hardware, or parts used for {{ page.title }}</p>
       </div>
+      {% if has_amazon_link %}
+        <p class="affiliate-disclaimer affiliate-disclaimer-grid">As an Amazon Associate I earn from qualifying purchases at no extra cost to you.</p>
+      {% endif %}
       <div class="model-products-grid">
         {% for item in page.products %}
           <article class="model-product-card">
@@ -559,9 +562,6 @@ layout: default
           </article>
         {% endfor %}
       </div>
-      {% if has_amazon_link %}
-        <p class="affiliate-disclaimer affiliate-disclaimer-grid">As an Amazon Associate I earn from qualifying purchases at no extra cost to you.</p>
-      {% endif %}
     </section>
   {% endif %}
 

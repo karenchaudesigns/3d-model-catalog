@@ -81,10 +81,9 @@ You can use pre-cut strips or cut them from a roll.
 
 **NOTE:** Use only the hard “hook” side so it latches onto the soft “loop” fabric in your car.
 
-This is what I used: [https://amzn.to/3YvkR0R](https://amzn.to/3YvkR0R)
+*As an Amazon Associate I earn from qualifying purchases. Shopping through my link does NOT cost extra to you, but I may earn commission which helps support my design process so I can continue providing free 3D models to the community. Thanks for your support!*
 
-*As an Amazon Associate I earn from qualifying purchases. *
-*Shopping through my link does NOT cost extra to you, but I may earn commission which helps support my design process so I can continue providing free 3D models to the community. Thanks for your support!*
+This is what I used: [https://amzn.to/3YvkR0R](https://amzn.to/3YvkR0R)
 
 #### STYLE A:
 
