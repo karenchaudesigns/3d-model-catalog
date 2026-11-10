@@ -3062,6 +3062,121 @@
             >
             <button type="button" class="btn-ghost" id="btn-add-youtube">+ Add Video</button>
           </div>
+
+          <!-- Custom Cover Designer (Collage & Text Overlay) -->
+          <details class="cover-designer" id="cover-designer-accordion">
+            <summary>
+              <strong>Custom Cover Designer</strong>
+              <span class="cover-designer-hint">&mdash; collage layouts &amp; text overlay</span>
+            </summary>
+            <div class="cover-designer-body">
+              <label class="cover-row">
+                <input type="checkbox" id="cover-enabled">
+                <span><strong>Enable Custom Cover</strong> (replaces main showcase with custom collage / banner)</span>
+              </label>
+
+              <div>
+                <span class="cover-label">Select Photos (click to toggle order):</span>
+                <div class="cover-picker" id="cover-picker"></div>
+              </div>
+
+              <div class="cover-grid-2">
+                <label class="cover-field">
+                  <span>Layout</span>
+                  <select id="cover-layout">
+                    <option value="single">Single Photo (100%)</option>
+                    <option value="split-h" selected>Split Horizontal (2 Photos)</option>
+                    <option value="split-v">Split Vertical (2 Photos)</option>
+                    <option value="big-left">Hero Left + 2 Stacked Right (3 Photos)</option>
+                    <option value="big-top">Hero Top + 2 Side-by-Side Bottom (3 Photos)</option>
+                    <option value="trio-h">3 Columns (3 Photos)</option>
+                    <option value="trio-v">3 Rows (3 Photos)</option>
+                    <option value="grid">2x2 Grid (4 Photos)</option>
+                  </select>
+                </label>
+
+                <label class="cover-field">
+                  <span>Gap / Margin (px)</span>
+                  <select id="cover-gap">
+                    <option value="0">None (0px)</option>
+                    <option value="8">Thin (8px)</option>
+                    <option value="16" selected>Standard (16px)</option>
+                    <option value="28">Wide (28px)</option>
+                  </select>
+                </label>
+
+                <label class="cover-field">
+                  <span>Background Color</span>
+                  <select id="cover-bg">
+                    <option value="#ffffff" selected>White</option>
+                    <option value="#f8f6f0">Warm Surface (#f8f6f0)</option>
+                    <option value="#1c1917">Dark Charcoal (#1c1917)</option>
+                    <option value="#c25e3e">Terracotta (#c25e3e)</option>
+                  </select>
+                </label>
+
+                <label class="cover-field">
+                  <span>Corner Radius (px)</span>
+                  <select id="cover-radius">
+                    <option value="0" selected>Square (0px)</option>
+                    <option value="12">Rounded (12px)</option>
+                    <option value="24">Pill (24px)</option>
+                  </select>
+                </label>
+              </div>
+
+              <div>
+                <span class="cover-label">Text Overlay:</span>
+                <textarea id="cover-text" rows="2" placeholder="e.g. MULTI-COLOR&#10;NO SUPPORTS"></textarea>
+              </div>
+
+              <div class="cover-grid-2">
+                <label class="cover-field">
+                  <span>Text Position</span>
+                  <select id="cover-text-pos">
+                    <option value="bottom" selected>Bottom</option>
+                    <option value="middle">Center / Middle</option>
+                    <option value="top">Top</option>
+                  </select>
+                </label>
+
+                <label class="cover-field">
+                  <span>Text Style</span>
+                  <select id="cover-text-style">
+                    <option value="shadow" selected>Text with Drop Outline</option>
+                    <option value="band">Dark Banner Bar</option>
+                    <option value="light-band">Light Banner Bar</option>
+                    <option value="plain">Plain Text</option>
+                  </select>
+                </label>
+
+                <label class="cover-field">
+                  <span>Font Size</span>
+                  <select id="cover-text-size">
+                    <option value="4">Small (4%)</option>
+                    <option value="6" selected>Medium (6%)</option>
+                    <option value="8">Large (8%)</option>
+                    <option value="10">Hero (10%)</option>
+                  </select>
+                </label>
+
+                <label class="cover-field">
+                  <span>Text Color</span>
+                  <select id="cover-text-color">
+                    <option value="#ffffff" selected>White (#ffffff)</option>
+                    <option value="#1c1917">Charcoal (#1c1917)</option>
+                    <option value="#f9fafb">Cream / Soft White</option>
+                    <option value="#fbbf24">Amber / Gold</option>
+                  </select>
+                </label>
+              </div>
+
+              <div style="display:flex;flex-direction:column;gap:0.35rem;align-items:center;">
+                <span class="cover-label" style="align-self:flex-start;">Live Cover Preview:</span>
+                <canvas id="cover-preview" width="360" height="360"></canvas>
+              </div>
+            </div>
+          </details>
         </div>
 
         <!-- RIGHT COLUMN: Category Pill, Title, Tags, Download Panel, Save Action Bar -->
@@ -5618,6 +5733,12 @@
 
         sourceImages = [];
         detailedImages = [];
+        coverSel = [];
+        if (coverEnabledEl) coverEnabledEl.checked = false;
+        var coverTextEl = document.getElementById('cover-text');
+        if (coverTextEl) coverTextEl.value = '';
+        renderCoverPicker();
+        updateCoverPreview();
         youtubeShorts = [];
         youtubeVideos = [];
         modelProducts = [];
