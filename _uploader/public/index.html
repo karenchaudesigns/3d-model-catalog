@@ -1402,7 +1402,21 @@
       letter-spacing: 0.03em;
       display: flex;
       align-items: center;
-      gap: 0.35rem;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+    }
+
+    .tag-category-target {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--accent-terracotta);
+      background: var(--accent-soft);
+      padding: 0.08rem 0.42rem;
+      border-radius: 999px;
+      letter-spacing: 0;
+      text-transform: none;
+      white-space: nowrap;
     }
 
     .tag-category-count {
@@ -5376,11 +5390,12 @@
           .trim();
       }
 
-      /* 5 Category Framework Arrays - 20 single-word tags each */
+      /* 5 Category Framework Arrays - 20 single-word tags each with recommended counts */
       var TAG_CATEGORIES = [
         {
           id: 'core-subject',
           name: 'Core Subject & Identifiers',
+          recommended: '4–5',
           tags: [
             'duck', 'insert', 'organizer', 'character', 'toy',
             'tray', 'bin', 'figurine', 'meeple', 'box',
@@ -5391,6 +5406,7 @@
         {
           id: 'theme-aesthetics',
           name: 'Theme & Aesthetics',
+          recommended: '4–5',
           tags: [
             'cute', 'nautical', 'crafting', 'studio', 'workspace',
             'holiday', 'ocean', 'minimalist', 'modern', 'geometric',
@@ -5401,6 +5417,7 @@
         {
           id: 'function-use-case',
           name: 'Function & Use Case',
+          recommended: '4–5',
           tags: [
             'storage', 'gift', 'sorting', 'collectible', 'tool',
             'desk', 'decor', 'tabletop', 'gaming', 'office',
@@ -5411,6 +5428,7 @@
         {
           id: 'technical-print',
           name: 'Technical & Print Characteristics',
+          recommended: '3–4',
           tags: [
             'supportless', 'multicolor', 'pip', 'fast', 'dual',
             'painted', 'stl', '3mf', 'articulated', 'modular',
@@ -5421,6 +5439,7 @@
         {
           id: 'broad-categories',
           name: 'Broad Categories',
+          recommended: '1–2',
           tags: [
             'miniatures', 'animals', 'tools', 'home', 'hobby',
             'accessories', 'boardgames', 'art', 'kitchen', 'gadgets',
@@ -5542,10 +5561,15 @@
             );
           }).join('');
 
+          var targetBadge = cat.recommended ? '<span class="tag-category-target" title="Recommended: ' + escapeHtmlText(cat.recommended) + ' tags">' + escapeHtmlText(cat.recommended) + ' tags</span>' : '';
+
           return (
             '<div class="tag-category-group" data-cat-id="' + cat.id + '">' +
             '  <div class="tag-category-header">' +
-            '    <span class="tag-category-name">' + escapeHtmlText(cat.name) + '</span>' +
+            '    <span class="tag-category-name">' +
+            '      <span>' + escapeHtmlText(cat.name) + '</span>' +
+            '      ' + targetBadge +
+            '    </span>' +
             '    <span class="tag-category-count" data-role="cat-count">' + activeInCat + ' active</span>' +
             '  </div>' +
             '  <div class="tag-pills-wrap">' + pillsHtml + '</div>' +
