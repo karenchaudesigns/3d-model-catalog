@@ -1189,6 +1189,252 @@
       border-color: var(--accent-terracotta);
     }
 
+    /* Structured Category Tag Framework Widget */
+    .tag-framework-card {
+      margin-top: 0.85rem;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 0.95rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .tag-framework-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      padding-bottom: 0.65rem;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .tag-framework-title-group {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      flex-wrap: wrap;
+    }
+
+    .tag-framework-title {
+      font-family: var(--font-display);
+      font-size: 0.98rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+    }
+
+    .tag-framework-badge {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      background: var(--bg-surface);
+      color: var(--text-muted);
+      border: 1px solid var(--border-subtle);
+      transition: all 0.18s ease;
+    }
+
+    .tag-framework-badge.is-perfect {
+      background: var(--success-bg);
+      color: var(--success);
+      border-color: var(--success);
+      font-weight: 700;
+    }
+
+    .tag-framework-badge.is-over-limit {
+      background: var(--danger, #d9534f);
+      color: #fff;
+      border-color: var(--danger, #d9534f);
+      font-weight: 700;
+      animation: pulse-danger 1.8s infinite;
+    }
+
+    .tag-framework-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-tag-action {
+      appearance: none;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+      color: var(--text-secondary);
+      font-family: var(--font-sans);
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.32rem 0.7rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.15s ease;
+    }
+
+    .btn-tag-action:hover {
+      color: var(--text-primary);
+      border-color: var(--border-strong);
+    }
+
+    .btn-tag-action.btn-tag-copy {
+      background: var(--accent-terracotta);
+      color: #fff;
+      border-color: var(--accent-terracotta);
+    }
+
+    .btn-tag-action.btn-tag-copy:hover {
+      background: var(--accent-terracotta-hover);
+      border-color: var(--accent-terracotta-hover);
+    }
+
+    .btn-tag-action.is-copied {
+      background: var(--success) !important;
+      border-color: var(--success) !important;
+      color: #fff !important;
+    }
+
+    .tag-custom-input-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .tag-custom-input-wrapper {
+      position: relative;
+      flex: 1;
+    }
+
+    .tag-custom-input {
+      width: 100%;
+      font-family: var(--font-sans);
+      font-size: 0.82rem;
+      padding: 0.38rem 0.65rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      transition: border-color 0.15s ease;
+    }
+
+    .tag-custom-input:focus {
+      outline: none;
+      border-color: var(--accent-terracotta);
+    }
+
+    .tag-custom-hint {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
+    .tag-category-sections {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .tag-category-group {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 0.65rem 0.75rem;
+    }
+
+    .tag-category-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .tag-category-name {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .tag-category-count {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      background: var(--bg-subtle);
+      padding: 0.1rem 0.4rem;
+      border-radius: 999px;
+    }
+
+    .tag-pills-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+    }
+
+    .tag-pill {
+      appearance: none;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 500;
+      padding: 0.25rem 0.55rem;
+      border-radius: 999px;
+      cursor: pointer;
+      user-select: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      transition: all 0.14s ease;
+      line-height: 1.2;
+    }
+
+    .tag-pill:hover {
+      border-color: var(--accent-terracotta);
+      color: var(--text-primary);
+      transform: translateY(-1px);
+    }
+
+    .tag-pill.is-active {
+      background: var(--accent-terracotta);
+      border-color: var(--accent-terracotta);
+      color: #fff;
+      font-weight: 600;
+      box-shadow: 0 2px 6px -1px hsla(16, 62%, 46%, 0.35);
+    }
+
+    .tag-pill.is-custom-pill {
+      border-style: dashed;
+    }
+
+    .tag-pill.is-custom-pill.is-active {
+      border-style: solid;
+    }
+
+    .tag-pill-check {
+      display: inline-block;
+      width: 0.65rem;
+      height: 0.65rem;
+      opacity: 0;
+      transform: scale(0.6);
+      transition: all 0.14s ease;
+    }
+
+    .tag-pill.is-active .tag-pill-check {
+      opacity: 1;
+      transform: scale(1);
+    }
+
     /* Download Panel (matches <section class="download-panel"> in _layouts/model.html) */
     .download-panel {
       background-color: var(--bg-surface);
@@ -3235,7 +3481,7 @@
           <!-- Tags matching .tag-list in _layouts/model.html -->
           <div class="tag-editor-block">
             <div class="tag-editor-header">
-              <span style="font-size:0.75rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;">Tags</span>
+              <span style="font-size:0.75rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;">Selected Model Tags</span>
               <span id="model-tags-counter" class="model-tags-counter" aria-live="polite">0 / 20 tags</span>
             </div>
             <ul class="tag-list" id="tag-preview-row" aria-label="Model tags preview">
@@ -3245,9 +3491,51 @@
               type="text"
               id="model-tags"
               class="tag-input-inline"
-              placeholder="Add comma-separated tags (e.g., duck, rubber duck, decor, multicolor, cute)..."
+              placeholder="Comma-separated single-word tags (e.g., duck, organizer, decor, multicolor)..."
               aria-label="Comma-separated model tags"
             >
+
+            <!-- Structured Category Framework Tag Selector Widget -->
+            <div class="tag-framework-card" id="tag-framework-widget" aria-label="Structured Category Tag Selector">
+              <div class="tag-framework-topbar">
+                <div class="tag-framework-title-group">
+                  <span class="tag-framework-title">20-Tag Category Framework</span>
+                  <span class="tag-framework-badge" id="framework-counter-badge" aria-live="polite">0 / 20 selected</span>
+                </div>
+                <div class="tag-framework-actions">
+                  <button type="button" class="btn-tag-action btn-tag-copy" id="btn-copy-tags" title="Copy all selected tags to clipboard as a comma-separated list">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    <span>Copy Tags</span>
+                  </button>
+                  <button type="button" class="btn-tag-action" id="btn-clear-tags" title="Clear all active tags">
+                    <span>Clear</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Custom Tag Input Bar with automatic space removal / single-word enforcement -->
+              <div class="tag-custom-input-bar">
+                <div class="tag-custom-input-wrapper">
+                  <input
+                    type="text"
+                    id="tag-framework-custom-input"
+                    class="tag-custom-input"
+                    placeholder="Add custom single-word tag (e.g. car, fidget, holiday)..."
+                    aria-label="Add custom single-word tag"
+                    autocomplete="off"
+                    spellcheck="false"
+                  >
+                </div>
+                <button type="button" class="btn-tag-action" id="btn-add-custom-tag" title="Add custom tag">
+                  + Add Tag
+                </button>
+              </div>
+
+              <!-- 5 Category Pill Sections -->
+              <div class="tag-category-sections" id="tag-category-sections-container">
+                <!-- Dynamically rendered by renderCategoryFramework() -->
+              </div>
+            </div>
           </div>
 
           <!-- Download 3D Print Files Panel matching .download-panel in _layouts/model.html -->
@@ -5014,12 +5302,287 @@
 
       function parseTagsArray(raw) {
         if (Array.isArray(raw)) {
-          return raw.map(function (t) { return String(t || '').trim(); }).filter(Boolean);
+          return raw.map(function (t) { return sanitizeSingleWordTag(t); }).filter(Boolean);
         }
         return String(raw || '')
           .split(',')
-          .map(function (t) { return t.trim(); })
+          .map(function (t) { return sanitizeSingleWordTag(t); })
           .filter(Boolean);
+      }
+
+      /* CRITICAL RULE: Exactly one word. No spaces, hyphens, or multi-word phrases. */
+      function sanitizeSingleWordTag(tag) {
+        if (!tag) return '';
+        return String(tag)
+          .toLowerCase()
+          .replace(/[\s\-_]+/g, '') // remove spaces, hyphens, underscores
+          .replace(/[^a-z0-9]/g, '') // strictly alphanumeric single word
+          .trim();
+      }
+
+      /* 5 Category Framework Arrays - 20 single-word tags each */
+      var TAG_CATEGORIES = [
+        {
+          id: 'core-subject',
+          name: 'Core Subject & Identifiers',
+          tags: [
+            'duck', 'insert', 'organizer', 'character', 'toy',
+            'tray', 'bin', 'figurine', 'meeple', 'box',
+            'rack', 'stand', 'coaster', 'charm', 'holder',
+            'statue', 'miniature', 'case', 'caddy', 'sculpture'
+          ]
+        },
+        {
+          id: 'theme-aesthetics',
+          name: 'Theme & Aesthetics',
+          tags: [
+            'cute', 'nautical', 'crafting', 'studio', 'workspace',
+            'holiday', 'ocean', 'minimalist', 'modern', 'geometric',
+            'kawaii', 'halloween', 'autumn', 'spring', 'space',
+            'retro', 'nature', 'floral', 'cozy', 'playful'
+          ]
+        },
+        {
+          id: 'function-use-case',
+          name: 'Function & Use Case',
+          tags: [
+            'storage', 'gift', 'sorting', 'collectible', 'tool',
+            'desk', 'decor', 'tabletop', 'gaming', 'office',
+            'travel', 'stationery', 'display', 'accessory', 'painting',
+            'organization', 'crafts', 'home', 'tidy', 'party'
+          ]
+        },
+        {
+          id: 'technical-print',
+          name: 'Technical & Print Characteristics',
+          tags: [
+            'supportless', 'multicolor', 'pip', 'fast', 'dual',
+            'painted', 'stl', '3mf', 'articulated', 'modular',
+            'infill', 'vase', 'stackable', 'interlocking', 'snap',
+            'lightweight', 'detailed', 'durable', 'smooth', 'flexible'
+          ]
+        },
+        {
+          id: 'broad-categories',
+          name: 'Broad Categories',
+          tags: [
+            'miniatures', 'animals', 'tools', 'home', 'hobby',
+            'accessories', 'boardgames', 'art', 'kitchen', 'gadgets',
+            'fashion', 'education', 'crafting', 'lifestyle', 'decorations',
+            'organization', 'functional', 'vehicles', 'seasonal', 'household'
+          ]
+        }
+      ];
+
+      var customFrameworkTags = [];
+      var tagCustomInput = document.getElementById('tag-framework-custom-input');
+      var btnAddCustomTag = document.getElementById('btn-add-custom-tag');
+      var btnCopyTags = document.getElementById('btn-copy-tags');
+      var btnClearTags = document.getElementById('btn-clear-tags');
+      var frameworkCounterBadge = document.getElementById('framework-counter-badge');
+      var tagCategorySectionsContainer = document.getElementById('tag-category-sections-container');
+
+      function getAllSelectedTagsSet() {
+        var current = parseTagsArray(tagsInput.value);
+        var set = {};
+        current.forEach(function (t) {
+          set[t.toLowerCase()] = true;
+        });
+        return set;
+      }
+
+      function updateFrameworkCounter(count) {
+        if (!frameworkCounterBadge) return;
+        var isOver = count > 20;
+        var isPerfect = count === 20;
+
+        var text = count + ' / 20 selected';
+        if (isPerfect) {
+          text = '20 / 20 (Perfect!)';
+        } else if (isOver) {
+          text = count + ' / 20 (' + (count - 20) + ' over limit!)';
+        }
+
+        frameworkCounterBadge.textContent = text;
+        frameworkCounterBadge.classList.toggle('is-over-limit', isOver);
+        frameworkCounterBadge.classList.toggle('is-perfect', isPerfect);
+      }
+
+      function renderCategoryFramework() {
+        if (!tagCategorySectionsContainer) return;
+        var selectedSet = getAllSelectedTagsSet();
+
+        var html = TAG_CATEGORIES.map(function (cat) {
+          var activeInCat = 0;
+          var pillsHtml = cat.tags.map(function (t) {
+            var isSel = Boolean(selectedSet[t.toLowerCase()]);
+            if (isSel) activeInCat++;
+            return (
+              '<button type="button" class="tag-pill' + (isSel ? ' is-active' : '') + '" data-tag="' + escapeHtmlText(t) + '">' +
+              '<span class="tag-pill-check" aria-hidden="true">&#10003;</span>' +
+              '<span>' + escapeHtmlText(t) + '</span>' +
+              '</button>'
+            );
+          }).join('');
+
+          return (
+            '<div class="tag-category-group" data-cat-id="' + cat.id + '">' +
+            '  <div class="tag-category-header">' +
+            '    <span class="tag-category-name">' + escapeHtmlText(cat.name) + '</span>' +
+            '    <span class="tag-category-count" data-role="cat-count">' + activeInCat + ' active</span>' +
+            '  </div>' +
+            '  <div class="tag-pills-wrap">' + pillsHtml + '</div>' +
+            '</div>'
+          );
+        }).join('');
+
+        // Also render custom tags section if custom tags exist
+        if (customFrameworkTags.length > 0) {
+          var activeCustom = 0;
+          var customPillsHtml = customFrameworkTags.map(function (t) {
+            var isSel = Boolean(selectedSet[t.toLowerCase()]);
+            if (isSel) activeCustom++;
+            return (
+              '<button type="button" class="tag-pill is-custom-pill' + (isSel ? ' is-active' : '') + '" data-tag="' + escapeHtmlText(t) + '" title="Custom single-word tag">' +
+              '<span class="tag-pill-check" aria-hidden="true">&#10003;</span>' +
+              '<span>+' + escapeHtmlText(t) + '</span>' +
+              '</button>'
+            );
+          }).join('');
+
+          html += (
+            '<div class="tag-category-group" data-cat-id="custom-tags">' +
+            '  <div class="tag-category-header">' +
+            '    <span class="tag-category-name">Custom Added Tags</span>' +
+            '    <span class="tag-category-count" data-role="cat-count">' + activeCustom + ' active</span>' +
+            '  </div>' +
+            '  <div class="tag-pills-wrap">' + customPillsHtml + '</div>' +
+            '</div>'
+          );
+        }
+
+        tagCategorySectionsContainer.innerHTML = html;
+      }
+
+      function toggleTagSelection(tagStr) {
+        var clean = sanitizeSingleWordTag(tagStr);
+        if (!clean) return;
+
+        var currentTags = parseTagsArray(tagsInput.value);
+        var lowerTags = currentTags.map(function (t) { return t.toLowerCase(); });
+        var existsIdx = lowerTags.indexOf(clean.toLowerCase());
+
+        if (existsIdx >= 0) {
+          // Remove tag
+          currentTags.splice(existsIdx, 1);
+        } else {
+          // Add tag
+          currentTags.push(clean);
+        }
+
+        tagsInput.value = currentTags.join(', ');
+        renderTagPills();
+        updateMarkdownPreview();
+      }
+
+      function addCustomFrameworkTag(rawTag) {
+        var clean = sanitizeSingleWordTag(rawTag);
+        if (!clean) return;
+
+        // Check if already in customFrameworkTags
+        if (customFrameworkTags.indexOf(clean) === -1) {
+          customFrameworkTags.push(clean);
+        }
+
+        // Add to active selected tags
+        var currentTags = parseTagsArray(tagsInput.value);
+        var lowerTags = currentTags.map(function (t) { return t.toLowerCase(); });
+        if (lowerTags.indexOf(clean.toLowerCase()) === -1) {
+          currentTags.push(clean);
+          tagsInput.value = currentTags.join(', ');
+        }
+
+        if (tagCustomInput) tagCustomInput.value = '';
+        renderTagPills();
+        updateMarkdownPreview();
+      }
+
+      // Automatically remove spaces or prevent spaces when typing custom tag
+      if (tagCustomInput) {
+        tagCustomInput.addEventListener('keydown', function (e) {
+          if (e.key === ' ' || e.code === 'Space') {
+            e.preventDefault();
+            return false;
+          }
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            addCustomFrameworkTag(tagCustomInput.value);
+          }
+        });
+
+        tagCustomInput.addEventListener('input', function () {
+          // Strip any spaces, hyphens, and invalid chars immediately
+          var cleaned = sanitizeSingleWordTag(tagCustomInput.value);
+          if (tagCustomInput.value !== cleaned) {
+            tagCustomInput.value = cleaned;
+          }
+        });
+      }
+
+      if (btnAddCustomTag) {
+        btnAddCustomTag.addEventListener('click', function () {
+          if (tagCustomInput) addCustomFrameworkTag(tagCustomInput.value);
+        });
+      }
+
+      // Delegate pill clicks on framework container
+      if (tagCategorySectionsContainer) {
+        tagCategorySectionsContainer.addEventListener('click', function (e) {
+          var pillBtn = e.target.closest('.tag-pill');
+          if (!pillBtn) return;
+          var tag = pillBtn.getAttribute('data-tag');
+          if (tag) {
+            toggleTagSelection(tag);
+          }
+        });
+      }
+
+      // Copy Tags button
+      if (btnCopyTags) {
+        btnCopyTags.addEventListener('click', function () {
+          var tags = parseTagsArray(tagsInput.value);
+          var commaSeparated = tags.join(', ');
+          if (!commaSeparated) {
+            alert('No tags currently selected to copy.');
+            return;
+          }
+
+          navigator.clipboard.writeText(commaSeparated).then(function () {
+            btnCopyTags.classList.add('is-copied');
+            var originalHtml = btnCopyTags.innerHTML;
+            btnCopyTags.innerHTML = '<span>&#10003; Copied ' + tags.length + ' Tags!</span>';
+            setTimeout(function () {
+              btnCopyTags.classList.remove('is-copied');
+              btnCopyTags.innerHTML = originalHtml;
+            }, 2200);
+          }).catch(function (err) {
+            console.error('Clipboard copy failed:', err);
+            // Fallback prompt
+            prompt('Copy your comma-separated tags:', commaSeparated);
+          });
+        });
+      }
+
+      // Clear Tags button
+      if (btnClearTags) {
+        btnClearTags.addEventListener('click', function () {
+          if (!tagsInput.value.trim()) return;
+          if (confirm('Clear all currently selected tags?')) {
+            tagsInput.value = '';
+            renderTagPills();
+            updateMarkdownPreview();
+          }
+        });
       }
 
       var draggedTagIdx = null;
@@ -5032,6 +5595,9 @@
           tagsCounterEl.textContent = count + ' / 20 tags' + (count > 20 ? ' (' + (count - 20) + ' over limit)' : '');
           tagsCounterEl.classList.toggle('is-over-limit', count > 20);
         }
+
+        updateFrameworkCounter(count);
+        renderCategoryFramework();
 
         if (!tags.length) {
           tagPreviewRow.innerHTML = '<li class="tag-badge" style="opacity:0.55;cursor:default;">#tags-appear-here</li>';
