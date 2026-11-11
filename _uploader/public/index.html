@@ -1195,10 +1195,11 @@
       background: var(--bg-subtle);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-md);
-      padding: 0.95rem;
+      padding: 0.85rem 0.95rem;
       display: flex;
       flex-direction: column;
-      gap: 0.85rem;
+      gap: 0;
+      transition: all 0.2s ease;
     }
 
     .tag-framework-topbar {
@@ -1207,8 +1208,14 @@
       justify-content: space-between;
       flex-wrap: wrap;
       gap: 0.65rem;
-      padding-bottom: 0.65rem;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .tag-framework-card:not(.is-collapsed) .tag-framework-topbar {
+      padding-bottom: 0.75rem;
       border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 0.85rem;
     }
 
     .tag-framework-title-group {
@@ -1224,6 +1231,39 @@
       font-weight: 600;
       color: var(--text-primary);
       letter-spacing: -0.01em;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .tag-framework-chevron {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.1rem;
+      height: 1.1rem;
+      color: var(--text-muted);
+      transition: transform 0.2s ease, color 0.15s ease;
+    }
+
+    .tag-framework-card.is-collapsed .tag-framework-chevron {
+      transform: rotate(-90deg);
+    }
+
+    .tag-framework-topbar:hover .tag-framework-chevron {
+      color: var(--accent-terracotta);
+    }
+
+    .tag-framework-body {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      overflow: hidden;
+      transition: max-height 0.25s ease, opacity 0.2s ease;
+    }
+
+    .tag-framework-card.is-collapsed .tag-framework-body {
+      display: none;
     }
 
     .tag-framework-badge {
@@ -3495,10 +3535,13 @@
               aria-label="Comma-separated model tags"
             >
 
-            <!-- Structured Category Framework Tag Selector Widget -->
+            <!-- Structured Category Framework Tag Selector Widget (Collapsible) -->
             <div class="tag-framework-card" id="tag-framework-widget" aria-label="Structured Category Tag Selector">
-              <div class="tag-framework-topbar">
+              <div class="tag-framework-topbar" id="tag-framework-toggle-bar" role="button" aria-expanded="true" aria-controls="tag-framework-body" title="Click to collapse or expand the 20-Tag Framework helper">
                 <div class="tag-framework-title-group">
+                  <span class="tag-framework-chevron" aria-hidden="true">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                  </span>
                   <span class="tag-framework-title">20-Tag Category Framework</span>
                   <span class="tag-framework-badge" id="framework-counter-badge" aria-live="polite">0 / 20 selected</span>
                 </div>
@@ -3510,30 +3553,36 @@
                   <button type="button" class="btn-tag-action" id="btn-clear-tags" title="Clear all active tags">
                     <span>Clear</span>
                   </button>
+                  <button type="button" class="btn-tag-action" id="btn-toggle-framework" title="Collapse / Expand tag framework">
+                    <span id="btn-toggle-framework-text">Collapse</span>
+                  </button>
                 </div>
               </div>
 
-              <!-- Custom Tag Input Bar with automatic space removal / single-word enforcement -->
-              <div class="tag-custom-input-bar">
-                <div class="tag-custom-input-wrapper">
-                  <input
-                    type="text"
-                    id="tag-framework-custom-input"
-                    class="tag-custom-input"
-                    placeholder="Add custom single-word tag (e.g. car, fidget, holiday)..."
-                    aria-label="Add custom single-word tag"
-                    autocomplete="off"
-                    spellcheck="false"
-                  >
+              <!-- Collapsible Body -->
+              <div class="tag-framework-body" id="tag-framework-body">
+                <!-- Custom Tag Input Bar with automatic space removal / single-word enforcement -->
+                <div class="tag-custom-input-bar">
+                  <div class="tag-custom-input-wrapper">
+                    <input
+                      type="text"
+                      id="tag-framework-custom-input"
+                      class="tag-custom-input"
+                      placeholder="Add custom single-word tag (e.g. car, fidget, holiday)..."
+                      aria-label="Add custom single-word tag"
+                      autocomplete="off"
+                      spellcheck="false"
+                    >
+                  </div>
+                  <button type="button" class="btn-tag-action" id="btn-add-custom-tag" title="Add custom tag">
+                    + Add Tag
+                  </button>
                 </div>
-                <button type="button" class="btn-tag-action" id="btn-add-custom-tag" title="Add custom tag">
-                  + Add Tag
-                </button>
-              </div>
 
-              <!-- 5 Category Pill Sections -->
-              <div class="tag-category-sections" id="tag-category-sections-container">
-                <!-- Dynamically rendered by renderCategoryFramework() -->
+                <!-- 5 Category Pill Sections -->
+                <div class="tag-category-sections" id="tag-category-sections-container">
+                  <!-- Dynamically rendered by renderCategoryFramework() -->
+                </div>
               </div>
             </div>
           </div>
@@ -5381,6 +5430,58 @@
       var btnClearTags = document.getElementById('btn-clear-tags');
       var frameworkCounterBadge = document.getElementById('framework-counter-badge');
       var tagCategorySectionsContainer = document.getElementById('tag-category-sections-container');
+      var tagFrameworkWidget = document.getElementById('tag-framework-widget');
+      var tagFrameworkToggleBar = document.getElementById('tag-framework-toggle-bar');
+      var btnToggleFramework = document.getElementById('btn-toggle-framework');
+      var btnToggleFrameworkText = document.getElementById('btn-toggle-framework-text');
+
+      function setTagFrameworkCollapsed(collapsed, save) {
+        if (!tagFrameworkWidget) return;
+        tagFrameworkWidget.classList.toggle('is-collapsed', Boolean(collapsed));
+        if (tagFrameworkToggleBar) {
+          tagFrameworkToggleBar.setAttribute('aria-expanded', String(!collapsed));
+        }
+        if (btnToggleFrameworkText) {
+          btnToggleFrameworkText.textContent = collapsed ? 'Expand' : 'Collapse';
+        }
+        if (btnToggleFramework) {
+          btnToggleFramework.title = collapsed ? 'Expand 20-tag framework' : 'Collapse 20-tag framework';
+        }
+        if (save !== false) {
+          try {
+            localStorage.setItem('kcd-tag-framework-collapsed', collapsed ? 'true' : 'false');
+          } catch (e) {}
+        }
+      }
+
+      function initTagFrameworkCollapsible() {
+        if (!tagFrameworkToggleBar) return;
+        var saved = null;
+        try {
+          saved = localStorage.getItem('kcd-tag-framework-collapsed');
+        } catch (e) {}
+
+        // Default to expanded (or respect previous user preference)
+        var isCollapsed = saved === 'true';
+        setTagFrameworkCollapsed(isCollapsed, false);
+
+        tagFrameworkToggleBar.addEventListener('click', function (e) {
+          // If the user clicked one of the action buttons inside topbar, don't toggle collapse
+          if (e.target.closest('.tag-framework-actions')) return;
+          var nowCollapsed = !tagFrameworkWidget.classList.contains('is-collapsed');
+          setTagFrameworkCollapsed(nowCollapsed, true);
+        });
+
+        if (btnToggleFramework) {
+          btnToggleFramework.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var nowCollapsed = !tagFrameworkWidget.classList.contains('is-collapsed');
+            setTagFrameworkCollapsed(nowCollapsed, true);
+          });
+        }
+      }
+
+      initTagFrameworkCollapsible();
 
       function getAllSelectedTagsSet() {
         var current = parseTagsArray(tagsInput.value);
