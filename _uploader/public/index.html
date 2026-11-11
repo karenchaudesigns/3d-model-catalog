@@ -1453,12 +1453,19 @@
       box-shadow: 0 2px 6px -1px hsla(16, 62%, 46%, 0.35);
     }
 
-    .tag-pill.is-custom-pill {
+    .tag-pill.is-custom-pill,
+    .tag-pill.is-uncategorized-pill {
       border-style: dashed;
     }
 
-    .tag-pill.is-custom-pill.is-active {
+    .tag-pill.is-custom-pill.is-active,
+    .tag-pill.is-uncategorized-pill.is-active {
       border-style: solid;
+    }
+
+    .tag-category-group.is-uncategorized {
+      border-color: hsla(16, 62%, 46%, 0.35);
+      background: var(--bg-surface);
     }
 
     .tag-pill-check {
@@ -3535,9 +3542,9 @@
               aria-label="Comma-separated model tags"
             >
 
-            <!-- Structured Category Framework Tag Selector Widget (Collapsible) -->
-            <div class="tag-framework-card" id="tag-framework-widget" aria-label="Structured Category Tag Selector">
-              <div class="tag-framework-topbar" id="tag-framework-toggle-bar" role="button" aria-expanded="true" aria-controls="tag-framework-body" title="Click to collapse or expand the 20-Tag Framework helper">
+            <!-- Structured Category Framework Tag Selector Widget (Collapsible - Collapsed by default) -->
+            <div class="tag-framework-card is-collapsed" id="tag-framework-widget" aria-label="Structured Category Tag Selector">
+              <div class="tag-framework-topbar" id="tag-framework-toggle-bar" role="button" aria-expanded="false" aria-controls="tag-framework-body" title="Click to expand or collapse the 20-Tag Framework helper">
                 <div class="tag-framework-title-group">
                   <span class="tag-framework-chevron" aria-hidden="true">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
@@ -3553,8 +3560,8 @@
                   <button type="button" class="btn-tag-action" id="btn-clear-tags" title="Clear all active tags">
                     <span>Clear</span>
                   </button>
-                  <button type="button" class="btn-tag-action" id="btn-toggle-framework" title="Collapse / Expand tag framework">
-                    <span id="btn-toggle-framework-text">Collapse</span>
+                  <button type="button" class="btn-tag-action" id="btn-toggle-framework" title="Expand / Collapse tag framework">
+                    <span id="btn-toggle-framework-text">Expand</span>
                   </button>
                 </div>
               </div>
@@ -5461,8 +5468,8 @@
           saved = localStorage.getItem('kcd-tag-framework-collapsed');
         } catch (e) {}
 
-        // Default to expanded (or respect previous user preference)
-        var isCollapsed = saved === 'true';
+        // Default to collapsed unless explicitly set to 'false' by user
+        var isCollapsed = saved !== 'false';
         setTagFrameworkCollapsed(isCollapsed, false);
 
         tagFrameworkToggleBar.addEventListener('click', function (e) {
@@ -5511,7 +5518,16 @@
 
       function renderCategoryFramework() {
         if (!tagCategorySectionsContainer) return;
+        var currentTags = parseTagsArray(tagsInput.value);
         var selectedSet = getAllSelectedTagsSet();
+
+        // Build a lookup set of all tags defined across the 5 structured categories
+        var knownCategoryTagsSet = {};
+        TAG_CATEGORIES.forEach(function (cat) {
+          cat.tags.forEach(function (t) {
+            knownCategoryTagsSet[t.toLowerCase()] = true;
+          });
+        });
 
         var html = TAG_CATEGORIES.map(function (cat) {
           var activeInCat = 0;
@@ -5537,27 +5553,49 @@
           );
         }).join('');
 
-        // Also render custom tags section if custom tags exist
-        if (customFrameworkTags.length > 0) {
-          var activeCustom = 0;
-          var customPillsHtml = customFrameworkTags.map(function (t) {
+        // Find all active tags that are NOT in any of the 5 categories (including any user-typed custom tags)
+        var uncategorizedTags = [];
+        var uncategorizedSeen = {};
+
+        // Include any currently active tags that aren't in known categories
+        currentTags.forEach(function (t) {
+          var lower = t.toLowerCase();
+          if (!knownCategoryTagsSet[lower] && !uncategorizedSeen[lower]) {
+            uncategorizedSeen[lower] = true;
+            uncategorizedTags.push(t);
+          }
+        });
+
+        // Also include any previously added customFrameworkTags even if currently deselected
+        customFrameworkTags.forEach(function (t) {
+          var lower = t.toLowerCase();
+          if (!knownCategoryTagsSet[lower] && !uncategorizedSeen[lower]) {
+            uncategorizedSeen[lower] = true;
+            uncategorizedTags.push(t);
+          }
+        });
+
+        // Render Uncategorized category if there are uncategorized tags
+        if (uncategorizedTags.length > 0) {
+          var activeUncat = 0;
+          var uncatPillsHtml = uncategorizedTags.map(function (t) {
             var isSel = Boolean(selectedSet[t.toLowerCase()]);
-            if (isSel) activeCustom++;
+            if (isSel) activeUncat++;
             return (
-              '<button type="button" class="tag-pill is-custom-pill' + (isSel ? ' is-active' : '') + '" data-tag="' + escapeHtmlText(t) + '" title="Custom single-word tag">' +
+              '<button type="button" class="tag-pill is-uncategorized-pill' + (isSel ? ' is-active' : '') + '" data-tag="' + escapeHtmlText(t) + '" title="Tag not in structured categories">' +
               '<span class="tag-pill-check" aria-hidden="true">&#10003;</span>' +
-              '<span>+' + escapeHtmlText(t) + '</span>' +
+              '<span>' + escapeHtmlText(t) + '</span>' +
               '</button>'
             );
           }).join('');
 
           html += (
-            '<div class="tag-category-group" data-cat-id="custom-tags">' +
+            '<div class="tag-category-group is-uncategorized" data-cat-id="uncategorized">' +
             '  <div class="tag-category-header">' +
-            '    <span class="tag-category-name">Custom Added Tags</span>' +
-            '    <span class="tag-category-count" data-role="cat-count">' + activeCustom + ' active</span>' +
+            '    <span class="tag-category-name" style="color:var(--accent-terracotta);">Uncategorized</span>' +
+            '    <span class="tag-category-count" data-role="cat-count">' + activeUncat + ' active</span>' +
             '  </div>' +
-            '  <div class="tag-pills-wrap">' + customPillsHtml + '</div>' +
+            '  <div class="tag-pills-wrap">' + uncatPillsHtml + '</div>' +
             '</div>'
           );
         }
