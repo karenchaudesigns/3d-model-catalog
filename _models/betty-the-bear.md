@@ -26,9 +26,10 @@ downloads:
   printables: "https://www.printables.com/model/1379149-betty-the-bear-fun-squishy-tpu-gummy-bear-toy"
   thangs: ""
   cults3d: ""
-youtube_shorts: []
+youtube_shorts:
+  - "gTQI8PY_RYE"
 youtube_videos: []
-youtube_id: ""
+youtube_id: "gTQI8PY_RYE"
 products:
   - name: "Overture HS-TPU translucent filament"
     url: "https://overture3d.com/products/overture-high-speed-tpu-3d-printer-filament-1-75mm?variant=46971914486014&aff=35"
