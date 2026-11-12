@@ -38,7 +38,6 @@ youtube_videos:
 youtube_id: "4XcHzY97t9o"
 products:
   - name: "Magnets"
-    category: "test"
     url: "https://amzn.to/3Pw5kLD"
     image: "https://m.media-amazon.com/images/I/71vKyeFn6cL._SL500_.jpg"
     cta: "View Product"
