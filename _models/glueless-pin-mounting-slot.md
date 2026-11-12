@@ -33,10 +33,11 @@ downloads:
   printables: "https://www.printables.com/model/1350142-glueless-pin-mounting-slot-design-your-own-glueles"
   thangs: ""
   cults3d: ""
-youtube_shorts: []
+youtube_shorts:
+  - "pcu7eJo32qg"
 youtube_videos:
   - "xV2IVZjPh_g"
-youtube_id: "xV2IVZjPh_g"
+youtube_id: "pcu7eJo32qg"
 ---
 If you attended 3DPrintopia 2024, MRRF 2024, or MRRF 2025, I may have given you a pin that I made with this glueless pin mounting slot design!
 
