@@ -1375,64 +1375,82 @@
 
     .tag-category-sections {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 0.75rem;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 0.55rem;
       align-items: start;
+      overflow-x: auto;
+      padding-bottom: 0.25rem;
     }
 
     .tag-category-group {
       background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-sm);
-      padding: 0.65rem 0.75rem;
+      padding: 0.55rem 0.5rem;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
     }
 
     .tag-category-header {
       display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.35rem;
+      margin-bottom: 0.5rem;
+      padding-bottom: 0.45rem;
+      border-bottom: 1px solid var(--border-subtle);
+      min-height: 3.4rem;
+    }
+
+    .tag-category-header-top {
+      display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 0.5rem;
-      margin-bottom: 0.5rem;
+      width: 100%;
+      gap: 0.35rem;
     }
 
     .tag-category-name {
-      font-size: 0.78rem;
+      font-size: 0.72rem;
       font-weight: 700;
       color: var(--text-secondary);
       text-transform: uppercase;
-      letter-spacing: 0.03em;
-      display: flex;
-      align-items: center;
-      gap: 0.45rem;
-      flex-wrap: wrap;
+      letter-spacing: 0.02em;
+      line-height: 1.25;
+      display: block;
+      word-break: break-word;
     }
 
     .tag-category-target {
       font-family: var(--font-mono);
-      font-size: 0.68rem;
+      font-size: 0.64rem;
       font-weight: 600;
       color: var(--accent-terracotta);
       background: var(--accent-soft);
-      padding: 0.08rem 0.42rem;
+      padding: 0.06rem 0.38rem;
       border-radius: 999px;
       letter-spacing: 0;
       text-transform: none;
       white-space: nowrap;
+      display: inline-block;
     }
 
     .tag-category-count {
       font-family: var(--font-mono);
-      font-size: 0.68rem;
+      font-size: 0.64rem;
       color: var(--text-muted);
       background: var(--bg-subtle);
-      padding: 0.1rem 0.4rem;
+      padding: 0.08rem 0.35rem;
       border-radius: 999px;
+      white-space: nowrap;
     }
 
     .tag-pills-wrap {
       display: flex;
-      flex-wrap: wrap;
-      gap: 0.35rem;
+      flex-direction: column;
+      gap: 0.25rem;
+      width: 100%;
     }
 
     .tag-pill {
@@ -1441,17 +1459,30 @@
       background: var(--bg-surface);
       color: var(--text-secondary);
       font-family: var(--font-mono);
-      font-size: 0.75rem;
+      font-size: 0.73rem;
       font-weight: 500;
-      padding: 0.25rem 0.55rem;
-      border-radius: 999px;
+      padding: 0.22rem 0.45rem;
+      border-radius: var(--radius-sm);
       cursor: pointer;
       user-select: none;
-      display: inline-flex;
+      display: flex;
       align-items: center;
-      gap: 0.25rem;
+      justify-content: flex-start;
+      gap: 0.35rem;
       transition: all 0.14s ease;
-      line-height: 1.2;
+      line-height: 1.25;
+      width: 100%;
+      text-align: left;
+      box-sizing: border-box;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tag-pill span:last-child {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .tag-pill:hover {
@@ -1490,6 +1521,7 @@
       opacity: 0;
       transform: scale(0.6);
       transition: all 0.14s ease;
+      flex-shrink: 0;
     }
 
     .tag-pill.is-active .tag-pill-check {
@@ -5603,11 +5635,11 @@
           return (
             '<div class="tag-category-group" data-cat-id="' + cat.id + '">' +
             '  <div class="tag-category-header">' +
-            '    <span class="tag-category-name">' +
-            '      <span>' + escapeHtmlText(cat.name) + '</span>' +
-            '      ' + targetBadge +
-            '    </span>' +
-            '    <span class="tag-category-count" data-role="cat-count">' + activeInCat + ' active</span>' +
+            '    <div class="tag-category-header-top">' +
+            '      <span class="tag-category-name">' + escapeHtmlText(cat.name) + '</span>' +
+            '      <span class="tag-category-count" data-role="cat-count">' + activeInCat + ' active</span>' +
+            '    </div>' +
+            '    ' + targetBadge +
             '  </div>' +
             '  <div class="tag-pills-wrap">' + pillsHtml + '</div>' +
             '</div>'
@@ -5657,8 +5689,11 @@
         html += (
           '<div class="tag-category-group is-uncategorized" data-cat-id="uncategorized">' +
           '  <div class="tag-category-header">' +
-          '    <span class="tag-category-name" style="color:var(--accent-terracotta);">Uncategorized</span>' +
-          '    <span class="tag-category-count" data-role="cat-count">' + activeUncat + ' active</span>' +
+          '    <div class="tag-category-header-top">' +
+          '      <span class="tag-category-name" style="color:var(--accent-terracotta);">Uncategorized</span>' +
+          '      <span class="tag-category-count" data-role="cat-count">' + activeUncat + ' active</span>' +
+          '    </div>' +
+          '    <span class="tag-category-target" style="color:var(--text-muted);background:var(--bg-subtle);">Custom / extra</span>' +
           '  </div>' +
           '  <div class="tag-pills-wrap">' + uncatPillsHtml + '</div>' +
           '</div>'
