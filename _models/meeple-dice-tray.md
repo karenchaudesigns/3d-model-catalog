@@ -4,7 +4,8 @@ extended_title: "Board game room decoration"
 tagline: "This dice tray in the shape of a meeple board game piece is both functional and decorative!"
 shortname: "meeple-dice-tray"
 category: "useful-prints"
-hidden: false
+fan_favorite: false
+hidden: true
 thumbnail_image: "/images/models/meeple-dice-tray/3d-model-meeple-dice-tray-thumb.webp"
 cover_image: "/images/models/meeple-dice-tray/3d-model-meeple-dice-tray-main.webp"
 gallery_images:
