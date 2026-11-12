@@ -5,7 +5,7 @@ tagline: ""
 shortname: "hex-organizer"
 category: "useful-prints"
 fan_favorite: false
-hidden: true
+hidden: false
 thumbnail_image: "/images/models/hex-organizer/3d-model-hex-organizer-thumb.webp"
 cover_image: "/images/models/hex-organizer/3d-model-hex-organizer-main.webp"
 gallery_images:
