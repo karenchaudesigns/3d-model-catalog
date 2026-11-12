@@ -37,8 +37,9 @@ downloads:
   thangs: ""
   cults3d: ""
 youtube_shorts: []
-youtube_videos: []
-youtube_id: ""
+youtube_videos:
+  - "4XcHzY97t9o"
+youtube_id: "4XcHzY97t9o"
 ---
 Meet Patch, the pumpkin duck! Collect Patch and the other themed ducks from my Ducks collection!
 
