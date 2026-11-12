@@ -45,7 +45,7 @@ products:
     badge: "Pictured"
     description: "Multi-size brush set featured in the photos and designed to hang bristles-down in this drying rack."
     url: "https://amzn.to/45rLxSr"
-    image: "https://m.media-amazon.com/images/P/B0006HUJCQ.01._SL500_.jpg"
+    image: "https://m.media-amazon.com/images/I/81mhuQKPr1L._SL500_.jpg"
     cta: "View on Amazon"
 ---
 This rack is designed to hold your brushes with bristles down so water doesn't cause damage to the glue and wood inside the ferrule.
