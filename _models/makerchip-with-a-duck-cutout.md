@@ -4,7 +4,7 @@ extended_title: "Multiple variations"
 tagline: "Multipurpose MakerChip! Print Baby Ducks at 15mm tall to snap in! Use the duck cutout as a stencil and more -- see reel"
 shortname: "makerchip-with-a-duck-cutout"
 category: "useful-prints"
-fan_favorite: false
+fan_favorite: true
 hidden: false
 thumbnail_image: "/images/models/makerchip-with-a-duck-cutout/3d-model-makerchip-with-a-duck-cutout-thumb.webp"
 cover_image: "/images/models/makerchip-with-a-duck-cutout/3d-model-makerchip-with-a-duck-cutout-main.webp"
