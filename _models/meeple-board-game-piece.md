@@ -3,7 +3,8 @@ title: "Meeple - Board game piece"
 extended_title: ""
 tagline: "Board game upgrades & replacement pieces"
 shortname: "meeple-board-game-piece"
-category: "useful-prints"
+category: "gifts-decor"
+fan_favorite: true
 hidden: false
 thumbnail_image: "/images/models/meeple-board-game-piece/3d-model-meeple-board-game-piece-thumb.webp"
 cover_image: "/images/models/meeple-board-game-piece/3d-model-meeple-board-game-piece-main.webp"
@@ -29,9 +30,7 @@ youtube_id: ""
 ---
 Lost a meeple for a board game or want to upgrade your game with meeples printed in your favorite filament? Make these!
 
-Need a box to hold your meeples? Check out the meeple-shaped box!
-
-Let's see meeples in ALL the colors -- *share your makes!*
+Need a box to hold your meeples? Check out the [meeple-shaped box](https://www.printables.com/model/712743-meeple-shaped-box-board-game-upgrades-accessories-)!
 
 ### Recommended Print Settings
 
