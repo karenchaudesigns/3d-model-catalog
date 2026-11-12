@@ -37,5 +37,18 @@ youtube_shorts:
   - "vKFsmdNSHO8"
 youtube_videos: []
 youtube_id: "vKFsmdNSHO8"
+products:
+  - name: "Magnets with adhesive"
+    url: "https://amzn.to/49TaubS"
+    image: "https://m.media-amazon.com/images/P/B0BKQ78R4K.01._SL500_.jpg"
+    cta: "View Product"
+  - name: "Magnets"
+    url: "https://amzn.to/3Pw5kLD"
+    image: "https://m.media-amazon.com/images/P/B09WZTSQ9Y.01._SL500_.jpg"
+    cta: "View Product"
+  - name: "Glue"
+    url: "https://amzn.to/3KezErc"
+    image: "https://m.media-amazon.com/images/P/B0006HUJCQ.01._SL500_.jpg"
+    cta: "View Product"
 ---
 
