@@ -4,7 +4,8 @@ extended_title: "Compatible with Carcassonne"
 tagline: "Store your meeples or other small accessories with this cute 2-piece meeple-shaped box! Great desk or shelfie decor!"
 shortname: "meeple-shaped-box-compatible-with-carcassonne"
 category: "useful-prints"
-hidden: false
+fan_favorite: false
+hidden: true
 thumbnail_image: "/images/models/meeple-shaped-box-compatible-with-carcassonne/3d-model-meeple-shaped-box-compatible-with-carcassonne-thumb.webp"
 cover_image: "/images/models/meeple-shaped-box-compatible-with-carcassonne/3d-model-meeple-shaped-box-compatible-with-carcassonne-main.webp"
 gallery_images:
