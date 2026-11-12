@@ -582,6 +582,7 @@ function saveAndDeployModel(req, res) {
         if (p.badge) yamlLines.push(`    badge: ${yamlQuote(p.badge)}`);
         if (p.description) yamlLines.push(`    description: ${yamlQuote(p.description)}`);
         yamlLines.push(`    url: ${yamlQuote(p.url || '')}`);
+        if (p.image) yamlLines.push(`    image: ${yamlQuote(p.image)}`);
         if (p.cta) yamlLines.push(`    cta: ${yamlQuote(p.cta)}`);
       });
     }
@@ -1041,6 +1042,7 @@ function updateModelFieldsOnDisk(slug, fields = {}) {
       if (p.badge) yamlLines.push(`    badge: ${yamlQuote(p.badge)}`);
       if (p.description) yamlLines.push(`    description: ${yamlQuote(p.description)}`);
       yamlLines.push(`    url: ${yamlQuote(p.url || '')}`);
+      if (p.image) yamlLines.push(`    image: ${yamlQuote(p.image)}`);
       if (p.cta) yamlLines.push(`    cta: ${yamlQuote(p.cta)}`);
     });
   }
@@ -1603,6 +1605,59 @@ async function extractAndClassifyYoutubeVideos(text, allowBareIds = false) {
     youtubeId: youtubeShorts[0] || youtubeVideos[0] || ''
   };
 }
+
+/**
+ * Helper: Extract an Amazon ASIN (10 alphanumeric chars) from a URL or raw text
+ */
+function extractAmazonAsin(urlStr) {
+  if (!urlStr) return null;
+  const match = String(urlStr).match(/(?:\/dp\/|\/gp\/product\/|\/asin\/|ASIN=|dp%2F)([A-Z0-9]{10})(?:[?&/#]|$)/i);
+  return match ? match[1].toUpperCase() : null;
+}
+
+/**
+ * POST /api/resolve-amazon-image — Given an Amazon or amzn.to URL, resolve redirect and return product image preview
+ */
+app.post('/api/resolve-amazon-image', async (req, res) => {
+  try {
+    const rawUrl = String(req.body.url || '').trim();
+    if (!rawUrl) {
+      return res.status(400).json({ error: 'URL is required.' });
+    }
+
+    let asin = extractAmazonAsin(rawUrl);
+    let resolvedUrl = rawUrl;
+
+    // If amzn.to shortlink or redirect link, follow HEAD/GET to get actual amazon.com destination
+    if (!asin && (rawUrl.includes('amzn.to') || rawUrl.includes('amazon.'))) {
+      try {
+        const resp = await fetch(rawUrl, {
+          method: 'GET',
+          redirect: 'manual',
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+          }
+        });
+        const loc = resp.headers.get('location');
+        if (loc) {
+          resolvedUrl = loc;
+          asin = extractAmazonAsin(loc);
+        }
+      } catch (e) {
+        // Continue
+      }
+    }
+
+    let imageUrl = '';
+    if (asin) {
+      imageUrl = `https://m.media-amazon.com/images/P/${asin}.01._SL500_.jpg`;
+    }
+
+    return res.json({ asin, resolvedUrl, imageUrl });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
 
 /**
  * POST /api/youtube/classify — Classify one or more YouTube URLs/IDs into Shorts vs Long Videos

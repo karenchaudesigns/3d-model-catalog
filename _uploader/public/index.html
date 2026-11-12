@@ -1897,6 +1897,32 @@
       box-shadow: 0 0 0 2px var(--accent-soft);
     }
 
+    .product-preview-thumb-wrap {
+      width: 52px;
+      height: 52px;
+      border-radius: var(--radius-xs);
+      border: 1px solid var(--border-subtle);
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .product-preview-thumb-img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    .product-preview-thumb-empty {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      opacity: 0.5;
+    }
+
     .product-field-input::placeholder {
       color: hsl(24, 8%, 65%);
     }
@@ -5911,7 +5937,12 @@
             var badgeVal = escapeHtmlText(prod.badge || '');
             var descVal = escapeHtmlText(prod.description || '');
             var urlVal = escapeHtmlText(prod.url || '');
+            var imgVal = escapeHtmlText(prod.image || '');
             var ctaVal = escapeHtmlText(prod.cta || '');
+
+            var thumbHtml = imgVal
+              ? '<img src="' + imgVal + '" class="product-preview-thumb-img" alt="Product preview">'
+              : '<span class="product-preview-thumb-empty">&#128247;</span>';
 
             return (
               '<div class="product-item-card" data-prod-idx="' + idx + '">' +
@@ -5922,29 +5953,43 @@
               '    </div>' +
               '    <button type="button" class="btn-remove-product" data-prod-idx="' + idx + '" title="Remove product" aria-label="Remove product">&times; Remove</button>' +
               '  </div>' +
-              '  <div class="product-field-row">' +
-              '    <div class="product-field-group" style="flex:2;min-width:160px;">' +
-              '      <label>Product Name / Title</label>' +
-              '      <input type="text" class="product-field-input" data-field="name" value="' + nameVal + '" placeholder="e.g. Bambu Lab Matte PLA Yellow">' +
+              '  <div style="display:flex;gap:0.75rem;align-items:flex-start;">' +
+              '    <div class="product-preview-thumb-wrap" data-role="product-thumb-wrap">' + thumbHtml + '</div>' +
+              '    <div style="flex:1;display:flex;flex-direction:column;gap:0.5rem;min-width:0;">' +
+              '      <div class="product-field-row">' +
+              '        <div class="product-field-group" style="flex:2;min-width:160px;">' +
+              '          <label>Product Name / Title</label>' +
+              '          <input type="text" class="product-field-input" data-field="name" value="' + nameVal + '" placeholder="e.g. Bambu Lab Matte PLA Yellow">' +
+              '        </div>' +
+              '        <div class="product-field-group">' +
+              '          <label>Category (optional)</label>' +
+              '          <input type="text" class="product-field-input" data-field="category" value="' + catVal + '" placeholder="e.g. Filament, Hardware, Magnets">' +
+              '        </div>' +
+              '      </div>' +
+              '      <div class="product-field-row">' +
+              '        <div class="product-field-group" style="flex:2;min-width:160px;">' +
+              '          <div style="display:flex;align-items:center;justify-content:space-between;">' +
+              '            <label>Affiliate / Product URL</label>' +
+              '            <span class="product-auto-asin-status" data-role="asin-status" style="font-size:0.68rem;color:var(--accent-terracotta);"></span>' +
+              '          </div>' +
+              '          <input type="url" class="product-field-input" data-field="url" value="' + urlVal + '" placeholder="https://amazon.com/dp/B08P1QJ56J...">' +
+              '        </div>' +
+              '        <div class="product-field-group">' +
+              '          <label>Product Image URL (auto-fetched for Amazon)</label>' +
+              '          <input type="url" class="product-field-input" data-field="image" value="' + imgVal + '" placeholder="https://...jpg or auto-detected">' +
+              '        </div>' +
+              '      </div>' +
+              '      <div class="product-field-row">' +
+              '        <div class="product-field-group" style="flex:2;min-width:160px;">' +
+              '          <label>Description / Usage Note (optional)</label>' +
+              '          <input type="text" class="product-field-input" data-field="description" value="' + descVal + '" placeholder="e.g. Exact filament used for the body with clean first layers">' +
+              '        </div>' +
+              '        <div class="product-field-group" style="flex:1;min-width:120px;">' +
+              '          <label>Button CTA (optional)</label>' +
+              '          <input type="text" class="product-field-input" data-field="cta" value="' + ctaVal + '" placeholder="e.g. View on Amazon">' +
+              '        </div>' +
+              '      </div>' +
               '    </div>' +
-              '    <div class="product-field-group">' +
-              '      <label>Category (optional)</label>' +
-              '      <input type="text" class="product-field-input" data-field="category" value="' + catVal + '" placeholder="e.g. Filament, Hardware, Magnets">' +
-              '    </div>' +
-              '  </div>' +
-              '  <div class="product-field-row">' +
-              '    <div class="product-field-group" style="flex:2;min-width:160px;">' +
-              '      <label>Affiliate / Product URL</label>' +
-              '      <input type="url" class="product-field-input" data-field="url" value="' + urlVal + '" placeholder="https://amazon.com/dp/B08P1QJ56J...">' +
-              '    </div>' +
-              '    <div class="product-field-group">' +
-              '      <label>Button CTA (optional)</label>' +
-              '      <input type="text" class="product-field-input" data-field="cta" value="' + ctaVal + '" placeholder="e.g. View on Amazon">' +
-              '    </div>' +
-              '  </div>' +
-              '  <div class="product-field-group">' +
-              '    <label>Description / Usage Note (optional)</label>' +
-              '    <input type="text" class="product-field-input" data-field="description" value="' + descVal + '" placeholder="e.g. Exact filament used for the body with clean first layers">' +
               '  </div>' +
               '</div>'
             );
@@ -6006,9 +6051,84 @@
               var badgeEl = card.querySelector('.product-item-badge');
               if (badgeEl) badgeEl.textContent = input.value.trim() || ('Product #' + (idx + 1));
             }
+            if (field === 'image') {
+              var thumbWrap = card.querySelector('[data-role="product-thumb-wrap"]');
+              if (thumbWrap) {
+                var url = input.value.trim();
+                thumbWrap.innerHTML = url
+                  ? '<img src="' + escapeHtmlText(url) + '" class="product-preview-thumb-img" alt="Product preview">'
+                  : '<span class="product-preview-thumb-empty">&#128247;</span>';
+              }
+            }
+            if (field === 'url') {
+              autoResolveProductImageUrl(card, idx, input.value.trim());
+            }
             updateMarkdownPreview();
           }
         });
+      }
+
+      var autoResolveTimers = {};
+      function autoResolveProductImageUrl(card, idx, rawUrl) {
+        if (!card || !rawUrl) return;
+        var statusEl = card.querySelector('[data-role="asin-status"]');
+        var imageInput = card.querySelector('input[data-field="image"]');
+        var thumbWrap = card.querySelector('[data-role="product-thumb-wrap"]');
+
+        clearTimeout(autoResolveTimers[idx]);
+        autoResolveTimers[idx] = setTimeout(function () {
+          if (!rawUrl.includes('amazon.') && !rawUrl.includes('amzn.to')) return;
+          if (statusEl) statusEl.textContent = 'Checking image...';
+
+          fetch('/api/resolve-amazon-image', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: rawUrl })
+          })
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+              if (data && data.imageUrl) {
+                // If the user hasn't typed a custom image URL or if it was empty, auto-fill
+                if (!imageInput.value.trim() || imageInput.value.includes('images-amazon.com') || imageInput.value.includes('media-amazon.com')) {
+                  imageInput.value = data.imageUrl;
+                  modelProducts[idx].image = data.imageUrl;
+                  if (thumbWrap) {
+                    thumbWrap.innerHTML = '<img src="' + escapeHtmlText(data.imageUrl) + '" class="product-preview-thumb-img" alt="Product preview">';
+                  }
+                  if (statusEl) statusEl.textContent = '&#10003; Preview loaded';
+                  updateMarkdownPreview();
+                }
+              } else {
+                if (statusEl) statusEl.textContent = '';
+              }
+            })
+            .catch(function () {
+              if (statusEl) statusEl.textContent = '';
+            });
+        }, 400);
+      }
+
+      var autoResolveMatrixTimers = {};
+      function autoResolveMatrixProductImage(slug, idx, rawUrl, cellEl) {
+        if (!slug || !rawUrl || !cellEl) return;
+        var key = slug + '_' + idx;
+        clearTimeout(autoResolveMatrixTimers[key]);
+        autoResolveMatrixTimers[key] = setTimeout(function () {
+          fetch('/api/resolve-amazon-image', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: rawUrl })
+          })
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+              if (data && data.imageUrl && matrixDrafts[slug] && matrixDrafts[slug].products && matrixDrafts[slug].products[idx]) {
+                matrixDrafts[slug].products[idx].image = data.imageUrl;
+                cellEl.innerHTML = renderMatrixAffiliateBoxHtml(slug, matrixDrafts[slug].products);
+                updateMatrixColumnDirtyState(slug);
+              }
+            })
+            .catch(function () {});
+        }, 500);
       }
 
       function updateTitleCharCounter() {
@@ -6412,6 +6532,7 @@
             if (p.badge && p.badge.trim()) lines.push('    badge: ' + yamlEscape(p.badge.trim()));
             if (p.description && p.description.trim()) lines.push('    description: ' + yamlEscape(p.description.trim()));
             lines.push('    url: ' + yamlEscape(p.url || ''));
+            if (p.image && p.image.trim()) lines.push('    image: ' + yamlEscape(p.image.trim()));
             if (p.cta && p.cta.trim()) lines.push('    cta: ' + yamlEscape(p.cta.trim()));
           });
         }
@@ -6987,10 +7108,17 @@
 
       function renderMatrixAffiliateBoxHtml(slug, products) {
         var itemsHtml = (products || []).map(function (p, pIdx) {
+          var pImg = p.image || '';
+          var thumbHtml = pImg
+            ? '<img src="' + escapeHtmlText(pImg) + '" style="width:24px;height:24px;object-fit:contain;background:#fff;border-radius:3px;border:1px solid var(--border-subtle);flex-shrink:0;">'
+            : '';
           return (
             '<div class="matrix-aff-item" data-product-idx="' + pIdx + '">' +
             '<div class="matrix-aff-item-header">' +
+            '<div style="display:flex;align-items:center;gap:0.35rem;">' +
+            thumbHtml +
             '<span style="font-weight:600;color:var(--text-primary);font-size:0.72rem;">#' + (pIdx + 1) + '</span>' +
+            '</div>' +
             '<button type="button" class="btn-ghost btn-matrix-del-prod" data-slug="' + escapeHtmlText(slug) + '" data-product-idx="' + pIdx + '" style="padding:0.12rem 0.35rem;font-size:0.68rem;color:var(--danger);" title="Remove this product link">&times; Remove</button>' +
             '</div>' +
             '<input type="text" class="matrix-input-text matrix-prod-field" data-slug="' + escapeHtmlText(slug) + '" data-product-idx="' + pIdx + '" data-prop="name" value="' + escapeHtmlText(p.name || '') + '" placeholder="Product name (e.g., Bambu Matte PLA)" style="font-size:0.76rem;padding:0.25rem 0.45rem;">' +
@@ -7842,6 +7970,9 @@
             }
             if (matrixDrafts[pSlug].products[pIdx]) {
               matrixDrafts[pSlug].products[pIdx][pProp] = prodField.value;
+              if (pProp === 'url' && (prodField.value.includes('amazon.') || prodField.value.includes('amzn.to'))) {
+                autoResolveMatrixProductImage(pSlug, pIdx, prodField.value.trim(), prodField.closest('td'));
+              }
             }
             delete recentlySavedMatrixSlugs[pSlug];
 

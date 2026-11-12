@@ -40,12 +40,15 @@ products:
   - name: "Magnets"
     category: "test"
     url: "https://amzn.to/3Pw5kLD"
+    image: "https://m.media-amazon.com/images/P/B0006HUJCQ.01._SL500_.jpg"
     cta: "View Product"
   - name: "Glue"
     url: "https://amzn.to/3KezErc"
+    image: "https://m.media-amazon.com/images/P/B0006HUJCQ.01._SL500_.jpg"
     cta: "View Product"
   - name: "Magnets with adhesive"
     url: "https://amzn.to/3LigqRP"
+    image: "https://m.media-amazon.com/images/P/B08P3MXLLD.01._SL500_.jpg"
     cta: "View Product"
 ---
 Add any size magnet you want to the back and stick it everywhere!

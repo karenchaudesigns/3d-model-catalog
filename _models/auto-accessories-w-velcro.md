@@ -55,6 +55,7 @@ products:
     category: "Hardware"
     description: "Hard 'hook' side latch strips used on the underside of each corner piece to grip car floor mats."
     url: "https://amzn.to/3YvkR0R"
+    image: "https://m.media-amazon.com/images/P/B08P3MXLLD.01._SL500_.jpg"
     cta: "View on Amazon"
 ---
 ### FEATURES

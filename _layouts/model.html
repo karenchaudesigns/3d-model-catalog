@@ -474,6 +474,9 @@ layout: default
             {% for item in page.products %}
               <li>
                 <a href="{{ item.url }}" target="_blank" rel="noopener noreferrer sponsored" class="sidebar-material-link">
+                  {% if item.image and item.image != "" %}
+                    <img src="{{ item.image | relative_url }}" alt="{{ item.name | default: item.title | escape }}" class="sidebar-material-thumb" loading="lazy" decoding="async" width="38" height="38">
+                  {% endif %}
                   <span class="material-name">
                     {% if item.name %}
                       {{ item.name }}
@@ -550,6 +553,13 @@ layout: default
       <div class="model-products-grid">
         {% for item in page.products %}
           <article class="model-product-card">
+            {% if item.image and item.image != "" %}
+              <div class="model-product-media">
+                <a href="{{ item.url }}" target="_blank" rel="noopener noreferrer sponsored" class="model-product-media-link" tabindex="-1" aria-hidden="true">
+                  <img src="{{ item.image | relative_url }}" alt="{{ item.name | default: item.title | escape }}" class="model-product-img" loading="lazy" decoding="async">
+                </a>
+              </div>
+            {% endif %}
             <div class="model-product-card-top">
               {% if item.category %}
                 <span class="model-product-category">{{ item.category }}</span>
@@ -562,7 +572,11 @@ layout: default
                 <span class="model-product-badge">{{ item.badge }}</span>
               {% endif %}
             </div>
-            <h3 class="model-product-title">{{ item.name | default: item.title }}</h3>
+            <h3 class="model-product-title">
+              <a href="{{ item.url }}" target="_blank" rel="noopener noreferrer sponsored" class="model-product-title-link">
+                {{ item.name | default: item.title }}
+              </a>
+            </h3>
             {% if item.description %}
               <p class="model-product-desc">{{ item.description }}</p>
             {% endif %}
