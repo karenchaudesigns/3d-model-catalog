@@ -176,8 +176,52 @@
     .post-upload-actions {
       display: flex;
       flex-wrap: wrap;
+      align-items: center;
       gap: 0.65rem;
       margin-top: 0.9rem;
+    }
+
+    .btn-live-page {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--accent-terracotta);
+      color: #fff !important;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.85rem;
+      padding: 0.55rem 1.05rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+      box-shadow: 0 2px 6px hsla(16, 85%, 52%, 0.28);
+      transition: background-color 0.16s ease, transform 0.12s ease;
+    }
+
+    .btn-live-page:hover {
+      background: hsl(16, 85%, 46%);
+      color: #fff !important;
+      text-decoration: none;
+      transform: translateY(-1px);
+    }
+
+    .post-upload-live-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid hsla(150, 45%, 45%, 0.35);
+      border-radius: var(--radius-sm);
+      padding: 0.55rem 0.85rem;
+      margin: 0.65rem 0;
+      font-size: 0.86rem;
+    }
+
+    .post-upload-live-row a {
+      color: var(--accent-terracotta);
+      font-weight: 600;
+      text-decoration: underline;
+      word-break: break-all;
     }
 
     .edit-mode-banner {
@@ -3450,8 +3494,13 @@
       <h2 class="post-upload-title" id="post-upload-title">Model Published &amp; Pushed to GitHub!</h2>
       <p style="font-size:0.9rem;color:var(--text-primary);margin-bottom:0.5rem;" id="post-upload-subtitle"></p>
       <div id="post-upload-files" style="font-family:var(--font-mono);font-size:0.75rem;margin-bottom:0.6rem;"></div>
+      <div class="post-upload-live-row" id="post-upload-live-row" style="display:none;">
+        <span style="font-weight:600;color:var(--text-secondary);">&#127760; Live Page:</span>
+        <a id="post-upload-live-link" href="#" target="_blank" rel="noopener noreferrer"></a>
+      </div>
       <pre class="code-preview" id="post-upload-gitlog" style="max-height:140px;margin-top:0;"></pre>
       <div class="post-upload-actions">
+        <a id="btn-view-live-page" class="btn-live-page" href="#" target="_blank" rel="noopener noreferrer" style="display:none;">&#127760; View Live Page &rarr;</a>
         <button type="button" class="btn-primary" id="btn-upload-another">+ Upload Another Model</button>
         <button type="button" class="btn-secondary" id="btn-edit-just-saved">Edit This Model</button>
         <button type="button" class="btn-ghost" id="btn-jump-existing">Browse Existing Models &darr;</button>
@@ -4278,6 +4327,9 @@
       var postUploadTitle = document.getElementById('post-upload-title');
       var postUploadSubtitle = document.getElementById('post-upload-subtitle');
       var postUploadFiles = document.getElementById('post-upload-files');
+      var postUploadLiveRow = document.getElementById('post-upload-live-row');
+      var postUploadLiveLink = document.getElementById('post-upload-live-link');
+      var btnViewLivePage = document.getElementById('btn-view-live-page');
       var postUploadGitlog = document.getElementById('post-upload-gitlog');
       var btnUploadAnother = document.getElementById('btn-upload-another');
       var btnEditJustSaved = document.getElementById('btn-edit-just-saved');
@@ -8879,6 +8931,19 @@
                 : 'New Model Published & Pushed to GitHub!';
               postUploadSubtitle.textContent =
                 '"' + b.title + '" has been saved to ' + b.markdownPath + (b.deployed ? ' and pushed to origin/main.' : '.');
+
+              var liveSlug = b.slug || b.shortname || lastSavedSlug;
+              var liveUrl = liveSlug ? 'https://models.karenchaudesigns.com/models/' + encodeURIComponent(liveSlug) + '/' : 'https://models.karenchaudesigns.com/';
+              if (postUploadLiveLink && postUploadLiveRow) {
+                postUploadLiveLink.href = liveUrl;
+                postUploadLiveLink.textContent = liveUrl;
+                postUploadLiveRow.style.display = 'flex';
+              }
+              if (btnViewLivePage) {
+                btnViewLivePage.href = liveUrl;
+                btnViewLivePage.style.display = 'inline-flex';
+              }
+
               postUploadFiles.innerHTML = (b.savedFiles || [])
                 .map(function (f) { return '&bull; ' + f; })
                 .join('<br>');
