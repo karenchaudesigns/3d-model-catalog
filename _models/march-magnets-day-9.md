@@ -35,6 +35,19 @@ youtube_shorts:
   - "nGv0PGYa2JM"
 youtube_videos: []
 youtube_id: "nGv0PGYa2JM"
+products:
+  - name: "Magnets with adhesive"
+    url: "https://amzn.to/49TaubS"
+    image: "https://m.media-amazon.com/images/P/B0BKQ78R4K.01._SL500_.jpg"
+    cta: "View Product"
+  - name: "Magnets"
+    url: "https://amzn.to/3Pw5kLD"
+    image: "https://m.media-amazon.com/images/P/B09WZTSQ9Y.01._SL500_.jpg"
+    cta: "View Product"
+  - name: "Glue"
+    url: "https://amzn.to/3KezErc"
+    image: "https://m.media-amazon.com/images/P/B0006HUJCQ.01._SL500_.jpg"
+    cta: "View Product"
 ---
 Multi-color carrot with optional magnet hole.
 Compatible with magnets smaller than 16mm wide and at least 2mm thick.
