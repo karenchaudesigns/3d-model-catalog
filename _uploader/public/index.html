@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>3D Model Catalog — Model Page Editor &amp; Uploader</title>
+  <title>Karen Chau Designs - 3D Model Catalog Manager</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -2202,6 +2202,11 @@
       margin-bottom: 2.5rem;
     }
 
+    /* Hide upload form fields by default on main catalog view; show in edit mode or when explicitly opened */
+    body:not(.is-form-mode) #uploader-form {
+      display: none !important;
+    }
+
     .model-thumbnail-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2219,6 +2224,141 @@
       .model-thumbnail-grid {
         grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 1.25rem;
+      }
+    }
+
+    @media (min-width: 1200px) {
+      .model-thumbnail-grid {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 1.25rem;
+      }
+    }
+
+    /* View Mode: Compact (10 models to a row on desktop) */
+    .model-thumbnail-grid.mode-compact {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.5rem;
+    }
+
+    @media (min-width: 540px) {
+      .model-thumbnail-grid.mode-compact {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+    }
+
+    @media (min-width: 768px) {
+      .model-thumbnail-grid.mode-compact {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .model-thumbnail-grid.mode-compact {
+        grid-template-columns: repeat(8, minmax(0, 1fr));
+      }
+    }
+
+    @media (min-width: 1300px) {
+      .model-thumbnail-grid.mode-compact {
+        grid-template-columns: repeat(10, minmax(0, 1fr));
+      }
+    }
+
+    .model-thumbnail-grid.mode-compact .model-thumb-body {
+      padding: 0.45rem 0.5rem;
+      gap: 0.15rem;
+    }
+
+    .model-thumbnail-grid.mode-compact .model-card-title {
+      font-size: 0.76rem;
+      line-height: 1.25;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .model-thumbnail-grid.mode-compact .model-card-category {
+      font-size: 0.58rem;
+    }
+
+    .model-thumbnail-grid.mode-compact .model-card-extended-title,
+    .model-thumbnail-grid.mode-compact .model-card-filename {
+      display: none;
+    }
+
+    .model-thumbnail-grid.mode-compact .model-card-actions {
+      padding: 0.35rem 0.45rem;
+      gap: 0.25rem;
+    }
+
+    .model-thumbnail-grid.mode-compact .model-card-actions button {
+      padding: 0.22rem 0.35rem;
+      font-size: 0.68rem;
+    }
+
+    /* View Mode: List View (1 model per row, thumbnail on the left, text on the right) */
+    .model-thumbnail-grid.mode-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .model-thumbnail-grid.mode-list .model-thumb-card {
+      flex-direction: row;
+      align-items: stretch;
+      min-height: 120px;
+    }
+
+    .model-thumbnail-grid.mode-list .model-thumb-media {
+      width: 120px;
+      min-width: 120px;
+      height: 120px;
+      aspect-ratio: 1 / 1;
+      flex-shrink: 0;
+    }
+
+    .model-thumbnail-grid.mode-list .model-thumb-body {
+      padding: 0.75rem 1rem;
+      flex: 1;
+      justify-content: center;
+      gap: 0.3rem;
+      min-width: 0;
+    }
+
+    .model-thumbnail-grid.mode-list .model-card-title {
+      font-size: 1.05rem;
+      margin-bottom: 0.1rem;
+    }
+
+    .model-thumbnail-grid.mode-list .model-card-extended-title {
+      font-size: 0.85rem;
+      -webkit-line-clamp: 2;
+    }
+
+    .model-thumbnail-grid.mode-list .model-card-actions {
+      flex-direction: column;
+      justify-content: center;
+      border-top: none;
+      border-left: 1px solid var(--border-subtle);
+      padding: 0.75rem 1rem;
+      min-width: 130px;
+      gap: 0.45rem;
+    }
+
+    @media (max-width: 600px) {
+      .model-thumbnail-grid.mode-list .model-thumb-card {
+        flex-direction: column;
+      }
+      .model-thumbnail-grid.mode-list .model-thumb-media {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 16 / 9;
+      }
+      .model-thumbnail-grid.mode-list .model-card-actions {
+        border-left: none;
+        border-top: 1px solid var(--border-subtle);
+        flex-direction: row;
       }
     }
 
@@ -3277,11 +3417,11 @@
     <div class="container header-inner">
       <a href="#top" class="brand-logo" id="brand-reset-link">
         <span class="brand-mark" aria-hidden="true"></span>
-        <span class="brand-text">Karen Chau Designs &mdash; Model Page Editor</span>
+        <span class="brand-text">Karen Chau Designs &mdash; 3D Model Catalog Manager</span>
       </a>
       <nav class="site-nav" aria-label="Editor navigation">
-        <button type="button" class="nav-btn is-active" id="btn-nav-new">+ Upload New Model</button>
-        <button type="button" class="nav-btn" id="btn-nav-library">Existing Catalog Models (<span id="nav-model-count">0</span>)</button>
+        <button type="button" class="nav-btn is-active" id="btn-nav-library">Existing Catalog Models (<span id="nav-model-count">0</span>)</button>
+        <button type="button" class="nav-btn" id="btn-nav-new">+ Upload New Model</button>
         <a href="/columns.html" class="nav-btn" id="btn-nav-matrix" style="text-decoration:none;">Columns Table View</a>
         <button type="button" class="nav-btn" id="btn-nav-table">Download Links Table</button>
       </nav>
@@ -3857,9 +3997,17 @@
         </div>
         <div class="catalog-header-actions">
           <div class="library-view-switcher" role="tablist" aria-label="Catalog view mode">
-            <button type="button" class="view-switch-btn is-active" id="btn-view-grid" role="tab" aria-selected="true">
+            <button type="button" class="view-switch-btn is-active" id="btn-view-grid" role="tab" aria-selected="true" title="Default 5 models per row">
               <span aria-hidden="true">&#9638;</span>
-              <span>Grid View</span>
+              <span>Grid (5/row)</span>
+            </button>
+            <button type="button" class="view-switch-btn" id="btn-view-compact" role="tab" aria-selected="false" title="Smaller thumbnails, 10 models per row">
+              <span aria-hidden="true">&#9638;&#9638;</span>
+              <span>Compact (10/row)</span>
+            </button>
+            <button type="button" class="view-switch-btn" id="btn-view-list" role="tab" aria-selected="false" title="1 model per row, thumbnail on left and text on right">
+              <span aria-hidden="true">&#9636;</span>
+              <span>List View</span>
             </button>
             <a href="/columns.html" class="view-switch-btn" id="btn-view-matrix" style="text-decoration:none;">
               <span aria-hidden="true">&#9635;</span>
@@ -4090,6 +4238,8 @@
       var existingModelsTableView = document.getElementById('existing-models-table-view');
       var existingModelsTableBody = document.getElementById('existing-models-table-body');
       var btnViewGrid = document.getElementById('btn-view-grid');
+      var btnViewCompact = document.getElementById('btn-view-compact');
+      var btnViewList = document.getElementById('btn-view-list');
       var btnViewTable = document.getElementById('btn-view-table');
       var filterLinksAll = document.getElementById('filter-links-all');
       var filterLinksMissing = document.getElementById('filter-links-missing');
@@ -6665,6 +6815,18 @@
         renderExistingModelsList();
       }
 
+      function showFormMode(isEdit) {
+        document.body.classList.add('is-form-mode');
+        btnNavNew.classList.toggle('is-active', !isEdit);
+        btnNavLibrary.classList.toggle('is-active', false);
+      }
+
+      function hideFormMode() {
+        document.body.classList.remove('is-form-mode');
+        btnNavNew.classList.remove('is-active');
+        btnNavLibrary.classList.add('is-active');
+      }
+
       function openEditModel(slug) {
         fetch('/api/models/' + encodeURIComponent(slug))
           .then(function (r) { return r.json(); })
@@ -6715,6 +6877,7 @@
             editBannerTitle.textContent = m.title;
             editBannerFile.textContent = '_models/' + m.filename;
             editBanner.classList.add('is-visible');
+            showFormMode(true);
 
             submitBtn.textContent = 'Save Changes & Push Update to GitHub →';
 
@@ -6994,15 +7157,30 @@
           libraryViewMode = 'matrix';
         } else if (mode === 'table') {
           libraryViewMode = 'table';
+        } else if (mode === 'compact') {
+          libraryViewMode = 'compact';
+        } else if (mode === 'list') {
+          libraryViewMode = 'list';
         } else {
           libraryViewMode = 'grid';
         }
         var isGrid = libraryViewMode === 'grid';
+        var isCompact = libraryViewMode === 'compact';
+        var isList = libraryViewMode === 'list';
         var isMatrix = libraryViewMode === 'matrix';
         var isTable = libraryViewMode === 'table';
+        var isCatalogCards = isGrid || isCompact || isList;
 
         btnViewGrid.classList.toggle('is-active', isGrid);
         btnViewGrid.setAttribute('aria-selected', isGrid ? 'true' : 'false');
+        if (btnViewCompact) {
+          btnViewCompact.classList.toggle('is-active', isCompact);
+          btnViewCompact.setAttribute('aria-selected', isCompact ? 'true' : 'false');
+        }
+        if (btnViewList) {
+          btnViewList.classList.toggle('is-active', isList);
+          btnViewList.setAttribute('aria-selected', isList ? 'true' : 'false');
+        }
         if (btnViewMatrix) {
           btnViewMatrix.classList.toggle('is-active', isMatrix);
           btnViewMatrix.setAttribute('aria-selected', isMatrix ? 'true' : 'false');
@@ -7010,18 +7188,21 @@
         btnViewTable.classList.toggle('is-active', isTable);
         btnViewTable.setAttribute('aria-selected', isTable ? 'true' : 'false');
 
-        existingModelsList.classList.toggle('is-hidden', !isGrid);
+        existingModelsList.classList.toggle('is-hidden', !isCatalogCards);
+        existingModelsList.classList.toggle('mode-compact', isCompact);
+        existingModelsList.classList.toggle('mode-list', isList);
+
         if (existingModelsMatrixView) {
           existingModelsMatrixView.classList.toggle('is-visible', isMatrix);
         }
         existingModelsTableView.classList.toggle('is-visible', isTable);
 
-        btnNavLibrary.classList.toggle('is-active', isGrid);
+        btnNavLibrary.classList.toggle('is-active', isCatalogCards);
         if (btnNavMatrix) btnNavMatrix.classList.toggle('is-active', isMatrix);
         btnNavTable.classList.toggle('is-active', isTable);
 
-        if (!isGrid) {
-          btnNavNew.classList.remove('is-active');
+        if (isCatalogCards) {
+          try { localStorage.setItem('kcd-catalog-view-mode', libraryViewMode); } catch (e) {}
         }
 
         if (isMatrix) {
@@ -7660,7 +7841,7 @@
               '<span class="model-card-category">' + (CATEGORY_LABELS[m.category] || m.category || 'Useful Prints') + '</span>' +
               '<h3 class="model-card-title">' + (m.title || m.slug) + '</h3>' +
               (m.extended_title ? '<p class="model-card-extended-title">' + escapeHtmlText(m.extended_title) + '</p>' : '') +
-              '<span style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-muted);">_models/' + m.filename + '</span>' +
+              '<span class="model-card-filename" style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-muted);">_models/' + m.filename + '</span>' +
               '</div>' +
               '<div class="model-card-actions">' +
               '<button type="button" class="btn-ghost btn-toggle-hidden" data-slug="' + m.slug + '" data-hidden="' + (m.hidden ? 'true' : 'false') + '">' +
@@ -7908,6 +8089,18 @@
       btnViewGrid.addEventListener('click', function () {
         setLibraryViewMode('grid');
       });
+
+      if (btnViewCompact) {
+        btnViewCompact.addEventListener('click', function () {
+          setLibraryViewMode('compact');
+        });
+      }
+
+      if (btnViewList) {
+        btnViewList.addEventListener('click', function () {
+          setLibraryViewMode('list');
+        });
+      }
 
       btnViewTable.addEventListener('click', function () {
         setLibraryViewMode('table');
@@ -8384,6 +8577,8 @@
       btnCancelEdit.addEventListener('click', function () {
         confirmUnsavedChanges(function () {
           resetToNewModel(true);
+          hideFormMode();
+          setLibraryViewMode(libraryViewMode || 'grid');
         });
       });
 
@@ -8395,6 +8590,7 @@
 
       btnNewFromLibrary.addEventListener('click', function () {
         confirmUnsavedChanges(function () {
+          showFormMode(false);
           resetToNewModel(true);
           nameInput.focus();
           window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -8403,6 +8599,7 @@
 
       btnNavNew.addEventListener('click', function () {
         confirmUnsavedChanges(function () {
+          showFormMode(false);
           btnNavNew.classList.add('is-active');
           btnNavLibrary.classList.remove('is-active');
           btnNavTable.classList.remove('is-active');
@@ -8416,12 +8613,15 @@
         e.preventDefault();
         confirmUnsavedChanges(function () {
           resetToNewModel(true);
+          hideFormMode();
+          setLibraryViewMode(libraryViewMode || 'grid');
           window.scrollTo({ top: 0, behavior: 'smooth' });
         });
       });
 
       btnNavLibrary.addEventListener('click', function () {
-        setLibraryViewMode('grid');
+        hideFormMode();
+        setLibraryViewMode(libraryViewMode === 'table' ? 'grid' : libraryViewMode || 'grid');
         btnNavLibrary.classList.add('is-active');
         btnNavNew.classList.remove('is-active');
         btnNavTable.classList.remove('is-active');
@@ -8666,6 +8866,12 @@
           return;
         } else if (viewParam === 'table' || window.location.hash === '#table') {
           setLibraryViewMode('table');
+        } else if (viewParam === 'compact' || viewParam === 'list' || viewParam === 'grid') {
+          setLibraryViewMode(viewParam);
+        } else {
+          var savedMode = 'grid';
+          try { savedMode = localStorage.getItem('kcd-catalog-view-mode') || 'grid'; } catch (e) {}
+          setLibraryViewMode(savedMode);
         }
         if (editParam) {
           openEditModel(editParam);
