@@ -12,8 +12,7 @@ gallery_images:
   - "/images/models/6-slot-paint-brush-rack-with-drip-tray/3d-model-6-slot-paint-brush-rack-with-drip-tray-angle1.webp"
   - "/images/models/6-slot-paint-brush-rack-with-drip-tray/3d-model-6-slot-paint-brush-rack-with-drip-tray-angle2.webp"
   - "/images/models/6-slot-paint-brush-rack-with-drip-tray/3d-model-6-slot-paint-brush-rack-with-drip-tray-angle3.webp"
-detailed_images:
-  - "/images/models/6-slot-paint-brush-rack-with-drip-tray/3d-model-6-slot-paint-brush-rack-with-drip-tray-detail1.webp"
+detailed_images: []
 tags:
   - "organizer"
   - "holder"
@@ -38,8 +37,7 @@ youtube_shorts: []
 youtube_videos: []
 youtube_id: ""
 products:
-  - name: ""
-    category: "Filament"
+  - name: "6pc brush set"
     description: "Fits this 6-pc set of acrylic/oil/watercolor brushes"
     url: "https://amzn.to/45rLxSr"
     image: "https://m.media-amazon.com/images/P/B0061U0X0U.01._SL500_.jpg"
@@ -54,7 +52,3 @@ products:
 ✋ Designed to be quick and easy to use – only one hand needed to hang and retrieve brushes!
 
 💧 Keep paint drops contained with the built-in drip tray – protect your surfaces!
-
-😍 Fits this [6-pc set of acrylic/oil/watercolor brushes]() so beautifully – even the ¾" wash brush!
-
-*As an Amazon Associate I earn from qualifying purchases. Shopping through my link does NOT cost extra to you, but I may earn commission which helps support my design process so I can continue providing free 3D models to the community. Thanks for your support!*
