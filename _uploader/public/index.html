@@ -3539,75 +3539,6 @@
             </div>
           </div>
 
-          <!-- Tags matching .tag-list in _layouts/model.html -->
-          <div class="tag-editor-block">
-            <div class="tag-editor-header">
-              <span style="font-size:0.75rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;">Selected Model Tags</span>
-              <span id="model-tags-counter" class="model-tags-counter" aria-live="polite">0 / 20 tags</span>
-            </div>
-            <ul class="tag-list" id="tag-preview-row" aria-label="Model tags preview">
-              <li class="tag-badge">#tags-appear-here</li>
-            </ul>
-            <input
-              type="text"
-              id="model-tags"
-              class="tag-input-inline"
-              placeholder="Comma-separated single-word tags (e.g., duck, organizer, decor, multicolor)..."
-              aria-label="Comma-separated model tags"
-            >
-
-            <!-- Structured Category Framework Tag Selector Widget (Collapsible - Collapsed by default) -->
-            <div class="tag-framework-card is-collapsed" id="tag-framework-widget" aria-label="Structured Category Tag Selector">
-              <div class="tag-framework-topbar" id="tag-framework-toggle-bar" role="button" aria-expanded="false" aria-controls="tag-framework-body" title="Click to expand or collapse the 20-Tag Framework helper">
-                <div class="tag-framework-title-group">
-                  <span class="tag-framework-chevron" aria-hidden="true">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                  </span>
-                  <span class="tag-framework-title">20-Tag Category Framework</span>
-                  <span class="tag-framework-badge" id="framework-counter-badge" aria-live="polite">0 / 20 selected</span>
-                </div>
-                <div class="tag-framework-actions">
-                  <button type="button" class="btn-tag-action btn-tag-copy" id="btn-copy-tags" title="Copy all selected tags to clipboard as a comma-separated list">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                    <span>Copy Tags</span>
-                  </button>
-                  <button type="button" class="btn-tag-action" id="btn-clear-tags" title="Clear all active tags">
-                    <span>Clear</span>
-                  </button>
-                  <button type="button" class="btn-tag-action" id="btn-toggle-framework" title="Expand / Collapse tag framework">
-                    <span id="btn-toggle-framework-text">Expand</span>
-                  </button>
-                </div>
-              </div>
-
-              <!-- Collapsible Body -->
-              <div class="tag-framework-body" id="tag-framework-body">
-                <!-- Custom Tag Input Bar with automatic space removal / single-word enforcement -->
-                <div class="tag-custom-input-bar">
-                  <div class="tag-custom-input-wrapper">
-                    <input
-                      type="text"
-                      id="tag-framework-custom-input"
-                      class="tag-custom-input"
-                      placeholder="Add custom single-word tag (e.g. car, fidget, holiday)..."
-                      aria-label="Add custom single-word tag"
-                      autocomplete="off"
-                      spellcheck="false"
-                    >
-                  </div>
-                  <button type="button" class="btn-tag-action" id="btn-add-custom-tag" title="Add custom tag">
-                    + Add Tag
-                  </button>
-                </div>
-
-                <!-- 5 Category Pill Sections -->
-                <div class="tag-category-sections" id="tag-category-sections-container">
-                  <!-- Dynamically rendered by renderCategoryFramework() -->
-                </div>
-              </div>
-            </div>
-          </div>
-
           <!-- Download 3D Print Files Panel matching .download-panel in _layouts/model.html -->
           <section class="download-panel" aria-labelledby="download-heading">
             <h2 class="download-heading" id="download-heading">Download 3D Print Files</h2>
@@ -3729,6 +3660,75 @@
               rows="7"
               placeholder="- **Supports:** None&#10;- **Layer Height:** 0.20 mm&#10;- **Infill:** 15% Gyroid"
             ></textarea>
+          </div>
+
+          <!-- Tags matching .tag-list in _layouts/model.html -->
+          <div class="tag-editor-block" style="margin-bottom:0;">
+            <div class="tag-editor-header">
+              <span style="font-size:0.75rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;">Selected Model Tags</span>
+              <span id="model-tags-counter" class="model-tags-counter" aria-live="polite">0 / 20 tags</span>
+            </div>
+            <ul class="tag-list" id="tag-preview-row" aria-label="Model tags preview">
+              <li class="tag-badge">#tags-appear-here</li>
+            </ul>
+            <input
+              type="text"
+              id="model-tags"
+              class="tag-input-inline"
+              placeholder="Comma-separated single-word tags (e.g., duck, organizer, decor, multicolor)..."
+              aria-label="Comma-separated model tags"
+            >
+
+            <!-- Structured Category Framework Tag Selector Widget (Collapsible - Collapsed by default) -->
+            <div class="tag-framework-card is-collapsed" id="tag-framework-widget" aria-label="Structured Category Tag Selector">
+              <div class="tag-framework-topbar" id="tag-framework-toggle-bar" role="button" aria-expanded="false" aria-controls="tag-framework-body" title="Click to expand or collapse the 20-Tag Framework helper">
+                <div class="tag-framework-title-group">
+                  <span class="tag-framework-chevron" aria-hidden="true">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                  </span>
+                  <span class="tag-framework-title">20-Tag Category Framework</span>
+                  <span class="tag-framework-badge" id="framework-counter-badge" aria-live="polite">0 / 20 selected</span>
+                </div>
+                <div class="tag-framework-actions">
+                  <button type="button" class="btn-tag-action btn-tag-copy" id="btn-copy-tags" title="Copy all selected tags to clipboard as a comma-separated list">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    <span>Copy Tags</span>
+                  </button>
+                  <button type="button" class="btn-tag-action" id="btn-clear-tags" title="Clear all active tags">
+                    <span>Clear</span>
+                  </button>
+                  <button type="button" class="btn-tag-action" id="btn-toggle-framework" title="Expand / Collapse tag framework">
+                    <span id="btn-toggle-framework-text">Expand</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Collapsible Body -->
+              <div class="tag-framework-body" id="tag-framework-body">
+                <!-- Custom Tag Input Bar with automatic space removal / single-word enforcement -->
+                <div class="tag-custom-input-bar">
+                  <div class="tag-custom-input-wrapper">
+                    <input
+                      type="text"
+                      id="tag-framework-custom-input"
+                      class="tag-custom-input"
+                      placeholder="Add custom single-word tag (e.g. car, fidget, holiday)..."
+                      aria-label="Add custom single-word tag"
+                      autocomplete="off"
+                      spellcheck="false"
+                    >
+                  </div>
+                  <button type="button" class="btn-tag-action" id="btn-add-custom-tag" title="Add custom tag">
+                    + Add Tag
+                  </button>
+                </div>
+
+                <!-- 5 Category Pill Sections -->
+                <div class="tag-category-sections" id="tag-category-sections-container">
+                  <!-- Dynamically rendered by renderCategoryFramework() -->
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>

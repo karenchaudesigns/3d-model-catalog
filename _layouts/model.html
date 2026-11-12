@@ -229,14 +229,6 @@ layout: default
         {% endif %}
       </div>
 
-      {% if page.tags and page.tags.size > 0 %}
-        <ul class="tag-list" aria-label="Model tags">
-          {% for tag in page.tags %}
-            <li class="tag-badge">#{{ tag }}</li>
-          {% endfor %}
-        </ul>
-      {% endif %}
-
       {% if page.downloads %}
         {% assign has_makerworld = false %}
         {% assign has_printables = false %}
@@ -520,6 +512,27 @@ layout: default
       </div>
       <div class="model-description prose">
         {{ content }}
+      </div>
+      {% if page.tags and page.tags.size > 0 %}
+        <div class="model-description-tags" style="margin-top: 1.75rem; padding-top: 1.25rem; border-top: 1px solid var(--border-subtle);">
+          <span style="display:block;font-size:0.75rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.65rem;">Model Tags</span>
+          <ul class="tag-list" aria-label="Model tags" style="margin-bottom:0;">
+            {% for tag in page.tags %}
+              <li class="tag-badge">#{{ tag }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+    </section>
+  {% elsif page.tags and page.tags.size > 0 %}
+    <section class="model-description-section" aria-labelledby="tags-only-heading">
+      <div class="model-description-tags" style="margin-top: 0; padding-top: 0; border-top: none;">
+        <span style="display:block;font-size:0.75rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.65rem;" id="tags-only-heading">Model Tags</span>
+        <ul class="tag-list" aria-label="Model tags" style="margin-bottom:0;">
+          {% for tag in page.tags %}
+            <li class="tag-badge">#{{ tag }}</li>
+          {% endfor %}
+        </ul>
       </div>
     </section>
   {% endif %}
