@@ -4,6 +4,7 @@ extended_title: "Autumn seasonal decor | Thanksgiving magnets | Pumpkin Spice La
 tagline: "Cute pumpkins for the cozy season! Add any size magnet you want to the back and stick it everywhere!"
 shortname: "cute-fall-pumpkins-with-vine"
 category: "seasonal"
+fan_favorite: false
 hidden: false
 thumbnail_image: "/images/models/cute-fall-pumpkins-with-vine/3d-model-cute-fall-pumpkins-with-vine-thumb.webp"
 cover_image: "/images/models/cute-fall-pumpkins-with-vine/3d-model-cute-fall-pumpkins-with-vine-main.webp"
@@ -37,6 +38,7 @@ youtube_videos:
 youtube_id: "4XcHzY97t9o"
 products:
   - name: "Magnets"
+    category: "test"
     url: "https://amzn.to/3Pw5kLD"
     cta: "View Product"
   - name: "Glue"
