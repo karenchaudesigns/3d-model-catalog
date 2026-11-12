@@ -1,7 +1,7 @@
 ---
 title: "Hexagon Framed Numbers"
-extended_title: "0-9 Large Digits in Hexagon Frame with Base"
-tagline: "Great as signage and decoration for anniversaries, kids birthdays and other events"
+extended_title: "0-31 Small Digits in Hexagon Frame with Base"
+tagline: "Great as signage and decoration for weddings, anniversaries, birthdays and other events"
 shortname: "hexagon-framed-numbers"
 category: "gifts-decor"
 fan_favorite: false
@@ -12,20 +12,22 @@ gallery_images: []
 detailed_images: []
 tags:
   - "hexagon"
+  - "decoration"
   - "frame"
   - "sign"
-  - "party"
-  - "kids"
+  - "small"
+  - "base"
   - "hex"
   - "wedding"
-  - "anniversary"
-  - "event"
-  - "number"
-  - "digits"
-  - "kidsbirthday"
+  - "signage"
+  - "numbers"
+  - "events"
+  - "birthdays"
+  - "weddings"
+  - "anniversaries"
 downloads:
   makerworld: ""
-  printables: "https://www.printables.com/model/943427-hexagon-framed-numbers-0-9-large-digits-in-hexagon"
+  printables: "https://www.printables.com/model/943486-hexagon-framed-numbers-0-31-small-digits-in-hexago"
   thangs: ""
   cults3d: ""
 youtube_shorts: []
