@@ -1873,17 +1873,33 @@
       border-radius: 4px;
     }
 
+    .product-item-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .btn-copy-product,
     .btn-remove-product {
       appearance: none;
       background: transparent;
-      border: none;
+      border: 1px solid transparent;
       color: var(--text-muted);
       cursor: pointer;
-      font-size: 0.85rem;
-      padding: 0.15rem 0.35rem;
+      font-size: 0.76rem;
+      padding: 0.2rem 0.45rem;
       border-radius: 4px;
-      line-height: 1;
-      transition: color 0.16s ease, background-color 0.16s ease;
+      line-height: 1.2;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      transition: color 0.16s ease, background-color 0.16s ease, border-color 0.16s ease;
+    }
+
+    .btn-copy-product:hover {
+      color: var(--accent-terracotta);
+      background-color: var(--accent-soft);
+      border-color: var(--border-subtle);
     }
 
     .btn-remove-product:hover {
@@ -3817,7 +3833,11 @@
                 </svg>
                 Relevant Products &amp; Affiliate Links
               </span>
-              <button type="button" class="btn-ghost" id="btn-add-product" style="padding:0.25rem 0.6rem;font-size:0.75rem;">+ Add Product</button>
+              <div style="display:flex;align-items:center;gap:0.35rem;flex-wrap:wrap;">
+                <button type="button" class="btn-ghost" id="btn-copy-all-products" style="padding:0.25rem 0.55rem;font-size:0.75rem;" title="Copy all affiliate links from this model to clipboard">&#128203; Copy All</button>
+                <button type="button" class="btn-ghost" id="btn-paste-products" style="padding:0.25rem 0.55rem;font-size:0.75rem;" title="Paste copied affiliate links into this model">&#128203; Paste</button>
+                <button type="button" class="btn-ghost" id="btn-add-product" style="padding:0.25rem 0.6rem;font-size:0.75rem;">+ Add Product</button>
+              </div>
             </div>
             <p class="sidebar-materials-editor-desc">Add affiliate links or materials used for this model (e.g. specific filament, magnets, hardware, or tools):</p>
             <div class="products-editor-list" id="products-editor-list"></div>
@@ -4285,6 +4305,8 @@
 
       var productsEditorList = document.getElementById('products-editor-list');
       var btnAddProduct = document.getElementById('btn-add-product');
+      var btnCopyAllProducts = document.getElementById('btn-copy-all-products');
+      var btnPasteProducts = document.getElementById('btn-paste-products');
       var modelProducts = []; // Array of { name, category, badge, description, url, cta }
       var shortnameManuallyEdited = false;
       var editingSlug = null;
@@ -6122,10 +6144,47 @@
       });
 
       /* Relevant Materials & Products Editor */
+      var AFFILIATE_CLIPBOARD_KEY = 'kcd-affiliate-links-clipboard';
+
+      function getAffiliateClipboard() {
+        try {
+          var raw = localStorage.getItem(AFFILIATE_CLIPBOARD_KEY);
+          if (!raw) return [];
+          var parsed = JSON.parse(raw);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (e) {
+          return [];
+        }
+      }
+
+      function setAffiliateClipboard(items) {
+        try {
+          localStorage.setItem(AFFILIATE_CLIPBOARD_KEY, JSON.stringify(items || []));
+        } catch (e) {}
+        updateAffiliatePasteButtonState();
+      }
+
+      function updateAffiliatePasteButtonState() {
+        if (!btnPasteProducts) return;
+        var clipboard = getAffiliateClipboard();
+        if (clipboard.length > 0) {
+          btnPasteProducts.disabled = false;
+          btnPasteProducts.innerHTML = '&#128203; Paste (' + clipboard.length + ')';
+          btnPasteProducts.title = 'Paste ' + clipboard.length + ' copied link' + (clipboard.length === 1 ? '' : 's') + ' into this model';
+          btnPasteProducts.style.opacity = '1';
+        } else {
+          btnPasteProducts.disabled = true;
+          btnPasteProducts.innerHTML = '&#128203; Paste';
+          btnPasteProducts.title = 'No copied affiliate links in clipboard yet. Use "Copy" or "Copy All" first.';
+          btnPasteProducts.style.opacity = '0.55';
+        }
+      }
+
       function renderProductsEditor() {
         if (!productsEditorList) return;
+        updateAffiliatePasteButtonState();
         if (!modelProducts.length) {
-          productsEditorList.innerHTML = '<p style="font-size:0.78rem;color:var(--text-muted);font-style:italic;margin:0.25rem 0 0.5rem;">No products or affiliate links added for this model yet. Click <strong>+ Add Product</strong> above to add filament, magnets, or hardware.</p>';
+          productsEditorList.innerHTML = '<p style="font-size:0.78rem;color:var(--text-muted);font-style:italic;margin:0.25rem 0 0.5rem;">No products or affiliate links added for this model yet. Click <strong>+ Add Product</strong> above or <strong>Paste</strong> from another model.</p>';
           return;
         }
 
@@ -6150,7 +6209,10 @@
               '      <span class="product-item-badge">' + (catVal || 'Product #' + (idx + 1)) + '</span>' +
               (badgeVal ? '<span style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text-muted);background:var(--bg-surface);padding:0.1rem 0.35rem;border-radius:3px;">' + badgeVal + '</span>' : '') +
               '    </div>' +
-              '    <button type="button" class="btn-remove-product" data-prod-idx="' + idx + '" title="Remove product" aria-label="Remove product">&times; Remove</button>' +
+              '    <div class="product-item-actions">' +
+              '      <button type="button" class="btn-copy-product" data-prod-idx="' + idx + '" title="Copy this product link to clipboard" aria-label="Copy this product link">&#128203; Copy</button>' +
+              '      <button type="button" class="btn-remove-product" data-prod-idx="' + idx + '" title="Remove product" aria-label="Remove product">&times; Remove</button>' +
+              '    </div>' +
               '  </div>' +
               '  <div style="display:flex;gap:0.75rem;align-items:flex-start;">' +
               '    <div class="product-preview-thumb-wrap" data-role="product-thumb-wrap">' + thumbHtml + '</div>' +
@@ -6210,7 +6272,7 @@
         btnAddProduct.addEventListener('click', function () {
           modelProducts.push({
             name: '',
-            category: 'Filament',
+            category: '',
             badge: '',
             description: '',
             url: '',
@@ -6225,8 +6287,80 @@
         });
       }
 
+      if (btnCopyAllProducts) {
+        btnCopyAllProducts.addEventListener('click', function () {
+          if (!modelProducts.length) {
+            var orig = btnCopyAllProducts.textContent;
+            btnCopyAllProducts.textContent = 'No links to copy';
+            setTimeout(function () { btnCopyAllProducts.innerHTML = '&#128203; Copy All'; }, 1500);
+            return;
+          }
+          var toCopy = JSON.parse(JSON.stringify(modelProducts));
+          setAffiliateClipboard(toCopy);
+          try {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              navigator.clipboard.writeText(JSON.stringify(toCopy, null, 2));
+            }
+          } catch (e) {}
+          var count = toCopy.length;
+          btnCopyAllProducts.textContent = 'Copied ' + count + ' link' + (count === 1 ? '' : 's') + '!';
+          setTimeout(function () {
+            btnCopyAllProducts.innerHTML = '&#128203; Copy All';
+          }, 1500);
+        });
+      }
+
+      if (btnPasteProducts) {
+        btnPasteProducts.addEventListener('click', function () {
+          var items = getAffiliateClipboard();
+          if (!items || !items.length) {
+            btnPasteProducts.textContent = 'Clipboard empty';
+            setTimeout(function () { updateAffiliatePasteButtonState(); }, 1500);
+            return;
+          }
+          var cloned = JSON.parse(JSON.stringify(items));
+          cloned.forEach(function (item) {
+            modelProducts.push({
+              name: item.name || item.title || '',
+              category: item.category || '',
+              badge: item.badge || '',
+              description: item.description || '',
+              url: item.url || '',
+              image: item.image || '',
+              cta: item.cta || 'View Product'
+            });
+          });
+          renderProductsEditor();
+          updateMarkdownPreview();
+          var addedCount = cloned.length;
+          btnPasteProducts.textContent = 'Pasted ' + addedCount + ' link' + (addedCount === 1 ? '' : 's') + '!';
+          setTimeout(function () {
+            updateAffiliatePasteButtonState();
+          }, 1500);
+        });
+      }
+
       if (productsEditorList) {
         productsEditorList.addEventListener('click', function (e) {
+          var copyBtn = e.target.closest('.btn-copy-product');
+          if (copyBtn) {
+            var cIdx = parseInt(copyBtn.getAttribute('data-prod-idx'), 10);
+            if (!isNaN(cIdx) && cIdx >= 0 && cIdx < modelProducts.length) {
+              var singleProd = JSON.parse(JSON.stringify([modelProducts[cIdx]]));
+              setAffiliateClipboard(singleProd);
+              try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                  navigator.clipboard.writeText(JSON.stringify(singleProd, null, 2));
+                }
+              } catch (err) {}
+              copyBtn.textContent = 'Copied!';
+              setTimeout(function () {
+                copyBtn.innerHTML = '&#128203; Copy';
+              }, 1500);
+            }
+            return;
+          }
+
           var removeBtn = e.target.closest('.btn-remove-product');
           if (!removeBtn) return;
           var idx = parseInt(removeBtn.getAttribute('data-prod-idx'), 10);
@@ -8248,7 +8382,7 @@
             }
             matrixDrafts[aSlug].products.push({
               name: '',
-              category: 'Filament & Materials',
+              category: '',
               badge: '',
               description: '',
               url: '',
