@@ -98,6 +98,8 @@ function parseModelMarkdown(filename) {
     shortname: slug,
     category: 'useful-prints',
     fan_favorite: false,
+    makerworld_exclusive: false,
+    premium: false,
     hidden: false,
     thumbnail_image: '',
     cover_image: '',
@@ -203,6 +205,12 @@ function parseModelMarkdown(filename) {
       } else if (key === 'fan_favorite') {
         const unquoted = yamlUnquote(rawVal).toLowerCase();
         result.fan_favorite = unquoted === 'true' || unquoted === 'yes';
+      } else if (key === 'makerworld_exclusive') {
+        const unquoted = yamlUnquote(rawVal).toLowerCase();
+        result.makerworld_exclusive = unquoted === 'true' || unquoted === 'yes';
+      } else if (key === 'premium') {
+        const unquoted = yamlUnquote(rawVal).toLowerCase();
+        result.premium = unquoted === 'true' || unquoted === 'yes';
       } else if (key in result) {
         result[key] = yamlUnquote(rawVal);
       }
@@ -356,6 +364,9 @@ function saveAndDeployModel(req, res) {
       category = 'useful-prints',
       fan_favorite = false,
       fanFavorite = false,
+      makerworld_exclusive = false,
+      makerworldExclusive = false,
+      premium = false,
       hidden = false,
       description = '',
       printSettings = '',
@@ -496,6 +507,8 @@ function saveAndDeployModel(req, res) {
       `shortname: ${yamlQuote(shortname)}`,
       `category: ${yamlQuote(category || 'useful-prints')}`,
       `fan_favorite: ${Boolean(fan_favorite || fanFavorite)}`,
+      `makerworld_exclusive: ${Boolean(makerworld_exclusive || makerworldExclusive)}`,
+      `premium: ${Boolean(premium)}`,
       `hidden: ${Boolean(hidden)}`,
       `thumbnail_image: ${yamlQuote(thumbWebPath)}`,
       `cover_image: ${yamlQuote(mainWebPath)}`
@@ -926,6 +939,8 @@ function updateModelFieldsOnDisk(slug, fields = {}) {
   const shortname = existing.shortname || slug;
   const category = fields.category !== undefined ? fields.category : existing.category;
   const fanFavorite = fields.fan_favorite !== undefined ? Boolean(fields.fan_favorite) : (fields.fanFavorite !== undefined ? Boolean(fields.fanFavorite) : Boolean(existing.fan_favorite));
+  const makerworldExclusive = fields.makerworld_exclusive !== undefined ? Boolean(fields.makerworld_exclusive) : (fields.makerworldExclusive !== undefined ? Boolean(fields.makerworldExclusive) : Boolean(existing.makerworld_exclusive));
+  const premium = fields.premium !== undefined ? Boolean(fields.premium) : Boolean(existing.premium);
   const hidden = fields.hidden !== undefined ? Boolean(fields.hidden) : existing.hidden;
   const thumbWebPath = existing.thumbnail_image;
   const mainWebPath = existing.cover_image;
@@ -972,6 +987,8 @@ function updateModelFieldsOnDisk(slug, fields = {}) {
     `shortname: ${yamlQuote(shortname)}`,
     `category: ${yamlQuote(category || 'useful-prints')}`,
     `fan_favorite: ${Boolean(fanFavorite)}`,
+    `makerworld_exclusive: ${Boolean(makerworldExclusive)}`,
+    `premium: ${Boolean(premium)}`,
     `hidden: ${Boolean(hidden)}`,
     `thumbnail_image: ${yamlQuote(thumbWebPath)}`,
     `cover_image: ${yamlQuote(mainWebPath)}`

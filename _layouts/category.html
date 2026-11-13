@@ -77,7 +77,7 @@ layout: default
           {% assign tag_text = tag_text | append: t | append: " " %}
         {% endfor %}
 
-        {% capture search_index %}{{ model.title }} {{ model.extended_title }} {{ model.tagline }} {{ model.category }} {{ category_meta.title }} {{ tag_text }}{% endcapture %}
+        {% capture search_index %}{{ model.title }} {{ model.extended_title }} {{ model.tagline }} {{ model.category }} {{ category_meta.title }} {{ tag_text }}{% if model.premium == true %} premium paid{% endif %}{% if model.makerworld_exclusive == true %} makerworld exclusive exclusive{% endif %}{% endcapture %}
 
         <article class="model-thumb-card" data-search-text="{{ search_index | strip | downcase | escape }}">
           <a href="{{ model.url | relative_url }}" class="model-thumb-link" id="model-card-{{ model.slug }}">
@@ -104,6 +104,12 @@ layout: default
                 {% endif %}
                 {% if model.fan_favorite == true %}
                   <span class="fan-favorite-badge">⭐ Fan Favorite</span>
+                {% endif %}
+                {% if model.makerworld_exclusive == true %}
+                  <span class="exclusive-badge">MakerWorld Exclusive</span>
+                {% endif %}
+                {% if model.premium == true %}
+                  <span class="premium-badge">💎 Premium</span>
                 {% endif %}
               </div>
               <h2 class="model-card-title">{{ model.title }}</h2>

@@ -219,6 +219,16 @@ layout: default
               ⭐ Fan Favorite
             </a>
           {% endif %}
+          {% if page.makerworld_exclusive == true %}
+            <span class="category-pill exclusive-pill" id="model-exclusive-badge" style="margin-bottom:0;">
+              MakerWorld Exclusive
+            </span>
+          {% endif %}
+          {% if page.premium == true %}
+            <span class="category-pill premium-pill" id="model-premium-badge" style="margin-bottom:0;">
+              💎 Premium Model
+            </span>
+          {% endif %}
         </div>
         <h1 class="model-title">{{ page.title }}</h1>
         {% if page.extended_title and page.extended_title != "" %}
@@ -249,8 +259,8 @@ layout: default
 
         {% if has_makerworld or has_printables or has_thangs or has_cults3d %}
           <section class="download-panel" aria-labelledby="download-heading">
-            <h2 class="download-heading" id="download-heading">Download 3D Print Files</h2>
-            <p class="download-subtext">Available on verified 3D printing repositories (STL / 3MF print profiles):</p>
+            <h2 class="download-heading" id="download-heading">{% if page.premium == true %}Get 3D Print Files{% else %}Download 3D Print Files{% endif %}</h2>
+            <p class="download-subtext">{% if page.makerworld_exclusive == true %}Exclusively available on MakerWorld (STL / 3MF print profiles):{% elsif page.premium == true %}Available as a premium design on verified 3D printing repositories:{% else %}Available on verified 3D printing repositories (STL / 3MF print profiles):{% endif %}</p>
             <div class="download-buttons">
               {% if has_makerworld %}
                 <a
@@ -680,6 +690,8 @@ layout: default
       "category": {{ m.category | jsonify }},
       "categoryTitle": {{ m_cat.title | default: m.category | jsonify }},
       "fan_favorite": {% if m.fan_favorite == true %}true{% else %}false{% endif %},
+      "makerworld_exclusive": {% if m.makerworld_exclusive == true %}true{% else %}false{% endif %},
+      "premium": {% if m.premium == true %}true{% else %}false{% endif %},
       "url": {{ m.url | relative_url | jsonify }},
       "thumb": {{ m_thumb | relative_url | jsonify }},
       "tags": [
@@ -1156,6 +1168,14 @@ layout: default
           ? '<span class="fan-favorite-badge">⭐ Fan Favorite</span>'
           : '';
 
+        var exclusiveBadge = m.makerworld_exclusive
+          ? '<span class="exclusive-badge">MakerWorld Exclusive</span>'
+          : '';
+
+        var premiumBadge = m.premium
+          ? '<span class="premium-badge">💎 Premium</span>'
+          : '';
+
         var sharedTagsHtml = '';
         if (item.sharedTags && item.sharedTags.length > 0) {
           var tagPills = item.sharedTags.slice(0, 3).map(function (tag) {
@@ -1192,6 +1212,8 @@ layout: default
           '<div class="model-card-meta-row">' +
           '<span class="model-card-category">' + safeCat + '</span>' +
           fanFavBadge +
+          exclusiveBadge +
+          premiumBadge +
           '</div>' +
           '<h3 class="model-card-title">' + safeTitle + '</h3>' +
           (m.extended_title ? '<p class="model-card-extended-title">' + escapeHtml(m.extended_title) + '</p>' : '') +

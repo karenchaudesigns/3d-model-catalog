@@ -888,6 +888,66 @@
       color: hsl(45, 95%, 85%);
     }
 
+    /* MakerWorld Exclusive Toggle Pill */
+    .exclusive-pill-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: var(--font-mono);
+      font-size: 0.73rem;
+      padding: 0.25rem 0.7rem;
+      border-radius: 999px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease;
+    }
+
+    .exclusive-pill-toggle:has(input:checked) {
+      background: hsl(150, 75%, 91%);
+      border-color: hsl(150, 85%, 35%);
+      color: hsl(150, 95%, 20%);
+      font-weight: 600;
+    }
+
+    [data-theme="dark"] .exclusive-pill-toggle:has(input:checked) {
+      background: hsl(150, 50%, 18%);
+      border-color: hsl(150, 60%, 35%);
+      color: hsl(150, 85%, 85%);
+    }
+
+    /* Premium Model Toggle Pill */
+    .premium-pill-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: var(--font-mono);
+      font-size: 0.73rem;
+      padding: 0.25rem 0.7rem;
+      border-radius: 999px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease;
+    }
+
+    .premium-pill-toggle:has(input:checked) {
+      background: hsl(280, 85%, 93%);
+      border-color: hsl(280, 70%, 50%);
+      color: hsl(280, 80%, 28%);
+      font-weight: 600;
+    }
+
+    [data-theme="dark"] .premium-pill-toggle:has(input:checked) {
+      background: hsl(280, 45%, 22%);
+      border-color: hsl(280, 55%, 45%);
+      color: hsl(280, 85%, 88%);
+    }
+
     /* Model Title Input styled identically to <h1 class="model-title"> */
     .model-title-wrapper {
       position: relative;
@@ -3765,6 +3825,16 @@
                 <span>⭐ Fan Favorite</span>
               </label>
 
+              <label class="exclusive-pill-toggle" title="When checked, marks this model as a MakerWorld Exclusive (makerworld_exclusive: true)">
+                <input type="checkbox" id="model-makerworld-exclusive">
+                <span>MakerWorld Exclusive</span>
+              </label>
+
+              <label class="premium-pill-toggle" title="When checked, marks this model as a Premium/Paid model (premium: true)">
+                <input type="checkbox" id="model-premium">
+                <span>💎 Premium (Paid)</span>
+              </label>
+
               <label class="hidden-pill-toggle" title="When checked, sets hidden: true in front matter to hide from home and category pages">
                 <input type="checkbox" id="model-hidden">
                 <span>Hidden from Catalog (<code>hidden: true</code>)</span>
@@ -4252,6 +4322,8 @@
       var slugLiveLink = document.getElementById('slug-live-link');
       var categorySelect = document.getElementById('model-category');
       var fanFavoriteCheckbox = document.getElementById('model-fan-favorite');
+      var makerworldExclusiveCheckbox = document.getElementById('model-makerworld-exclusive');
+      var premiumCheckbox = document.getElementById('model-premium');
       var hiddenCheckbox = document.getElementById('model-hidden');
       var descInput = document.getElementById('model-description');
       var settingsInput = document.getElementById('model-print-settings');
@@ -6760,7 +6832,7 @@
         }
       });
 
-      [extendedTitleInput, taglineInput, fanFavoriteCheckbox, hiddenCheckbox, descInput, settingsInput, dlMakerworld, dlPrintables, dlThangs, dlCults3d].forEach(
+      [extendedTitleInput, taglineInput, fanFavoriteCheckbox, makerworldExclusiveCheckbox, premiumCheckbox, hiddenCheckbox, descInput, settingsInput, dlMakerworld, dlPrintables, dlThangs, dlCults3d].forEach(
         function (el) {
           el.addEventListener('input', function () {
             if (el === descInput || el === settingsInput || el === extendedTitleInput || el === taglineInput) {
@@ -6807,6 +6879,8 @@
         var category = categorySelect.value;
         var isHidden = Boolean(hiddenCheckbox.checked);
         var isFanFavorite = Boolean(fanFavoriteCheckbox.checked);
+        var isExclusive = Boolean(makerworldExclusiveCheckbox.checked);
+        var isPremium = Boolean(premiumCheckbox.checked);
         var thumbPath =
           !generatedWebP.thumb && editingModelData && editingModelData.thumbnail_image
             ? editingModelData.thumbnail_image
@@ -6824,6 +6898,8 @@
           'shortname: ' + yamlEscape(shortname),
           'category: ' + yamlEscape(category),
           'fan_favorite: ' + (isFanFavorite ? 'true' : 'false'),
+          'makerworld_exclusive: ' + (isExclusive ? 'true' : 'false'),
+          'premium: ' + (isPremium ? 'true' : 'false'),
           'hidden: ' + (isHidden ? 'true' : 'false'),
           'thumbnail_image: ' + yamlEscape(thumbPath),
           'cover_image: ' + yamlEscape(mainPath)
@@ -6955,6 +7031,8 @@
         shortnameInput.value = '';
         categorySelect.value = 'useful-prints';
         fanFavoriteCheckbox.checked = false;
+        makerworldExclusiveCheckbox.checked = false;
+        premiumCheckbox.checked = false;
         hiddenCheckbox.checked = false;
         descInput.value = '';
         settingsInput.value = '';
@@ -7036,6 +7114,8 @@
             shortnameInput.value = m.shortname || m.slug || '';
             categorySelect.value = m.category === 'fan-favorites' ? 'useful-prints' : (m.category || 'useful-prints');
             fanFavoriteCheckbox.checked = Boolean(m.fan_favorite || m.category === 'fan-favorites');
+            makerworldExclusiveCheckbox.checked = Boolean(m.makerworld_exclusive);
+            premiumCheckbox.checked = Boolean(m.premium);
             hiddenCheckbox.checked = Boolean(m.hidden);
             descInput.value = m.description || '';
             settingsInput.value = m.printSettings || '';
@@ -7123,6 +7203,8 @@
           shortname: shortnameInput ? shortnameInput.value.trim() : '',
           category: categorySelect ? categorySelect.value : '',
           fanFavorite: fanFavoriteCheckbox ? Boolean(fanFavoriteCheckbox.checked) : false,
+          makerworldExclusive: makerworldExclusiveCheckbox ? Boolean(makerworldExclusiveCheckbox.checked) : false,
+          premium: premiumCheckbox ? Boolean(premiumCheckbox.checked) : false,
           hidden: hiddenCheckbox ? Boolean(hiddenCheckbox.checked) : false,
           description: descInput ? descInput.value : '',
           printSettings: settingsInput ? settingsInput.value : '',
@@ -8870,6 +8952,8 @@
             shortname: shortname,
             category: categorySelect.value,
             fan_favorite: Boolean(fanFavoriteCheckbox.checked),
+            makerworld_exclusive: Boolean(makerworldExclusiveCheckbox.checked),
+            premium: Boolean(premiumCheckbox.checked),
             hidden: Boolean(hiddenCheckbox.checked),
             description: descInput.value,
             printSettings: settingsInput.value,

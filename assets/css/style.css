@@ -640,6 +640,48 @@ a {
   background-color: hsl(42, 60%, 20%);
 }
 
+.premium-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: hsl(280, 75%, 32%);
+  background-color: hsl(280, 85%, 93%);
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  line-height: 1.2;
+}
+
+[data-theme="dark"] .premium-badge {
+  color: hsl(280, 85%, 88%);
+  background-color: hsl(280, 45%, 22%);
+}
+
+.exclusive-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: hsl(150, 95%, 22%);
+  background-color: hsl(150, 75%, 91%);
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  line-height: 1.2;
+}
+
+[data-theme="dark"] .exclusive-badge {
+  color: hsl(150, 85%, 85%);
+  background-color: hsl(150, 50%, 18%);
+}
+
 .model-card-title {
   font-size: 0.95rem;
   font-weight: 600;
@@ -998,6 +1040,26 @@ a {
 [data-theme="dark"] .category-pill.fan-favorite-pill {
   color: hsl(45, 95%, 85%);
   background-color: hsl(42, 60%, 20%);
+}
+
+.category-pill.premium-pill {
+  color: hsl(280, 75%, 30%);
+  background-color: hsl(280, 85%, 93%);
+}
+
+[data-theme="dark"] .category-pill.premium-pill {
+  color: hsl(280, 85%, 88%);
+  background-color: hsl(280, 45%, 22%);
+}
+
+.category-pill.exclusive-pill {
+  color: hsl(150, 95%, 22%);
+  background-color: hsl(150, 75%, 91%);
+}
+
+[data-theme="dark"] .category-pill.exclusive-pill {
+  color: hsl(150, 85%, 85%);
+  background-color: hsl(150, 50%, 18%);
 }
 
 .model-title {
