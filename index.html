@@ -4,17 +4,270 @@ title: "3D Printing Model Catalog"
 description: "Browse original 3D printable models by category—Useful Prints, Gifts & Decor, Seasonal, and Fan Favorites."
 ---
 
+{% assign visible_models = site.models | where_exp: "item", "item.hidden != true" %}
+
+{% assign latest_slugs = "patch-the-pumpkin-duck,makerchip-with-a-duck-cutout,make-your-own-table-tents-custom-folded-signs" | split: "," %}
+{% assign seasonal_slugs = "cute-fall-pumpkins-with-vine,small-gift-box-w-insert-for-up-to-8-aa-batteries,thanks-gift-card-holder-folded-card-3-x5" | split: "," %}
+{% assign fan_fav_slugs = "baby-ducks,gummy-bears,friendship-bracelet-making-kit" | split: "," %}
+
 <section class="hero-banner container" id="catalog-hero">
   <div class="hero-content">
     <span class="eyebrow">3D Printing Portfolio &amp; Digital Catalog</span>
     <h1 class="hero-title">Designed for Clean Prints &amp; Everyday Utility</h1>
     <p class="hero-description">
-      Explore support-free functional organizers, sculptural home accents, and articulated prints. Select a product category below or search the full 3D model library.
+      Explore support-free functional organizers, sculptural home accents, and community-loved articulated prints. Browse featured highlights below, jump into a category collection, or search the full 3D library.
     </p>
+
+    <!-- Hero Spotlight Highlights -->
+    <div class="hero-spotlight" id="hero-spotlight" aria-label="Featured model highlights">
+      <div class="hero-spotlight-nav" role="tablist" aria-label="Highlight Collections">
+        <button type="button" class="hero-spotlight-tab is-active" role="tab" id="tab-spotlight-all" aria-selected="true" aria-controls="panel-spotlight-all" data-target="panel-spotlight-all">
+          <span>✨ Featured Showcase</span>
+        </button>
+        <button type="button" class="hero-spotlight-tab" role="tab" id="tab-spotlight-latest" aria-selected="false" aria-controls="panel-spotlight-latest" data-target="panel-spotlight-latest">
+          <span>⚡ Latest Releases</span>
+        </button>
+        <button type="button" class="hero-spotlight-tab" role="tab" id="tab-spotlight-seasonal" aria-selected="false" aria-controls="panel-spotlight-seasonal" data-target="panel-spotlight-seasonal">
+          <span>🍂 Seasonal &amp; Holidays</span>
+        </button>
+        <button type="button" class="hero-spotlight-tab" role="tab" id="tab-spotlight-fanfav" aria-selected="false" aria-controls="panel-spotlight-fanfav" data-target="panel-spotlight-fanfav">
+          <span>⭐ Fan Favorites</span>
+        </button>
+      </div>
+
+      <!-- Panel 1: Combined Featured Showcase (Latest + Seasonal + Fan Favorite) -->
+      <div class="hero-spotlight-panel is-active" id="panel-spotlight-all" role="tabpanel" aria-labelledby="tab-spotlight-all">
+        <div class="hero-highlight-grid">
+          {% assign highlight_slugs = "patch-the-pumpkin-duck,cute-fall-pumpkins-with-vine,baby-ducks" | split: "," %}
+          {% for h_slug in highlight_slugs %}
+            {% assign h_model = visible_models | where: "shortname", h_slug | first %}
+            {% unless h_model %}
+              {% assign h_model = visible_models | where_exp: "m", "m.relative_path contains h_slug" | first %}
+            {% endunless %}
+            {% if h_model %}
+              {% assign cat_meta = site.catalog_categories | where: "slug", h_model.category | first %}
+              {% if h_model.thumbnail_image %}
+                {% assign h_thumb = h_model.thumbnail_image %}
+              {% elsif h_model.shortname %}
+                {% assign h_thumb = '/images/models/' | append: h_model.shortname | append: '/3d-model-' | append: h_model.shortname | append: '-thumb.webp' %}
+              {% else %}
+                {% assign h_thumb = h_model.cover_image %}
+              {% endif %}
+              <a href="{{ h_model.url | relative_url }}" class="hero-card" id="hero-card-featured-{{ h_model.slug }}">
+                <div class="hero-card-media">
+                  <div class="hero-card-badge-overlay">
+                    {% if forloop.index == 1 %}
+                      <span class="hero-spotlight-badge is-latest">⚡ Latest Release</span>
+                    {% elsif forloop.index == 2 %}
+                      <span class="hero-spotlight-badge is-seasonal">🍂 Current Season</span>
+                    {% else %}
+                      <span class="hero-spotlight-badge is-fan-fav">⭐ Fan Favorite</span>
+                    {% endif %}
+                  </div>
+                  <img
+                    src="{{ h_thumb | relative_url }}"
+                    alt="{{ h_model.title }} — 3D printing showcase model"
+                    width="600"
+                    height="600"
+                    fetchpriority="high"
+                    decoding="async"
+                    class="hero-card-img"
+                  >
+                </div>
+                <div class="hero-card-body">
+                  <div class="hero-card-meta-row">
+                    <span class="hero-card-category">{{ cat_meta.title | default: h_model.category }}</span>
+                    {% if h_model.makerworld_exclusive == true %}
+                      <span class="exclusive-badge">Exclusive</span>
+                    {% endif %}
+                  </div>
+                  <h3 class="hero-card-title">{{ h_model.title }}</h3>
+                  {% if h_model.tagline and h_model.tagline != "" %}
+                    <p class="hero-card-tagline">{{ h_model.tagline }}</p>
+                  {% elsif h_model.extended_title and h_model.extended_title != "" %}
+                    <p class="hero-card-tagline">{{ h_model.extended_title }}</p>
+                  {% endif %}
+                  <div class="hero-card-footer">
+                    <span>View 3D Model</span>
+                    <span class="hero-card-arrow" aria-hidden="true">&rarr;</span>
+                  </div>
+                </div>
+              </a>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Panel 2: Latest Releases -->
+      <div class="hero-spotlight-panel" id="panel-spotlight-latest" role="tabpanel" aria-labelledby="tab-spotlight-latest">
+        <div class="hero-highlight-grid">
+          {% for l_slug in latest_slugs %}
+            {% assign l_model = visible_models | where: "shortname", l_slug | first %}
+            {% unless l_model %}
+              {% assign l_model = visible_models | where_exp: "m", "m.relative_path contains l_slug" | first %}
+            {% endunless %}
+            {% if l_model %}
+              {% assign cat_meta = site.catalog_categories | where: "slug", l_model.category | first %}
+              {% if l_model.thumbnail_image %}
+                {% assign l_thumb = l_model.thumbnail_image %}
+              {% elsif l_model.shortname %}
+                {% assign l_thumb = '/images/models/' | append: l_model.shortname | append: '/3d-model-' | append: l_model.shortname | append: '-thumb.webp' %}
+              {% else %}
+                {% assign l_thumb = l_model.cover_image %}
+              {% endif %}
+              <a href="{{ l_model.url | relative_url }}" class="hero-card" id="hero-card-latest-{{ l_model.slug }}">
+                <div class="hero-card-media">
+                  <div class="hero-card-badge-overlay">
+                    <span class="hero-spotlight-badge is-latest">⚡ Latest Release</span>
+                  </div>
+                  <img
+                    src="{{ l_thumb | relative_url }}"
+                    alt="{{ l_model.title }} — 3D printing latest release"
+                    width="600"
+                    height="600"
+                    loading="lazy"
+                    decoding="async"
+                    class="hero-card-img"
+                  >
+                </div>
+                <div class="hero-card-body">
+                  <div class="hero-card-meta-row">
+                    <span class="hero-card-category">{{ cat_meta.title | default: l_model.category }}</span>
+                    {% if l_model.makerworld_exclusive == true %}
+                      <span class="exclusive-badge">Exclusive</span>
+                    {% endif %}
+                  </div>
+                  <h3 class="hero-card-title">{{ l_model.title }}</h3>
+                  {% if l_model.tagline and l_model.tagline != "" %}
+                    <p class="hero-card-tagline">{{ l_model.tagline }}</p>
+                  {% elsif l_model.extended_title and l_model.extended_title != "" %}
+                    <p class="hero-card-tagline">{{ l_model.extended_title }}</p>
+                  {% endif %}
+                  <div class="hero-card-footer">
+                    <span>View 3D Model</span>
+                    <span class="hero-card-arrow" aria-hidden="true">&rarr;</span>
+                  </div>
+                </div>
+              </a>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Panel 3: Seasonal & Holidays -->
+      <div class="hero-spotlight-panel" id="panel-spotlight-seasonal" role="tabpanel" aria-labelledby="tab-spotlight-seasonal">
+        <div class="hero-highlight-grid">
+          {% for s_slug in seasonal_slugs %}
+            {% assign s_model = visible_models | where: "shortname", s_slug | first %}
+            {% unless s_model %}
+              {% assign s_model = visible_models | where_exp: "m", "m.relative_path contains s_slug" | first %}
+            {% endunless %}
+            {% if s_model %}
+              {% assign cat_meta = site.catalog_categories | where: "slug", s_model.category | first %}
+              {% if s_model.thumbnail_image %}
+                {% assign s_thumb = s_model.thumbnail_image %}
+              {% elsif s_model.shortname %}
+                {% assign s_thumb = '/images/models/' | append: s_model.shortname | append: '/3d-model-' | append: s_model.shortname | append: '-thumb.webp' %}
+              {% else %}
+                {% assign s_thumb = s_model.cover_image %}
+              {% endif %}
+              <a href="{{ s_model.url | relative_url }}" class="hero-card" id="hero-card-seasonal-{{ s_model.slug }}">
+                <div class="hero-card-media">
+                  <div class="hero-card-badge-overlay">
+                    <span class="hero-spotlight-badge is-seasonal">🍂 Seasonal &amp; Holidays</span>
+                  </div>
+                  <img
+                    src="{{ s_thumb | relative_url }}"
+                    alt="{{ s_model.title }} — seasonal 3D print"
+                    width="600"
+                    height="600"
+                    loading="lazy"
+                    decoding="async"
+                    class="hero-card-img"
+                  >
+                </div>
+                <div class="hero-card-body">
+                  <div class="hero-card-meta-row">
+                    <span class="hero-card-category">{{ cat_meta.title | default: s_model.category }}</span>
+                    {% if s_model.makerworld_exclusive == true %}
+                      <span class="exclusive-badge">Exclusive</span>
+                    {% endif %}
+                  </div>
+                  <h3 class="hero-card-title">{{ s_model.title }}</h3>
+                  {% if s_model.tagline and s_model.tagline != "" %}
+                    <p class="hero-card-tagline">{{ s_model.tagline }}</p>
+                  {% elsif s_model.extended_title and s_model.extended_title != "" %}
+                    <p class="hero-card-tagline">{{ s_model.extended_title }}</p>
+                  {% endif %}
+                  <div class="hero-card-footer">
+                    <span>View 3D Model</span>
+                    <span class="hero-card-arrow" aria-hidden="true">&rarr;</span>
+                  </div>
+                </div>
+              </a>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Panel 4: Fan Favorites -->
+      <div class="hero-spotlight-panel" id="panel-spotlight-fanfav" role="tabpanel" aria-labelledby="tab-spotlight-fanfav">
+        <div class="hero-highlight-grid">
+          {% for f_slug in fan_fav_slugs %}
+            {% assign f_model = visible_models | where: "shortname", f_slug | first %}
+            {% unless f_model %}
+              {% assign f_model = visible_models | where_exp: "m", "m.relative_path contains f_slug" | first %}
+            {% endunless %}
+            {% if f_model %}
+              {% assign cat_meta = site.catalog_categories | where: "slug", f_model.category | first %}
+              {% if f_model.thumbnail_image %}
+                {% assign f_thumb = f_model.thumbnail_image %}
+              {% elsif f_model.shortname %}
+                {% assign f_thumb = '/images/models/' | append: f_model.shortname | append: '/3d-model-' | append: f_model.shortname | append: '-thumb.webp' %}
+              {% else %}
+                {% assign f_thumb = f_model.cover_image %}
+              {% endif %}
+              <a href="{{ f_model.url | relative_url }}" class="hero-card" id="hero-card-fanfav-{{ f_model.slug }}">
+                <div class="hero-card-media">
+                  <div class="hero-card-badge-overlay">
+                    <span class="hero-spotlight-badge is-fan-fav">⭐ Fan Favorite</span>
+                  </div>
+                  <img
+                    src="{{ f_thumb | relative_url }}"
+                    alt="{{ f_model.title }} — fan favorite 3D print"
+                    width="600"
+                    height="600"
+                    loading="lazy"
+                    decoding="async"
+                    class="hero-card-img"
+                  >
+                </div>
+                <div class="hero-card-body">
+                  <div class="hero-card-meta-row">
+                    <span class="hero-card-category">{{ cat_meta.title | default: f_model.category }}</span>
+                    {% if f_model.makerworld_exclusive == true %}
+                      <span class="exclusive-badge">Exclusive</span>
+                    {% endif %}
+                  </div>
+                  <h3 class="hero-card-title">{{ f_model.title }}</h3>
+                  {% if f_model.tagline and f_model.tagline != "" %}
+                    <p class="hero-card-tagline">{{ f_model.tagline }}</p>
+                  {% elsif f_model.extended_title and f_model.extended_title != "" %}
+                    <p class="hero-card-tagline">{{ f_model.extended_title }}</p>
+                  {% endif %}
+                  <div class="hero-card-footer">
+                    <span>View 3D Model</span>
+                    <span class="hero-card-arrow" aria-hidden="true">&rarr;</span>
+                  </div>
+                </div>
+              </a>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+    </div>
   </div>
 </section>
-
-{% assign visible_models = site.models | where_exp: "item", "item.hidden != true" %}
 
 <!-- Product Categories Grid (800x800px Category Thumbnails: category-[name]-3dmodels.webp) -->
 <section class="categories-showcase container" id="categories-section" aria-labelledby="categories-heading">
@@ -218,5 +471,31 @@ description: "Browse original 3D printable models by category—Useful Prints, G
 
     if (clearBtn) clearBtn.addEventListener('click', resetSearch);
     if (emptyClearBtn) emptyClearBtn.addEventListener('click', resetSearch);
+
+    // Hero Spotlight Tab Switcher
+    var spotlightTabs = Array.prototype.slice.call(document.querySelectorAll('.hero-spotlight-tab'));
+    var spotlightPanels = Array.prototype.slice.call(document.querySelectorAll('.hero-spotlight-panel'));
+
+    spotlightTabs.forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        var targetId = tab.getAttribute('data-target');
+        if (!targetId) return;
+
+        spotlightTabs.forEach(function (t) {
+          t.classList.remove('is-active');
+          t.setAttribute('aria-selected', 'false');
+        });
+        spotlightPanels.forEach(function (p) {
+          p.classList.remove('is-active');
+        });
+
+        tab.classList.add('is-active');
+        tab.setAttribute('aria-selected', 'true');
+        var targetPanel = document.getElementById(targetId);
+        if (targetPanel) {
+          targetPanel.classList.add('is-active');
+        }
+      });
+    });
   });
 </script>
