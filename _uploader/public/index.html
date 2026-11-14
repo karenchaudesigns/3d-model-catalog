@@ -3863,6 +3863,101 @@
       gap: 0.75rem;
       flex-wrap: wrap;
     }
+
+    /* Bulk Edit Modal Styles */
+    .bulk-attr-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+    .bulk-attr-row {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      padding: 0.7rem 0.85rem;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      transition: all 0.15s ease;
+    }
+    .bulk-attr-row.is-enabled {
+      background: var(--bg-surface);
+      border-color: var(--accent-terracotta);
+      box-shadow: 0 0 0 1px var(--accent-terracotta);
+    }
+    .bulk-attr-check {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      min-width: 170px;
+      font-weight: 600;
+      font-size: 0.84rem;
+      color: var(--text-primary);
+      cursor: pointer;
+      user-select: none;
+    }
+    .bulk-attr-control {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .bulk-attr-select {
+      width: 100%;
+      padding: 0.38rem 0.65rem;
+      font-family: var(--font-sans);
+      font-size: 0.82rem;
+      border-radius: var(--radius-xs);
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      outline: none;
+    }
+    .bulk-attr-select:focus {
+      border-color: var(--accent-terracotta);
+    }
+    .bulk-attr-select:disabled,
+    .bulk-attr-radio-group input:disabled + span {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+    .bulk-attr-radio-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.82rem;
+    }
+    .bulk-attr-radio-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      cursor: pointer;
+      color: var(--text-primary);
+    }
+    .bulk-edit-status-box {
+      display: none;
+      font-size: 0.82rem;
+      padding: 0.5rem 0.75rem;
+      border-radius: var(--radius-xs);
+      margin-top: 0.25rem;
+    }
+    .bulk-edit-status-box.is-running {
+      display: block;
+      background: var(--bg-subtle);
+      color: var(--text-secondary);
+    }
+    .bulk-edit-status-box.is-error {
+      display: block;
+      background: hsl(0, 75%, 96%);
+      border: 1px solid var(--danger);
+      color: var(--danger);
+    }
+    .bulk-edit-status-box.is-success {
+      display: block;
+      background: var(--success-bg);
+      border: 1px solid var(--success);
+      color: var(--success);
+    }
   </style>
 </head>
 <body>
@@ -3927,6 +4022,132 @@
         <div style="display:flex;gap:0.5rem;">
           <button type="button" class="btn-ghost" id="btn-pf-cancel">Cancel</button>
           <button type="button" class="btn-primary" id="btn-pf-apply">Apply Selected Fields &rarr;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bulk Edit Attributes Modal -->
+  <div class="pf-modal-backdrop" id="bulk-attr-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="bulk-attr-modal-title">
+    <div class="pf-modal-card">
+      <div class="pf-modal-header">
+        <h3 class="pf-modal-title" id="bulk-attr-modal-title">
+          <span>&#9998; Bulk Update Attributes</span>
+        </h3>
+        <button type="button" class="btn-ghost" id="btn-bulk-attr-close" style="padding:0.25rem 0.55rem;font-size:0.85rem;" aria-label="Close dialog">&times;</button>
+      </div>
+      <div class="pf-modal-body">
+        <p class="pf-modal-desc">
+          Apply changes across <strong id="bulk-attr-target-count">0 models</strong>. Check the box next to each attribute you want to update; unchecked attributes will remain untouched.
+        </p>
+
+        <div class="bulk-attr-grid">
+          <!-- Category -->
+          <div class="bulk-attr-row" id="bulk-row-category">
+            <label class="bulk-attr-check">
+              <input type="checkbox" id="chk-bulk-category">
+              <span>Category</span>
+            </label>
+            <div class="bulk-attr-control">
+              <select id="bulk-val-category" class="bulk-attr-select" disabled>
+                <option value="useful-prints">Useful Prints</option>
+                <option value="gifts-decor">Gifts &amp; Decor</option>
+                <option value="seasonal">Seasonal</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Fan Favorite -->
+          <div class="bulk-attr-row" id="bulk-row-fan-favorite">
+            <label class="bulk-attr-check">
+              <input type="checkbox" id="chk-bulk-fan-favorite">
+              <span>Fan Favorite</span>
+            </label>
+            <div class="bulk-attr-control">
+              <div class="bulk-attr-radio-group">
+                <label class="bulk-attr-radio-label">
+                  <input type="radio" name="bulk-val-fan-favorite" value="true" checked disabled>
+                  <span>⭐ Yes (Fan Favorite)</span>
+                </label>
+                <label class="bulk-attr-radio-label">
+                  <input type="radio" name="bulk-val-fan-favorite" value="false" disabled>
+                  <span>No</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- MakerWorld Exclusive -->
+          <div class="bulk-attr-row" id="bulk-row-exclusive">
+            <label class="bulk-attr-check">
+              <input type="checkbox" id="chk-bulk-exclusive">
+              <span>MakerWorld Exclusive</span>
+            </label>
+            <div class="bulk-attr-control">
+              <div class="bulk-attr-radio-group">
+                <label class="bulk-attr-radio-label">
+                  <input type="radio" name="bulk-val-exclusive" value="true" checked disabled>
+                  <span>Yes (Exclusive)</span>
+                </label>
+                <label class="bulk-attr-radio-label">
+                  <input type="radio" name="bulk-val-exclusive" value="false" disabled>
+                  <span>No</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Premium (Paid) -->
+          <div class="bulk-attr-row" id="bulk-row-premium">
+            <label class="bulk-attr-check">
+              <input type="checkbox" id="chk-bulk-premium">
+              <span>💎 Premium (Paid)</span>
+            </label>
+            <div class="bulk-attr-control">
+              <div class="bulk-attr-radio-group">
+                <label class="bulk-attr-radio-label">
+                  <input type="radio" name="bulk-val-premium" value="true" checked disabled>
+                  <span>Yes (Premium)</span>
+                </label>
+                <label class="bulk-attr-radio-label">
+                  <input type="radio" name="bulk-val-premium" value="false" disabled>
+                  <span>No</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hidden from Catalog -->
+          <div class="bulk-attr-row" id="bulk-row-hidden">
+            <label class="bulk-attr-check">
+              <input type="checkbox" id="chk-bulk-hidden">
+              <span>Visibility</span>
+            </label>
+            <div class="bulk-attr-control">
+              <div class="bulk-attr-radio-group">
+                <label class="bulk-attr-radio-label">
+                  <input type="radio" name="bulk-val-hidden" value="false" checked disabled>
+                  <span>Visible</span>
+                </label>
+                <label class="bulk-attr-radio-label">
+                  <input type="radio" name="bulk-val-hidden" value="true" disabled>
+                  <span>Hidden (<code>hidden: true</code>)</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bulk-edit-status-box" id="bulk-attr-status"></div>
+      </div>
+      <div class="pf-modal-footer">
+        <label style="display:inline-flex;align-items:center;gap:0.4rem;font-size:0.8rem;cursor:pointer;">
+          <input type="checkbox" id="chk-bulk-auto-push" checked>
+          <span>Auto-push commit to GitHub</span>
+        </label>
+        <div style="display:flex;gap:0.5rem;">
+          <button type="button" class="btn-ghost" id="btn-bulk-attr-cancel">Cancel</button>
+          <button type="button" class="btn-primary" id="btn-bulk-attr-apply">Apply to Selected Models &rarr;</button>
         </div>
       </div>
     </div>
@@ -4621,6 +4842,7 @@
           >
           <button type="button" class="btn-catalog-action" id="btn-select-all-models">Select All</button>
           <button type="button" class="btn-catalog-action" id="btn-deselect-all-models" style="display:none;">Deselect All</button>
+          <button type="button" class="btn-catalog-action" id="btn-bulk-edit-attributes" title="Bulk update category, visibility, exclusive, fan favorite, or premium for selected models" style="display:none;background:var(--accent-soft);border-color:var(--accent-terracotta);color:var(--accent-terracotta);font-weight:700;">&#9998; Bulk Edit (<span id="bulk-edit-count">0</span>)</button>
           <button type="button" class="btn-catalog-action" id="btn-export-csv" title="Export selected models to CSV (title, extended title, tagline, description, tags)">Export (<span id="export-csv-count">0</span>)</button>
           <label class="catalog-export-photo-label" title="Include all photos for selected models in separate folders as JPGs with cover.jpg">
             <input type="checkbox" id="chk-export-include-photos" class="catalog-export-photo-checkbox">
@@ -8909,6 +9131,14 @@
         if (exportCsvCount) {
           exportCsvCount.textContent = count;
         }
+        var btnBulkEdit = document.getElementById('btn-bulk-edit-attributes');
+        var bulkEditCountEl = document.getElementById('bulk-edit-count');
+        if (bulkEditCountEl) {
+          bulkEditCountEl.textContent = count;
+        }
+        if (btnBulkEdit) {
+          btnBulkEdit.style.display = count > 0 ? 'inline-flex' : 'none';
+        }
         if (btnExportCsv) {
           var includePhotos = Boolean(chkExportIncludePhotos && chkExportIncludePhotos.checked);
           btnExportCsv.disabled = count === 0;
@@ -9826,6 +10056,219 @@
       if (btnExportCsv) {
         btnExportCsv.addEventListener('click', function () {
           exportSelectedModelsToCsv();
+        });
+      }
+
+      /* Bulk Edit Attributes Logic */
+      var bulkAttrModalBackdrop = document.getElementById('bulk-attr-modal-backdrop');
+      var btnBulkEditAttributes = document.getElementById('btn-bulk-edit-attributes');
+      var btnBulkAttrClose = document.getElementById('btn-bulk-attr-close');
+      var btnBulkAttrCancel = document.getElementById('btn-bulk-attr-cancel');
+      var btnBulkAttrApply = document.getElementById('btn-bulk-attr-apply');
+      var bulkAttrTargetCount = document.getElementById('bulk-attr-target-count');
+      var bulkAttrStatus = document.getElementById('bulk-attr-status');
+      var chkBulkAutoPush = document.getElementById('chk-bulk-auto-push');
+
+      // Attribute toggle checkboxes
+      var chkBulkCategory = document.getElementById('chk-bulk-category');
+      var valBulkCategory = document.getElementById('bulk-val-category');
+      var rowBulkCategory = document.getElementById('bulk-row-category');
+
+      var chkBulkFanFavorite = document.getElementById('chk-bulk-fan-favorite');
+      var rowBulkFanFavorite = document.getElementById('bulk-row-fan-favorite');
+
+      var chkBulkExclusive = document.getElementById('chk-bulk-exclusive');
+      var rowBulkExclusive = document.getElementById('bulk-row-exclusive');
+
+      var chkBulkPremium = document.getElementById('chk-bulk-premium');
+      var rowBulkPremium = document.getElementById('bulk-row-premium');
+
+      var chkBulkHidden = document.getElementById('chk-bulk-hidden');
+      var rowBulkHidden = document.getElementById('bulk-row-hidden');
+
+      function syncBulkAttrRowState(chk, row, valInputs) {
+        var isChecked = Boolean(chk && chk.checked);
+        if (row) row.classList.toggle('is-enabled', isChecked);
+        if (valInputs) {
+          if (Array.isArray(valInputs) || valInputs instanceof NodeList) {
+            valInputs.forEach(function (inp) { inp.disabled = !isChecked; });
+          } else {
+            valInputs.disabled = !isChecked;
+          }
+        }
+      }
+
+      if (chkBulkCategory) {
+        chkBulkCategory.addEventListener('change', function () {
+          syncBulkAttrRowState(chkBulkCategory, rowBulkCategory, valBulkCategory);
+        });
+      }
+      if (chkBulkFanFavorite) {
+        var radFan = document.querySelectorAll('input[name="bulk-val-fan-favorite"]');
+        chkBulkFanFavorite.addEventListener('change', function () {
+          syncBulkAttrRowState(chkBulkFanFavorite, rowBulkFanFavorite, radFan);
+        });
+      }
+      if (chkBulkExclusive) {
+        var radExcl = document.querySelectorAll('input[name="bulk-val-exclusive"]');
+        chkBulkExclusive.addEventListener('change', function () {
+          syncBulkAttrRowState(chkBulkExclusive, rowBulkExclusive, radExcl);
+        });
+      }
+      if (chkBulkPremium) {
+        var radPrem = document.querySelectorAll('input[name="bulk-val-premium"]');
+        chkBulkPremium.addEventListener('change', function () {
+          syncBulkAttrRowState(chkBulkPremium, rowBulkPremium, radPrem);
+        });
+      }
+      if (chkBulkHidden) {
+        var radHidd = document.querySelectorAll('input[name="bulk-val-hidden"]');
+        chkBulkHidden.addEventListener('change', function () {
+          syncBulkAttrRowState(chkBulkHidden, rowBulkHidden, radHidd);
+        });
+      }
+
+      function openBulkAttrModal() {
+        if (!catalogSelectedSlugs || catalogSelectedSlugs.size === 0) {
+          alert('Please select at least one model first.');
+          return;
+        }
+        var count = catalogSelectedSlugs.size;
+        if (bulkAttrTargetCount) {
+          bulkAttrTargetCount.textContent = count + ' model' + (count === 1 ? '' : 's');
+        }
+        if (bulkAttrStatus) {
+          bulkAttrStatus.className = 'bulk-edit-status-box';
+          bulkAttrStatus.textContent = '';
+          bulkAttrStatus.style.display = 'none';
+        }
+        if (btnBulkAttrApply) {
+          btnBulkAttrApply.disabled = false;
+          btnBulkAttrApply.innerHTML = 'Apply to ' + count + ' Model' + (count === 1 ? '' : 's') + ' &rarr;';
+        }
+        if (bulkAttrModalBackdrop) {
+          bulkAttrModalBackdrop.classList.add('is-open');
+        }
+      }
+
+      function closeBulkAttrModal() {
+        if (bulkAttrModalBackdrop) {
+          bulkAttrModalBackdrop.classList.remove('is-open');
+        }
+      }
+
+      if (btnBulkEditAttributes) {
+        btnBulkEditAttributes.addEventListener('click', openBulkAttrModal);
+      }
+      if (btnBulkAttrClose) btnBulkAttrClose.addEventListener('click', closeBulkAttrModal);
+      if (btnBulkAttrCancel) btnBulkAttrCancel.addEventListener('click', closeBulkAttrModal);
+      if (bulkAttrModalBackdrop) {
+        bulkAttrModalBackdrop.addEventListener('click', function (e) {
+          if (e.target === bulkAttrModalBackdrop) closeBulkAttrModal();
+        });
+      }
+
+      if (btnBulkAttrApply) {
+        btnBulkAttrApply.addEventListener('click', function () {
+          var updatesFields = {};
+          var anySelected = false;
+
+          if (chkBulkCategory && chkBulkCategory.checked) {
+            updatesFields.category = valBulkCategory ? valBulkCategory.value : 'useful-prints';
+            anySelected = true;
+          }
+
+          if (chkBulkFanFavorite && chkBulkFanFavorite.checked) {
+            var selFan = document.querySelector('input[name="bulk-val-fan-favorite"]:checked');
+            updatesFields.fan_favorite = selFan ? selFan.value === 'true' : false;
+            anySelected = true;
+          }
+
+          if (chkBulkExclusive && chkBulkExclusive.checked) {
+            var selExcl = document.querySelector('input[name="bulk-val-exclusive"]:checked');
+            updatesFields.makerworld_exclusive = selExcl ? selExcl.value === 'true' : false;
+            anySelected = true;
+          }
+
+          if (chkBulkPremium && chkBulkPremium.checked) {
+            var selPrem = document.querySelector('input[name="bulk-val-premium"]:checked');
+            updatesFields.premium = selPrem ? selPrem.value === 'true' : false;
+            anySelected = true;
+          }
+
+          if (chkBulkHidden && chkBulkHidden.checked) {
+            var selHidd = document.querySelector('input[name="bulk-val-hidden"]:checked');
+            updatesFields.hidden = selHidd ? selHidd.value === 'true' : false;
+            anySelected = true;
+          }
+
+          if (!anySelected) {
+            if (bulkAttrStatus) {
+              bulkAttrStatus.className = 'bulk-edit-status-box is-error';
+              bulkAttrStatus.textContent = 'Please check at least one attribute to update.';
+            }
+            return;
+          }
+
+          var slugArr = Array.from(catalogSelectedSlugs);
+          var updatesPayload = slugArr.map(function (slug) {
+            return { slug: slug, fields: updatesFields };
+          });
+
+          var autoDeploy = chkBulkAutoPush ? chkBulkAutoPush.checked : true;
+
+          bulkAttrStatus.className = 'bulk-edit-status-box is-running';
+          bulkAttrStatus.textContent = 'Saving changes across ' + slugArr.length + ' models' + (autoDeploy ? ' and committing to git...' : '...');
+          btnBulkAttrApply.disabled = true;
+
+          fetch('/api/models/bulk-update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              updates: updatesPayload,
+              autoDeploy: autoDeploy
+            })
+          })
+            .then(function (r) {
+              return r.json().then(function (b) {
+                return { ok: r.ok, body: b };
+              });
+            })
+            .then(function (res) {
+              btnBulkAttrApply.disabled = false;
+              if (!res.ok || res.body.error) {
+                bulkAttrStatus.className = 'bulk-edit-status-box is-error';
+                bulkAttrStatus.textContent = 'Error: ' + (res.body.error || 'Failed to update models.');
+                return;
+              }
+
+              // Update client models cache in memory
+              if (Array.isArray(res.body.models)) {
+                res.body.models.forEach(function (upd) {
+                  for (var i = 0; i < catalogModelsCache.length; i++) {
+                    if (catalogModelsCache[i].slug === upd.slug) {
+                      catalogModelsCache[i] = upd;
+                      break;
+                    }
+                  }
+                });
+              }
+
+              bulkAttrStatus.className = 'bulk-edit-status-box is-success';
+              var gitNote = res.body.deployed ? ' & Pushed to GitHub' : '';
+              bulkAttrStatus.textContent = '✓ Successfully updated ' + (res.body.updatedCount || slugArr.length) + ' models' + gitNote + '!';
+
+              renderExistingModelsList();
+
+              setTimeout(function () {
+                closeBulkAttrModal();
+              }, 1200);
+            })
+            .catch(function (err) {
+              btnBulkAttrApply.disabled = false;
+              bulkAttrStatus.className = 'bulk-edit-status-box is-error';
+              bulkAttrStatus.textContent = 'Network error: ' + err.message;
+            });
         });
       }
 
