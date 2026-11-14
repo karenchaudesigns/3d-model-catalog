@@ -3,8 +3,10 @@ title: "Small Gift Box w/ Insert for up to 8 AA Batteries"
 extended_title: ""
 tagline: "Be the hero this holiday season and ensure no one's gifts are short on batteries!"
 shortname: "small-gift-box-w-insert-for-up-to-8-aa-batteries"
-category: "seasonal"
+category: "gifts-decor"
 fan_favorite: false
+makerworld_exclusive: false
+premium: false
 hidden: false
 thumbnail_image: "/images/models/small-gift-box-w-insert-for-up-to-8-aa-batteries/3d-model-small-gift-box-w-insert-for-up-to-8-aa-batteries-thumb.webp"
 cover_image: "/images/models/small-gift-box-w-insert-for-up-to-8-aa-batteries/3d-model-small-gift-box-w-insert-for-up-to-8-aa-batteries-main.webp"

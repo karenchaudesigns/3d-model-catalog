@@ -3,8 +3,10 @@ title: "Boxes - Style C"
 extended_title: "Basic Box & Ribbon Gift Box"
 tagline: "Basic and ribbon-compatible options."
 shortname: "boxes-style-c"
-category: "seasonal"
+category: "gifts-decor"
 fan_favorite: false
+makerworld_exclusive: false
+premium: false
 hidden: false
 thumbnail_image: "/images/models/boxes-style-c/3d-model-boxes-style-c-thumb.webp"
 cover_image: "/images/models/boxes-style-c/3d-model-boxes-style-c-main.webp"

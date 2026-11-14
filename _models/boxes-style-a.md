@@ -3,8 +3,10 @@ title: "Boxes - Style A"
 extended_title: "Sized for AA batteries | Basic Box & Ribbon Gift Box"
 tagline: "Classiest way to include AA batteries as a gift. Basic and ribbon-compatible options."
 shortname: "boxes-style-a"
-category: "seasonal"
+category: "gifts-decor"
 fan_favorite: false
+makerworld_exclusive: false
+premium: false
 hidden: false
 thumbnail_image: "/images/models/boxes-style-a/3d-model-boxes-style-a-thumb.webp"
 cover_image: "/images/models/boxes-style-a/3d-model-boxes-style-a-main.webp"
