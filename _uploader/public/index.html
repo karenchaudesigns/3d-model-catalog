@@ -3339,6 +3339,97 @@
       color: var(--text-primary);
     }
 
+    /* Filter & Sort Controls for Catalog Library */
+    .catalog-filter-sort-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.85rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 0.65rem 1rem;
+      margin-bottom: 1.15rem;
+      flex-wrap: wrap;
+      box-shadow: var(--shadow-card);
+    }
+
+    .catalog-filters-group,
+    .catalog-sort-group {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+
+    .catalog-control-label {
+      font-family: var(--font-sans);
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .catalog-select-control {
+      font-family: var(--font-sans);
+      font-size: 0.8rem;
+      padding: 0.35rem 0.75rem;
+      border: 1px solid var(--border-subtle);
+      border-radius: 999px;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.15s ease, background-color 0.15s ease;
+    }
+
+    .catalog-select-control:focus {
+      border-color: var(--accent-terracotta);
+      background: var(--bg-surface);
+    }
+
+    .catalog-filter-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-family: var(--font-sans);
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.32rem 0.65rem;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-primary);
+      color: var(--text-secondary);
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease;
+    }
+
+    .catalog-filter-chip:hover {
+      border-color: var(--border-strong);
+      color: var(--text-primary);
+    }
+
+    .catalog-filter-chip.is-active {
+      background: var(--accent-soft);
+      border-color: var(--accent-terracotta);
+      color: var(--accent-terracotta);
+    }
+
+    .catalog-filter-chip input[type="checkbox"] {
+      cursor: pointer;
+      accent-color: var(--accent-terracotta);
+    }
+
+    .catalog-models-counter-badge {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-left: auto;
+    }
+
     .catalog-export-photo-checkbox {
       accent-color: var(--accent-terracotta);
       width: 0.92rem;
@@ -4187,6 +4278,51 @@
         </div>
       </div>
 
+      <!-- Filters & Sorting Toolbar for Catalog Library -->
+      <div class="catalog-filter-sort-bar" id="catalog-filter-sort-bar">
+        <div class="catalog-filters-group">
+          <span class="catalog-control-label">Filter:</span>
+          <select class="catalog-select-control" id="filter-catalog-category" aria-label="Filter models by category">
+            <option value="all">All Categories</option>
+            <option value="useful-prints">Useful Prints</option>
+            <option value="gifts-decor">Gifts &amp; Decor</option>
+            <option value="seasonal">Seasonal</option>
+            <option value="fan-favorites">Fan Favorites</option>
+          </select>
+          <label class="catalog-filter-chip" id="chip-filter-hidden" title="Filter hidden models">
+            <select class="catalog-select-control" id="filter-catalog-hidden" aria-label="Filter models by hidden status" style="padding:0.25rem 0.6rem;font-size:0.78rem;">
+              <option value="all">All Visibility (Visible &amp; Hidden)</option>
+              <option value="visible">Visible Only</option>
+              <option value="hidden">Hidden Only</option>
+            </select>
+          </label>
+          <label class="catalog-filter-chip" id="chip-filter-exclusive" title="Toggle MakerWorld Exclusive filter">
+            <input type="checkbox" id="filter-catalog-exclusive">
+            <span>MakerWorld Exclusive</span>
+          </label>
+          <label class="catalog-filter-chip" id="chip-filter-premium" title="Toggle Premium filter">
+            <input type="checkbox" id="filter-catalog-premium">
+            <span>💎 Premium</span>
+          </label>
+          <button type="button" class="btn-catalog-action" id="btn-reset-catalog-filters" style="display:none;padding:0.22rem 0.65rem;" title="Reset all filters and sorting to defaults">Reset Filters</button>
+        </div>
+
+        <div class="catalog-sort-group">
+          <span class="catalog-control-label">Sort By:</span>
+          <select class="catalog-select-control" id="sort-catalog-by" aria-label="Sort models by">
+            <option value="name-asc">Name (A &rarr; Z)</option>
+            <option value="name-desc">Name (Z &rarr; A)</option>
+            <option value="photos-desc">Number of Photos (High &rarr; Low)</option>
+            <option value="photos-asc">Number of Photos (Low &rarr; High)</option>
+            <option value="tags-desc">Number of Tags (High &rarr; Low)</option>
+            <option value="tags-asc">Number of Tags (Low &rarr; High)</option>
+            <option value="date-desc" selected>Creation Date (Newest First)</option>
+            <option value="date-asc">Creation Date (Oldest First)</option>
+          </select>
+          <span class="catalog-models-counter-badge" id="catalog-filtered-counter">73 models</span>
+        </div>
+      </div>
+
       <!-- View 1: Thumbnail Card Grid -->
       <div class="model-thumbnail-grid" id="existing-models-list"></div>
 
@@ -4454,6 +4590,15 @@
       var catalogSelectedSlugs = new Set();
       var catalogSearchQuery = '';
       var catalogLibrarySearch = document.getElementById('catalog-library-search');
+      var filterCatalogCategory = document.getElementById('filter-catalog-category');
+      var filterCatalogHidden = document.getElementById('filter-catalog-hidden');
+      var filterCatalogExclusive = document.getElementById('filter-catalog-exclusive');
+      var filterCatalogPremium = document.getElementById('filter-catalog-premium');
+      var chipFilterExclusive = document.getElementById('chip-filter-exclusive');
+      var chipFilterPremium = document.getElementById('chip-filter-premium');
+      var btnResetCatalogFilters = document.getElementById('btn-reset-catalog-filters');
+      var sortCatalogBy = document.getElementById('sort-catalog-by');
+      var catalogFilteredCounter = document.getElementById('catalog-filtered-counter');
       var btnSelectAllModels = document.getElementById('btn-select-all-models');
       var btnDeselectAllModels = document.getElementById('btn-deselect-all-models');
       var btnExportCsv = document.getElementById('btn-export-csv');
@@ -4461,6 +4606,12 @@
       var chkExportIncludePhotos = document.getElementById('chk-export-include-photos');
       var catalogSelectionCount = document.getElementById('catalog-selection-count');
       var btnOpenColumnsTable = document.getElementById('btn-open-columns-table');
+
+      var catalogCategoryFilter = 'all';
+      var catalogHiddenFilter = 'all';
+      var catalogExclusiveFilter = false;
+      var catalogPremiumFilter = false;
+      var catalogSortMode = 'date-desc';
 
       var libraryViewMode = 'grid'; // 'grid', 'table', or 'matrix'
       var linksFilterMode = 'all'; // 'all', 'missing', or 'complete'
@@ -8056,6 +8207,109 @@
         }
       }
 
+      function getModelPhotoCount(m) {
+        var count = 0;
+        if (m.thumbnail_image) count++;
+        if (m.cover_image && m.cover_image !== m.thumbnail_image) count++;
+        if (Array.isArray(m.gallery_images)) count += m.gallery_images.length;
+        if (Array.isArray(m.detailed_images)) count += m.detailed_images.length;
+        return count;
+      }
+
+      function getModelTagCount(m) {
+        var cur = getModelCurrentMatrix(m);
+        if (Array.isArray(cur.tags)) return cur.tags.length;
+        if (typeof cur.tags === 'string') {
+          return cur.tags.split(',').map(function (s) { return s.trim(); }).filter(Boolean).length;
+        }
+        if (Array.isArray(m.tags)) return m.tags.length;
+        return 0;
+      }
+
+      function getFilteredAndSortedCatalogModels() {
+        var q = String(catalogSearchQuery || '').trim().toLowerCase();
+
+        var filtered = catalogModelsCache.filter(function (m) {
+          // Category filter
+          if (catalogCategoryFilter !== 'all') {
+            if (catalogCategoryFilter === 'fan-favorites') {
+              if (!m.fan_favorite && m.category !== 'fan-favorites') return false;
+            } else if (m.category !== catalogCategoryFilter) {
+              return false;
+            }
+          }
+
+          // Hidden filter
+          if (catalogHiddenFilter === 'visible' && m.hidden) return false;
+          if (catalogHiddenFilter === 'hidden' && !m.hidden) return false;
+
+          // MakerWorld Exclusive filter
+          if (catalogExclusiveFilter && !m.makerworld_exclusive) return false;
+
+          // Premium filter
+          if (catalogPremiumFilter && !m.premium) return false;
+
+          // Text Search filter
+          if (q) {
+            var cur = getModelCurrentMatrix(m);
+            var hay = (
+              (cur.title || '') + ' ' +
+              (cur.extended_title || '') + ' ' +
+              (cur.tagline || '') + ' ' +
+              (m.slug || '') + ' ' +
+              (cur.tags || '')
+            ).toLowerCase();
+            if (hay.indexOf(q) === -1) return false;
+          }
+
+          return true;
+        });
+
+        // Sorting
+        filtered.sort(function (a, b) {
+          var curA = getModelCurrentMatrix(a);
+          var curB = getModelCurrentMatrix(b);
+
+          if (catalogSortMode === 'name-asc') {
+            return (curA.title || a.slug || '').localeCompare(curB.title || b.slug || '');
+          }
+          if (catalogSortMode === 'name-desc') {
+            return (curB.title || b.slug || '').localeCompare(curA.title || a.slug || '');
+          }
+          if (catalogSortMode === 'photos-desc') {
+            var pDiff = getModelPhotoCount(b) - getModelPhotoCount(a);
+            return pDiff !== 0 ? pDiff : (curA.title || a.slug || '').localeCompare(curB.title || b.slug || '');
+          }
+          if (catalogSortMode === 'photos-asc') {
+            var pDiff = getModelPhotoCount(a) - getModelPhotoCount(b);
+            return pDiff !== 0 ? pDiff : (curA.title || a.slug || '').localeCompare(curB.title || b.slug || '');
+          }
+          if (catalogSortMode === 'tags-desc') {
+            var tDiff = getModelTagCount(b) - getModelTagCount(a);
+            return tDiff !== 0 ? tDiff : (curA.title || a.slug || '').localeCompare(curB.title || b.slug || '');
+          }
+          if (catalogSortMode === 'tags-asc') {
+            var tDiff = getModelTagCount(a) - getModelTagCount(b);
+            return tDiff !== 0 ? tDiff : (curA.title || a.slug || '').localeCompare(curB.title || b.slug || '');
+          }
+          if (catalogSortMode === 'date-desc') {
+            var timeA = a.creation_date ? new Date(a.creation_date).getTime() : 0;
+            var timeB = b.creation_date ? new Date(b.creation_date).getTime() : 0;
+            var dDiff = timeB - timeA;
+            return dDiff !== 0 ? dDiff : (curA.title || a.slug || '').localeCompare(curB.title || b.slug || '');
+          }
+          if (catalogSortMode === 'date-asc') {
+            var timeA = a.creation_date ? new Date(a.creation_date).getTime() : 0;
+            var timeB = b.creation_date ? new Date(b.creation_date).getTime() : 0;
+            var dDiff = timeA - timeB;
+            return dDiff !== 0 ? dDiff : (curA.title || a.slug || '').localeCompare(curB.title || b.slug || '');
+          }
+          return 0;
+        });
+
+        return filtered;
+      }
+
       function renderExistingModelsList() {
         navModelCount.textContent = catalogModelsCache.length;
         renderExistingModelsTable();
@@ -8064,25 +8318,30 @@
 
         if (!catalogModelsCache.length) {
           existingModelsList.innerHTML = '<p style="font-size:0.86rem;color:var(--text-muted);">No models found in <code>_models/</code>.</p>';
+          if (catalogFilteredCounter) catalogFilteredCounter.textContent = '0 models';
           return;
         }
 
-        var q = String(catalogSearchQuery || '').trim().toLowerCase();
-        var modelsToShow = catalogModelsCache.filter(function (m) {
-          if (!q) return true;
-          var cur = getModelCurrentMatrix(m);
-          var hay = (
-            (cur.title || '') + ' ' +
-            (cur.extended_title || '') + ' ' +
-            (cur.tagline || '') + ' ' +
-            (m.slug || '') + ' ' +
-            (cur.tags || '')
-          ).toLowerCase();
-          return hay.indexOf(q) !== -1;
-        });
+        var modelsToShow = getFilteredAndSortedCatalogModels();
+
+        // Update counter & reset button
+        if (catalogFilteredCounter) {
+          catalogFilteredCounter.textContent = modelsToShow.length + ' of ' + catalogModelsCache.length + ' models';
+        }
+        if (btnResetCatalogFilters) {
+          var hasActiveFilters = (
+            catalogCategoryFilter !== 'all' ||
+            catalogHiddenFilter !== 'all' ||
+            catalogExclusiveFilter ||
+            catalogPremiumFilter ||
+            Boolean(catalogSearchQuery) ||
+            catalogSortMode !== 'date-desc'
+          );
+          btnResetCatalogFilters.style.display = hasActiveFilters ? 'inline-block' : 'none';
+        }
 
         if (!modelsToShow.length) {
-          existingModelsList.innerHTML = '<p style="font-size:0.86rem;color:var(--text-muted);grid-column:1/-1;padding:1.5rem 0;text-align:center;">No models match "<strong>' + escapeHtmlText(q) + '</strong>".</p>';
+          existingModelsList.innerHTML = '<p style="font-size:0.86rem;color:var(--text-muted);grid-column:1/-1;padding:2rem 0;text-align:center;">No models match the selected filter &amp; search criteria.</p>';
           return;
         }
 
@@ -8091,24 +8350,43 @@
             var isCurrentEdit = editingSlug === m.slug;
             var isSelected = catalogSelectedSlugs.has(m.slug);
             var thumbUrl = m.thumbnail_image || m.cover_image || '';
-            var hiddenBadge = m.hidden
-              ? '<span style="position:absolute;top:0.55rem;left:0.55rem;font-family:var(--font-mono);font-size:0.68rem;background:var(--danger);color:#fff;padding:0.15rem 0.5rem;border-radius:999px;font-weight:600;">HIDDEN</span>'
+            var cur = getModelCurrentMatrix(m);
+            var photoCount = getModelPhotoCount(m);
+            var tagCount = getModelTagCount(m);
+
+            var badges = [];
+            if (m.hidden) {
+              badges.push('<span style="font-family:var(--font-mono);font-size:0.65rem;background:var(--danger);color:#fff;padding:0.12rem 0.45rem;border-radius:999px;font-weight:700;">HIDDEN</span>');
+            }
+            if (m.makerworld_exclusive) {
+              badges.push('<span style="font-family:var(--font-mono);font-size:0.65rem;background:hsl(150, 100%, 33%);color:#fff;padding:0.12rem 0.45rem;border-radius:999px;font-weight:700;">EXCLUSIVE</span>');
+            }
+            if (m.premium) {
+              badges.push('<span style="font-family:var(--font-mono);font-size:0.65rem;background:hsl(270, 75%, 45%);color:#fff;padding:0.12rem 0.45rem;border-radius:999px;font-weight:700;">💎 PREMIUM</span>');
+            }
+
+            var badgeOverlay = badges.length
+              ? '<div style="position:absolute;top:0.45rem;left:0.45rem;display:flex;flex-direction:column;gap:0.25rem;z-index:2;">' + badges.join('') + '</div>'
               : '';
+
             return (
               '<article class="model-thumb-card' + (isCurrentEdit ? ' is-editing' : '') + (isSelected ? ' is-selected' : '') + '" style="' + (m.hidden ? 'opacity:0.75;' : '') + '" data-card-slug="' + m.slug + '">' +
-              '<div class="model-thumb-media" data-slug="' + m.slug + '" title="Edit ' + (m.title || m.slug).replace(/"/g, '&quot;') + '">' +
+              '<div class="model-thumb-media" data-slug="' + m.slug + '" title="Edit ' + (cur.title || m.slug).replace(/"/g, '&quot;') + '">' +
               (thumbUrl
-                ? '<img src="' + thumbUrl + '" class="model-thumb-img" alt="' + (m.title || m.slug) + '" loading="lazy">'
+                ? '<img src="' + thumbUrl + '" class="model-thumb-img" alt="' + (cur.title || m.slug) + '" loading="lazy">'
                 : '') +
-              hiddenBadge +
-              '<label class="model-card-checkbox-label" title="Select ' + (m.title || m.slug).replace(/"/g, '&quot;') + ' for Columns Table" onclick="event.stopPropagation();">' +
+              badgeOverlay +
+              '<label class="model-card-checkbox-label" title="Select ' + (cur.title || m.slug).replace(/"/g, '&quot;') + ' for Columns Table" onclick="event.stopPropagation();">' +
               '<input type="checkbox" class="model-card-checkbox" data-select-slug="' + m.slug + '"' + (isSelected ? ' checked' : '') + '>' +
               '</label>' +
               '</div>' +
               '<div class="model-thumb-body">' +
+              '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.4rem;flex-wrap:wrap;">' +
               '<span class="model-card-category">' + (CATEGORY_LABELS[m.category] || m.category || 'Useful Prints') + '</span>' +
-              '<h3 class="model-card-title">' + (m.title || m.slug) + '</h3>' +
-              (m.extended_title ? '<p class="model-card-extended-title">' + escapeHtmlText(m.extended_title) + '</p>' : '') +
+              '<span style="font-family:var(--font-mono);font-size:0.68rem;color:var(--text-muted);">' + photoCount + ' photo' + (photoCount === 1 ? '' : 's') + ' &bull; ' + tagCount + ' tag' + (tagCount === 1 ? '' : 's') + '</span>' +
+              '</div>' +
+              '<h3 class="model-card-title">' + (cur.title || m.slug) + '</h3>' +
+              (cur.extended_title ? '<p class="model-card-extended-title">' + escapeHtmlText(cur.extended_title) + '</p>' : '') +
               '<span class="model-card-filename" style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-muted);">_models/' + m.filename + '</span>' +
               '</div>' +
               '<div class="model-card-actions">' +
@@ -8617,15 +8895,72 @@
         });
       }
 
+      if (filterCatalogCategory) {
+        filterCatalogCategory.addEventListener('change', function () {
+          catalogCategoryFilter = filterCatalogCategory.value;
+          renderExistingModelsList();
+        });
+      }
+
+      if (filterCatalogHidden) {
+        filterCatalogHidden.addEventListener('change', function () {
+          catalogHiddenFilter = filterCatalogHidden.value;
+          renderExistingModelsList();
+        });
+      }
+
+      if (filterCatalogExclusive) {
+        filterCatalogExclusive.addEventListener('change', function () {
+          catalogExclusiveFilter = Boolean(filterCatalogExclusive.checked);
+          if (chipFilterExclusive) {
+            chipFilterExclusive.classList.toggle('is-active', catalogExclusiveFilter);
+          }
+          renderExistingModelsList();
+        });
+      }
+
+      if (filterCatalogPremium) {
+        filterCatalogPremium.addEventListener('change', function () {
+          catalogPremiumFilter = Boolean(filterCatalogPremium.checked);
+          if (chipFilterPremium) {
+            chipFilterPremium.classList.toggle('is-active', catalogPremiumFilter);
+          }
+          renderExistingModelsList();
+        });
+      }
+
+      if (sortCatalogBy) {
+        sortCatalogBy.addEventListener('change', function () {
+          catalogSortMode = sortCatalogBy.value;
+          renderExistingModelsList();
+        });
+      }
+
+      if (btnResetCatalogFilters) {
+        btnResetCatalogFilters.addEventListener('click', function () {
+          catalogCategoryFilter = 'all';
+          catalogHiddenFilter = 'all';
+          catalogExclusiveFilter = false;
+          catalogPremiumFilter = false;
+          catalogSortMode = 'date-desc';
+          catalogSearchQuery = '';
+
+          if (filterCatalogCategory) filterCatalogCategory.value = 'all';
+          if (filterCatalogHidden) filterCatalogHidden.value = 'all';
+          if (filterCatalogExclusive) filterCatalogExclusive.checked = false;
+          if (filterCatalogPremium) filterCatalogPremium.checked = false;
+          if (chipFilterExclusive) chipFilterExclusive.classList.remove('is-active');
+          if (chipFilterPremium) chipFilterPremium.classList.remove('is-active');
+          if (sortCatalogBy) sortCatalogBy.value = 'date-desc';
+          if (catalogLibrarySearch) catalogLibrarySearch.value = '';
+
+          renderExistingModelsList();
+        });
+      }
+
       if (btnSelectAllModels) {
         btnSelectAllModels.addEventListener('click', function () {
-          var q = String(catalogSearchQuery || '').trim().toLowerCase();
-          var visibleModels = catalogModelsCache.filter(function (m) {
-            if (!q) return true;
-            var cur = getModelCurrentMatrix(m);
-            var hay = ((cur.title || '') + ' ' + (cur.extended_title || '') + ' ' + (cur.tagline || '') + ' ' + (m.slug || '') + ' ' + (cur.tags || '')).toLowerCase();
-            return hay.indexOf(q) !== -1;
-          });
+          var visibleModels = getFilteredAndSortedCatalogModels();
           visibleModels.forEach(function (m) {
             catalogSelectedSlugs.add(m.slug);
           });

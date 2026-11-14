@@ -101,6 +101,7 @@ function parseModelMarkdown(filename) {
     makerworld_exclusive: false,
     premium: false,
     hidden: false,
+    creation_date: '',
     thumbnail_image: '',
     cover_image: '',
     gallery_images: [],
@@ -251,6 +252,37 @@ function parseModelMarkdown(filename) {
 }
 
 /**
+ * Cache creation dates from Git history for _models/*.md files
+ */
+let gitCreationDatesCache = null;
+function getCreationDates() {
+  if (gitCreationDatesCache) return gitCreationDatesCache;
+  const dates = {};
+  try {
+    const out = execFileSync(
+      'git',
+      ['log', '--name-only', '--format=COMMIT:%aI', '--diff-filter=A', '--', '_models/'],
+      { cwd: REPO_ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }
+    );
+    let curDate = null;
+    for (const line of out.split(/\r?\n/)) {
+      if (line.startsWith('COMMIT:')) {
+        curDate = line.slice(7).trim();
+      } else if (line.trim().startsWith('_models/') && curDate) {
+        const fn = path.basename(line.trim());
+        if (!dates[fn]) {
+          dates[fn] = curDate;
+        }
+      }
+    }
+  } catch (err) {
+    // If git fails, fallback cleanly
+  }
+  gitCreationDatesCache = dates;
+  return dates;
+}
+
+/**
  * Decode a data:image/webp;base64,... string into a Buffer
  */
 function decodeBase64WebP(dataUrl) {
@@ -269,10 +301,15 @@ app.get('/api/models', (req, res) => {
     if (!fs.existsSync(MODELS_DIR)) {
       return res.json({ models: [] });
     }
+    const dates = getCreationDates();
     const models = fs
       .readdirSync(MODELS_DIR)
       .filter((f) => f.endsWith('.md'))
-      .map((filename) => parseModelMarkdown(filename));
+      .map((filename) => {
+        const m = parseModelMarkdown(filename);
+        m.creation_date = dates[filename] || m.creation_date || '';
+        return m;
+      });
     res.json({ models });
   } catch (err) {
     res.status(500).json({ error: err.message });
