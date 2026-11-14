@@ -637,11 +637,68 @@
       font-weight: 600;
     }
 
+    .matrix-cell-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.35rem;
+      margin-bottom: 0.3rem;
+      min-height: 1.35rem;
+    }
+
+    .matrix-cell-label {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .btn-copy-field {
+      appearance: none;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      border-radius: var(--radius-xs);
+      font-family: var(--font-sans);
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 0.12rem 0.4rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      line-height: 1.2;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .btn-copy-field:hover {
+      background: var(--bg-subtle);
+      border-color: var(--border-strong);
+      color: var(--text-primary);
+    }
+
+    .btn-copy-field.is-copied {
+      background: var(--success-bg) !important;
+      border-color: var(--success) !important;
+      color: var(--success) !important;
+      font-weight: 700;
+    }
+
+    .matrix-aff-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      flex-wrap: wrap;
+    }
+
     .matrix-affiliate-box {
       display: flex;
       flex-direction: column;
       gap: 0.45rem;
-      max-height: 240px;
+      max-height: 280px;
       overflow-y: auto;
       padding: 0.15rem;
     }
@@ -860,6 +917,56 @@
           .filter(Boolean);
       }
 
+      /* Affiliate Links Clipboard (Shared with main uploader via localStorage) */
+      var AFFILIATE_CLIPBOARD_KEY = 'kcd-affiliate-links-clipboard';
+
+      function getAffiliateClipboard() {
+        try {
+          var raw = localStorage.getItem(AFFILIATE_CLIPBOARD_KEY);
+          if (!raw) return [];
+          var parsed = JSON.parse(raw);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (e) {
+          return [];
+        }
+      }
+
+      function setAffiliateClipboard(items) {
+        try {
+          localStorage.setItem(AFFILIATE_CLIPBOARD_KEY, JSON.stringify(items || []));
+        } catch (e) {}
+      }
+
+      function copyFieldToClipboard(text, btnEl, successLabel) {
+        var str = String(text || '').trim();
+        if (!str) {
+          if (btnEl) {
+            var orig = btnEl.textContent;
+            btnEl.textContent = 'Empty';
+            setTimeout(function () { btnEl.textContent = orig; }, 1400);
+          }
+          return;
+        }
+
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(str);
+          }
+        } catch (e) {
+          prompt('Copy to clipboard:', str);
+        }
+
+        if (btnEl) {
+          var originalHtml = btnEl.innerHTML;
+          btnEl.innerHTML = '&#10003; ' + (successLabel || 'Copied!');
+          btnEl.classList.add('is-copied');
+          setTimeout(function () {
+            btnEl.classList.remove('is-copied');
+            btnEl.innerHTML = originalHtml;
+          }, 1600);
+        }
+      }
+
       function getModelSavedMatrix(m) {
         if (!m) return { title: '', extended_title: '', tagline: '', description: '', tags: '', printSettings: '', products: [] };
         return {
@@ -925,12 +1032,22 @@
       }
 
       function renderMatrixAffiliateBoxHtml(slug, products) {
+        var clipboard = getAffiliateClipboard();
+        var pasteBadge = clipboard.length > 0 ? ' (' + clipboard.length + ')' : '';
+        var pasteTitle = clipboard.length > 0
+          ? 'Paste ' + clipboard.length + ' copied affiliate link' + (clipboard.length === 1 ? '' : 's') + ' into this model'
+          : 'Clipboard is empty. Copy affiliate links from another model first.';
+        var pasteOpacity = clipboard.length > 0 ? '1' : '0.55';
+
         var itemsHtml = (products || []).map(function (p, pIdx) {
           return (
             '<div class="matrix-aff-item" data-product-idx="' + pIdx + '">' +
             '<div class="matrix-aff-item-header">' +
             '<span style="font-weight:600;color:var(--text-primary);font-size:0.72rem;">#' + (pIdx + 1) + '</span>' +
+            '<div style="display:flex;align-items:center;gap:0.3rem;">' +
+            '<button type="button" class="btn-copy-field btn-matrix-copy-single-prod" data-slug="' + escapeHtmlText(slug) + '" data-product-idx="' + pIdx + '" title="Copy this single affiliate link to clipboard">&#128203; Copy</button>' +
             '<button type="button" class="btn-ghost btn-matrix-del-prod" data-slug="' + escapeHtmlText(slug) + '" data-product-idx="' + pIdx + '" style="padding:0.12rem 0.35rem;font-size:0.68rem;color:var(--danger);" title="Remove this product link">&times; Remove</button>' +
+            '</div>' +
             '</div>' +
             '<input type="text" class="matrix-input-text matrix-prod-field" data-slug="' + escapeHtmlText(slug) + '" data-product-idx="' + pIdx + '" data-prop="name" value="' + escapeHtmlText(p.name || '') + '" placeholder="Product name (e.g., Bambu Matte PLA)" style="font-size:0.76rem;padding:0.25rem 0.45rem;">' +
             '<input type="url" class="matrix-input-text matrix-prod-field" data-slug="' + escapeHtmlText(slug) + '" data-product-idx="' + pIdx + '" data-prop="url" value="' + escapeHtmlText(p.url || '') + '" placeholder="Affiliate link (https://...)" style="font-size:0.76rem;padding:0.25rem 0.45rem;">' +
@@ -940,6 +1057,13 @@
 
         return (
           '<div class="matrix-affiliate-box">' +
+          '<div class="matrix-cell-header" style="margin-bottom:0.15rem;">' +
+          '<span class="matrix-cell-label">' + (products && products.length ? products.length + ' Link' + (products.length === 1 ? '' : 's') : '0 Links') + '</span>' +
+          '<div class="matrix-aff-header-actions">' +
+          '<button type="button" class="btn-copy-field btn-matrix-copy-all-aff" data-slug="' + escapeHtmlText(slug) + '" title="Copy all affiliate links for this model">&#128203; Copy All</button>' +
+          '<button type="button" class="btn-copy-field btn-matrix-paste-aff" data-slug="' + escapeHtmlText(slug) + '" style="opacity:' + pasteOpacity + ';" title="' + pasteTitle + '">&#128203; Paste' + pasteBadge + '</button>' +
+          '</div>' +
+          '</div>' +
           (itemsHtml || '<span style="font-size:0.75rem;color:var(--text-muted);font-style:italic;">No products added yet.</span>') +
           '<button type="button" class="btn-ghost btn-matrix-add-prod" data-slug="' + escapeHtmlText(slug) + '" style="margin-top:0.35rem;padding:0.28rem 0.55rem;font-size:0.74rem;">+ Add Product Link</button>' +
           '</div>'
@@ -1056,6 +1180,10 @@
           var mTitleCounterClass = 'matrix-title-counter' + (mTitleOver ? ' is-over-limit' : '');
           rowTitle +=
             '<th class="model-col-header' + dirtyClass + '" data-col-slug="' + sSlug + '">' +
+            '<div class="matrix-cell-header">' +
+            '<span class="matrix-cell-label">Title</span>' +
+            '<button type="button" class="btn-copy-field btn-matrix-copy-field" data-slug="' + sSlug + '" data-field="title" title="Copy title to clipboard">&#128203; Copy</button>' +
+            '</div>' +
             '<div class="matrix-field-wrapper">' +
             '<textarea class="matrix-textarea matrix-textarea-auto matrix-field-input" data-slug="' + sSlug + '" data-field="title" rows="1" placeholder="Model Title..." aria-label="Title for ' + sSlug + '" style="padding-bottom:1.35rem;">' + escapeHtmlText(cur.title) + '</textarea>' +
             '<span class="' + mTitleCounterClass + '" data-role="matrix-title-counter" data-slug="' + sSlug + '" aria-live="polite">' + mTitleLen + '/50</span>' +
@@ -1065,6 +1193,10 @@
           // Row 3: Extended Title
           rowExtTitle +=
             '<td class="model-col-cell' + dirtyClass + '" data-col-slug="' + sSlug + '">' +
+            '<div class="matrix-cell-header">' +
+            '<span class="matrix-cell-label">Extended Title</span>' +
+            '<button type="button" class="btn-copy-field btn-matrix-copy-field" data-slug="' + sSlug + '" data-field="extended_title" title="Copy extended title to clipboard">&#128203; Copy</button>' +
+            '</div>' +
             '<textarea class="matrix-textarea matrix-textarea-auto matrix-field-input" data-slug="' + sSlug + '" data-field="extended_title" rows="1" placeholder="Extended Title (optional)..." aria-label="Extended title for ' + sSlug + '">' + escapeHtmlText(cur.extended_title) + '</textarea>' +
             '</td>';
 
@@ -1074,6 +1206,10 @@
           var mTaglineCounterClass = 'matrix-tagline-counter' + (mTaglineOver ? ' is-over-limit' : '');
           rowTagline +=
             '<td class="model-col-cell' + dirtyClass + '" data-col-slug="' + sSlug + '">' +
+            '<div class="matrix-cell-header">' +
+            '<span class="matrix-cell-label">Tagline</span>' +
+            '<button type="button" class="btn-copy-field btn-matrix-copy-field" data-slug="' + sSlug + '" data-field="tagline" title="Copy tagline to clipboard">&#128203; Copy</button>' +
+            '</div>' +
             '<div class="matrix-field-wrapper">' +
             '<textarea class="matrix-textarea matrix-textarea-auto matrix-field-input" data-slug="' + sSlug + '" data-field="tagline" rows="1" placeholder="Tagline (summary)..." aria-label="Tagline for ' + sSlug + '" style="padding-bottom:1.35rem;">' + escapeHtmlText(cur.tagline) + '</textarea>' +
             '<span class="' + mTaglineCounterClass + '" data-role="matrix-tagline-counter" data-slug="' + sSlug + '" aria-live="polite">' + mTaglineLen + '/120</span>' +
@@ -1083,6 +1219,10 @@
           // Row 5: Description (defaults to 8 lines of text, with scroll if longer)
           rowDesc +=
             '<td class="model-col-cell' + dirtyClass + '" data-col-slug="' + sSlug + '">' +
+            '<div class="matrix-cell-header">' +
+            '<span class="matrix-cell-label">Description</span>' +
+            '<button type="button" class="btn-copy-field btn-matrix-copy-field" data-slug="' + sSlug + '" data-field="description" title="Copy description to clipboard">&#128203; Copy</button>' +
+            '</div>' +
             '<textarea class="matrix-textarea matrix-textarea-desc matrix-field-input" data-slug="' + sSlug + '" data-field="description" rows="8" placeholder="Model markdown overview / description..." aria-label="Description for ' + sSlug + '">' + escapeHtmlText(cur.description) + '</textarea>' +
             '</td>';
 
@@ -1095,9 +1235,12 @@
 
           rowTags +=
             '<td class="model-col-cell' + dirtyClass + '" data-col-slug="' + sSlug + '">' +
-            '<div class="matrix-tag-header">' +
-            '<span style="font-size:0.68rem;font-weight:600;color:var(--text-muted);">TAGS</span>' +
+            '<div class="matrix-cell-header">' +
+            '<div style="display:flex;align-items:center;gap:0.35rem;">' +
+            '<span class="matrix-cell-label">Tags</span>' +
             '<span class="' + mTagPillClass + '" data-role="matrix-tag-counter" data-slug="' + sSlug + '">' + mTagPillText + '</span>' +
+            '</div>' +
+            '<button type="button" class="btn-copy-field btn-matrix-copy-field" data-slug="' + sSlug + '" data-field="tags" title="Copy tags to clipboard">&#128203; Copy</button>' +
             '</div>' +
             '<textarea class="matrix-textarea matrix-textarea-auto matrix-textarea-tags matrix-field-input" data-slug="' + sSlug + '" data-field="tags" rows="4" placeholder="comma, separated, tags..." aria-label="Tags for ' + sSlug + '">' + escapeHtmlText(cur.tags) + '</textarea>' +
             '</td>';
@@ -1514,7 +1657,148 @@
           updateMatrixColumnDirtyState(dSlug);
           return;
         }
+
+        // Copy Field button (title, extended_title, tagline, description, tags)
+        var copyFieldBtn = e.target.closest('.btn-matrix-copy-field');
+        if (copyFieldBtn) {
+          var cfSlug = copyFieldBtn.getAttribute('data-slug');
+          var cfField = copyFieldBtn.getAttribute('data-field');
+          var cfModel = catalogModelsCache.find(function (item) { return item.slug === cfSlug; });
+          if (cfModel && cfField) {
+            var curData = getModelCurrentMatrix(cfModel);
+            var valToCopy = curData[cfField] || '';
+            copyFieldToClipboard(valToCopy, copyFieldBtn);
+          }
+          return;
+        }
+
+        // Copy Single Affiliate Link button
+        var copySingleProdBtn = e.target.closest('.btn-matrix-copy-single-prod');
+        if (copySingleProdBtn) {
+          var cspSlug = copySingleProdBtn.getAttribute('data-slug');
+          var cspIdx = parseInt(copySingleProdBtn.getAttribute('data-product-idx'), 10);
+          var cspModel = catalogModelsCache.find(function (item) { return item.slug === cspSlug; });
+          if (cspModel && !isNaN(cspIdx)) {
+            var curAff = getModelCurrentMatrix(cspModel).products || [];
+            if (curAff[cspIdx]) {
+              var singleItem = JSON.parse(JSON.stringify([curAff[cspIdx]]));
+              setAffiliateClipboard(singleItem);
+              try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                  navigator.clipboard.writeText(JSON.stringify(singleItem, null, 2));
+                }
+              } catch (e) {}
+
+              var origHtml = copySingleProdBtn.innerHTML;
+              copySingleProdBtn.innerHTML = '&#10003; Copied!';
+              copySingleProdBtn.classList.add('is-copied');
+              setTimeout(function () {
+                copySingleProdBtn.classList.remove('is-copied');
+                copySingleProdBtn.innerHTML = origHtml;
+              }, 1600);
+
+              // Update paste buttons across all columns to reflect new count
+              syncAllAffiliatePasteButtons();
+            }
+          }
+          return;
+        }
+
+        // Copy All Affiliate Links button
+        var copyAllAffBtn = e.target.closest('.btn-matrix-copy-all-aff');
+        if (copyAllAffBtn) {
+          var caSlug = copyAllAffBtn.getAttribute('data-slug');
+          var caModel = catalogModelsCache.find(function (item) { return item.slug === caSlug; });
+          if (caModel) {
+            var allProds = getModelCurrentMatrix(caModel).products || [];
+            if (!allProds.length) {
+              var caOrig = copyAllAffBtn.textContent;
+              copyAllAffBtn.textContent = 'Empty';
+              setTimeout(function () { copyAllAffBtn.textContent = caOrig; }, 1400);
+              return;
+            }
+
+            var clonedAll = JSON.parse(JSON.stringify(allProds));
+            setAffiliateClipboard(clonedAll);
+            try {
+              if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(JSON.stringify(clonedAll, null, 2));
+              }
+            } catch (e) {}
+
+            var caOriginalHtml = copyAllAffBtn.innerHTML;
+            copyAllAffBtn.innerHTML = '&#10003; Copied (' + clonedAll.length + ')!';
+            copyAllAffBtn.classList.add('is-copied');
+            setTimeout(function () {
+              copyAllAffBtn.classList.remove('is-copied');
+              copyAllAffBtn.innerHTML = caOriginalHtml;
+            }, 1600);
+
+            syncAllAffiliatePasteButtons();
+          }
+          return;
+        }
+
+        // Paste Affiliate Links button
+        var pasteAffBtn = e.target.closest('.btn-matrix-paste-aff');
+        if (pasteAffBtn) {
+          var paSlug = pasteAffBtn.getAttribute('data-slug');
+          var paModel = catalogModelsCache.find(function (item) { return item.slug === paSlug; });
+          if (!paModel) return;
+
+          var clipboardItems = getAffiliateClipboard();
+          if (!clipboardItems || !clipboardItems.length) {
+            var paOrigText = pasteAffBtn.textContent;
+            pasteAffBtn.textContent = 'Empty';
+            setTimeout(function () { pasteAffBtn.textContent = paOrigText; }, 1400);
+            return;
+          }
+
+          if (!matrixDrafts[paSlug]) {
+            matrixDrafts[paSlug] = getModelSavedMatrix(paModel);
+          }
+          if (!Array.isArray(matrixDrafts[paSlug].products)) {
+            matrixDrafts[paSlug].products = [];
+          }
+
+          var clonedItems = JSON.parse(JSON.stringify(clipboardItems));
+          clonedItems.forEach(function (item) {
+            matrixDrafts[paSlug].products.push({
+              name: item.name || item.title || '',
+              category: item.category || '',
+              badge: item.badge || '',
+              description: item.description || '',
+              url: item.url || '',
+              image: item.image || '',
+              cta: item.cta || 'Buy on Amazon'
+            });
+          });
+          delete recentlySavedMatrixSlugs[paSlug];
+
+          var paCell = pasteAffBtn.closest('td');
+          if (paCell) {
+            paCell.innerHTML = renderMatrixAffiliateBoxHtml(paSlug, matrixDrafts[paSlug].products);
+          }
+          updateMatrixColumnDirtyState(paSlug);
+          return;
+        }
       });
+
+      function syncAllAffiliatePasteButtons() {
+        var clipboard = getAffiliateClipboard();
+        var pasteBadge = clipboard.length > 0 ? ' (' + clipboard.length + ')' : '';
+        var pasteTitle = clipboard.length > 0
+          ? 'Paste ' + clipboard.length + ' copied affiliate link' + (clipboard.length === 1 ? '' : 's') + ' into this model'
+          : 'Clipboard is empty. Copy affiliate links from another model first.';
+        var pasteOpacity = clipboard.length > 0 ? '1' : '0.55';
+
+        var pasteButtons = matrixModelsTableBody.querySelectorAll('.btn-matrix-paste-aff');
+        pasteButtons.forEach(function (btn) {
+          btn.innerHTML = '&#128203; Paste' + pasteBadge;
+          btn.title = pasteTitle;
+          btn.style.opacity = pasteOpacity;
+        });
+      }
 
       if (matrixTableSearch) {
         matrixTableSearch.addEventListener('input', function () {
