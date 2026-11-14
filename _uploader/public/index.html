@@ -3602,6 +3602,155 @@
       flex-wrap: wrap;
       margin-top: 0.5rem;
     }
+
+    /* Printables Selective Auto-Fill Styles */
+    .printables-field-autofill-btn {
+      appearance: none;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+      color: var(--text-secondary);
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.15rem 0.45rem;
+      border-radius: var(--radius-xs);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .printables-field-autofill-btn:hover {
+      background: var(--bg-hover);
+      color: var(--accent-orange, #ea580c);
+      border-color: var(--accent-orange, #ea580c);
+    }
+    .printables-field-autofill-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .pf-modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(4px);
+      z-index: 10000;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem;
+    }
+    .pf-modal-backdrop.is-open {
+      display: flex;
+    }
+    .pf-modal-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
+      max-width: 42rem;
+      width: 100%;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      animation: unsavedModalPop 0.18s ease-out;
+      overflow: hidden;
+    }
+    .pf-modal-header {
+      padding: 1.25rem 1.5rem 1rem;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .pf-modal-title {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .pf-modal-body {
+      padding: 1.25rem 1.5rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      flex: 1;
+    }
+    .pf-modal-desc {
+      font-size: 0.84rem;
+      color: var(--text-secondary);
+      line-height: 1.45;
+      margin: 0;
+    }
+    .pf-quick-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      background: var(--bg-subtle);
+      padding: 0.45rem 0.75rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.78rem;
+    }
+    .pf-fields-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      font-size: 0.82rem;
+    }
+    .pf-fields-table th {
+      background: var(--bg-subtle);
+      padding: 0.5rem 0.75rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border-subtle);
+      text-align: left;
+    }
+    .pf-fields-table td {
+      padding: 0.55rem 0.75rem;
+      border-bottom: 1px solid var(--border-subtle);
+      vertical-align: middle;
+      color: var(--text-primary);
+    }
+    .pf-fields-table tr:last-child td {
+      border-bottom: none;
+    }
+    .pf-fields-table tr:hover td {
+      background: var(--bg-subtle);
+    }
+    .pf-field-preview {
+      max-width: 220px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+    .pf-modal-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border-subtle);
+      background: var(--bg-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
   </style>
 </head>
 <body>
@@ -3620,6 +3769,53 @@
         <button type="button" class="btn-ghost" id="btn-unsaved-cancel">Stay Here</button>
         <button type="button" class="btn-secondary" id="btn-unsaved-discard" style="color:var(--danger);border-color:var(--danger);">Discard Changes</button>
         <button type="button" class="btn-primary" id="btn-unsaved-save">Save &amp; Push Update &rarr;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Printables Selective Auto-Fill Modal -->
+  <div class="pf-modal-backdrop" id="pf-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="pf-modal-title">
+    <div class="pf-modal-card">
+      <div class="pf-modal-header">
+        <h3 class="pf-modal-title" id="pf-modal-title">
+          <span>&#10024; Select Printables Fields to Auto-Fill</span>
+        </h3>
+        <button type="button" class="btn-ghost" id="btn-pf-modal-close" style="padding:0.25rem 0.55rem;font-size:0.85rem;" aria-label="Close dialog">&times;</button>
+      </div>
+      <div class="pf-modal-body">
+        <p class="pf-modal-desc">
+          Choose which individual fields to import from Printables into this model. Existing values are displayed so you can see what will change.
+        </p>
+        <div class="pf-quick-actions">
+          <label style="display:inline-flex;align-items:center;gap:0.4rem;cursor:pointer;font-weight:600;">
+            <input type="checkbox" id="chk-pf-overwrite-existing">
+            <span>Overwrite fields that already have values</span>
+          </label>
+          <div style="display:flex;gap:0.4rem;">
+            <button type="button" class="btn-ghost" id="btn-pf-select-empty" style="padding:0.2rem 0.5rem;font-size:0.75rem;">Select Empty Only</button>
+            <button type="button" class="btn-ghost" id="btn-pf-select-all" style="padding:0.2rem 0.5rem;font-size:0.75rem;">Select All</button>
+            <button type="button" class="btn-ghost" id="btn-pf-deselect-all" style="padding:0.2rem 0.5rem;font-size:0.75rem;">Clear</button>
+          </div>
+        </div>
+
+        <table class="pf-fields-table">
+          <thead>
+            <tr>
+              <th style="width:36px;"></th>
+              <th style="width:130px;">Field</th>
+              <th>Printables Value</th>
+              <th>Current Model Value</th>
+            </tr>
+          </thead>
+          <tbody id="pf-modal-fields-body"></tbody>
+        </table>
+      </div>
+      <div class="pf-modal-footer">
+        <span id="pf-modal-selection-count" style="font-size:0.8rem;color:var(--text-muted);">0 fields selected</span>
+        <div style="display:flex;gap:0.5rem;">
+          <button type="button" class="btn-ghost" id="btn-pf-cancel">Cancel</button>
+          <button type="button" class="btn-primary" id="btn-pf-apply">Apply Selected Fields &rarr;</button>
+        </div>
       </div>
     </div>
   </div>
@@ -3941,16 +4137,22 @@
                 placeholder="Model Title (e.g., Baby Ducks)"
                 aria-label="Model Title"
               >
-              <span id="title-char-counter" class="model-title-counter" aria-live="polite">0/50</span>
+              <div style="position:absolute;right:0.6rem;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:0.4rem;">
+                <button type="button" class="printables-field-autofill-btn" id="btn-fill-field-title" title="Fill Title from Printables link" style="display:none;">&#10024; Fill</button>
+                <span id="title-char-counter" class="model-title-counter" aria-live="polite">0/50</span>
+              </div>
             </div>
 
-            <textarea
-              id="model-extended-title"
-              class="model-extended-title-input"
-              rows="1"
-              placeholder="Extended Title (e.g., Multi-color 3mf | Free to a good home)"
-              aria-label="Extended Title"
-            ></textarea>
+            <div style="position:relative;">
+              <textarea
+                id="model-extended-title"
+                class="model-extended-title-input"
+                rows="1"
+                placeholder="Extended Title (e.g., Multi-color 3mf | Free to a good home)"
+                aria-label="Extended Title"
+              ></textarea>
+              <button type="button" class="printables-field-autofill-btn" id="btn-fill-field-extended-title" title="Fill Extended Title from Printables link" style="display:none;position:absolute;right:0.6rem;top:0.45rem;">&#10024; Fill</button>
+            </div>
 
             <div class="model-tagline-wrapper">
               <textarea
@@ -3960,7 +4162,10 @@
                 placeholder="Tagline (auto-filled from Printables summary)..."
                 aria-label="Model Tagline"
               ></textarea>
-              <span id="tagline-char-counter" class="model-tagline-counter" aria-live="polite">0/120</span>
+              <div style="position:absolute;right:0.6rem;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:0.4rem;">
+                <button type="button" class="printables-field-autofill-btn" id="btn-fill-field-tagline" title="Fill Tagline from Printables link" style="display:none;">&#10024; Fill</button>
+                <span id="tagline-char-counter" class="model-tagline-counter" aria-live="polite">0/120</span>
+              </div>
             </div>
           </div>
 
@@ -3990,14 +4195,32 @@
                     </span>
                     <span>Download on Printables</span>
                   </span>
-                  <button
-                    type="button"
-                    id="btn-autofill-printables"
-                    title="Fetch Model Title, Description, Tags, Photos, and Videos from this Printables URL"
-                    style="appearance:none;border:1px solid rgba(255,255,255,0.55);background:rgba(0,0,0,0.22);color:#fff;font-family:var(--font-sans);font-size:0.71rem;font-weight:700;padding:0.18rem 0.52rem;border-radius:999px;cursor:pointer;"
-                  >
-                    &#10024; Auto-Fill Page
-                  </button>
+                  <div style="display:inline-flex;align-items:center;gap:0.35rem;flex-wrap:wrap;">
+                    <button
+                      type="button"
+                      id="btn-autofill-printables-empty"
+                      title="Auto-fill only blank/empty fields without touching any existing or edited fields"
+                      style="appearance:none;border:1px solid rgba(255,255,255,0.45);background:rgba(0,0,0,0.22);color:#fff;font-family:var(--font-sans);font-size:0.71rem;font-weight:600;padding:0.18rem 0.5rem;border-radius:999px;cursor:pointer;"
+                    >
+                      Fill Empty Only
+                    </button>
+                    <button
+                      type="button"
+                      id="btn-autofill-printables-selective"
+                      title="Choose exactly which individual fields to fill from Printables"
+                      style="appearance:none;border:1px solid rgba(255,255,255,0.45);background:rgba(0,0,0,0.22);color:#fff;font-family:var(--font-sans);font-size:0.71rem;font-weight:600;padding:0.18rem 0.5rem;border-radius:999px;cursor:pointer;"
+                    >
+                      Selective Fill...
+                    </button>
+                    <button
+                      type="button"
+                      id="btn-autofill-printables"
+                      title="Fetch Model Title, Description, Tags, Photos, and Videos from this Printables URL"
+                      style="appearance:none;border:1px solid rgba(255,255,255,0.55);background:rgba(0,0,0,0.32);color:#fff;font-family:var(--font-sans);font-size:0.71rem;font-weight:700;padding:0.18rem 0.52rem;border-radius:999px;cursor:pointer;"
+                    >
+                      &#10024; Auto-Fill All
+                    </button>
+                  </div>
                 </div>
                 <input type="url" id="dl-printables" placeholder="Paste Printables URL to auto-fill title, description &amp; tags...">
                 <div id="printables-import-status" style="display:none;font-size:0.71rem;line-height:1.35;color:#fff;background:rgba(0,0,0,0.24);padding:0.28rem 0.48rem;border-radius:4px;"></div>
@@ -4067,7 +4290,10 @@
         <div class="model-description-grid">
           <div class="model-description-editor">
             <div class="prose-field-header">
-              <label for="model-description" class="prose-field-label">Model Description</label>
+              <div style="display:flex;align-items:center;gap:0.5rem;">
+                <label for="model-description" class="prose-field-label">Model Description</label>
+                <button type="button" class="printables-field-autofill-btn" id="btn-fill-field-description" title="Fill Description from Printables link" style="display:none;">&#10024; Fill from Printables</button>
+              </div>
               <span style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-muted);">Markdown body</span>
             </div>
             <textarea
@@ -4129,7 +4355,10 @@
         <!-- Tags matching .tag-list in _layouts/model.html -->
         <div class="tag-editor-block" style="margin-bottom:0;">
           <div class="tag-editor-header">
-            <span style="font-size:0.75rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;">Selected Model Tags</span>
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+              <span style="font-size:0.75rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;">Selected Model Tags</span>
+              <button type="button" class="printables-field-autofill-btn" id="btn-fill-field-tags" title="Fill Tags from Printables link" style="display:none;">&#10024; Fill from Printables</button>
+            </div>
             <span id="model-tags-counter" class="model-tags-counter" aria-live="polite">0 / 20 tags</span>
           </div>
           <ul class="tag-list" id="tag-preview-row" aria-label="Model tags preview">
@@ -6786,24 +7015,67 @@
       });
 
       var btnAutofillPrintables = document.getElementById('btn-autofill-printables');
+      var btnAutofillPrintablesEmpty = document.getElementById('btn-autofill-printables-empty');
+      var btnAutofillPrintablesSelective = document.getElementById('btn-autofill-printables-selective');
       var printablesImportStatus = document.getElementById('printables-import-status');
 
-      function importFromPrintables(rawUrl) {
-        var urlToFetch = String(rawUrl || dlPrintables.value || '').trim();
+      // Selective Auto-Fill Modal Elements
+      var pfModalBackdrop = document.getElementById('pf-modal-backdrop');
+      var pfModalClose = document.getElementById('btn-pf-modal-close');
+      var pfModalCancel = document.getElementById('btn-pf-cancel');
+      var pfModalApply = document.getElementById('btn-pf-apply');
+      var pfModalFieldsBody = document.getElementById('pf-modal-fields-body');
+      var pfModalSelectionCount = document.getElementById('pf-modal-selection-count');
+      var chkPfOverwriteExisting = document.getElementById('chk-pf-overwrite-existing');
+      var btnPfSelectEmpty = document.getElementById('btn-pf-select-empty');
+      var btnPfSelectAll = document.getElementById('btn-pf-select-all');
+      var btnPfDeselectAll = document.getElementById('btn-pf-deselect-all');
+
+      // Individual Inline Field Fill Buttons
+      var btnFillFieldTitle = document.getElementById('btn-fill-field-title');
+      var btnFillFieldExtTitle = document.getElementById('btn-fill-field-extended-title');
+      var btnFillFieldTagline = document.getElementById('btn-fill-field-tagline');
+      var btnFillFieldDesc = document.getElementById('btn-fill-field-description');
+      var btnFillFieldTags = document.getElementById('btn-fill-field-tags');
+
+      var cachedPrintablesUrl = '';
+      var cachedPrintablesData = null;
+
+      function updateInlinePrintablesButtonsVisibility() {
+        var hasUrl = Boolean(dlPrintables && dlPrintables.value.trim());
+        var disp = hasUrl ? 'inline-flex' : 'none';
+        if (btnFillFieldTitle) btnFillFieldTitle.style.display = disp;
+        if (btnFillFieldExtTitle) btnFillFieldExtTitle.style.display = disp;
+        if (btnFillFieldTagline) btnFillFieldTagline.style.display = disp;
+        if (btnFillFieldDesc) btnFillFieldDesc.style.display = disp;
+        if (btnFillFieldTags) btnFillFieldTags.style.display = disp;
+      }
+
+      function fetchPrintablesData(url, callback) {
+        var urlToFetch = String(url || (dlPrintables && dlPrintables.value) || '').trim();
         if (!urlToFetch) {
-          printablesImportStatus.style.display = 'block';
-          printablesImportStatus.textContent = 'Paste a Printables model URL above first.';
-          dlPrintables.focus();
+          if (printablesImportStatus) {
+            printablesImportStatus.style.display = 'block';
+            printablesImportStatus.textContent = 'Paste a Printables model URL first.';
+          }
+          if (dlPrintables) dlPrintables.focus();
+          if (callback) callback(new Error('No URL provided'));
           return;
         }
 
-        dlPrintables.value = urlToFetch;
-        syncDownloadButtonHighlights();
+        if (cachedPrintablesData && cachedPrintablesUrl === urlToFetch) {
+          if (callback) callback(null, cachedPrintablesData);
+          return;
+        }
 
-        btnAutofillPrintables.disabled = true;
-        btnAutofillPrintables.textContent = 'Fetching...';
-        printablesImportStatus.style.display = 'block';
-        printablesImportStatus.textContent = 'Fetching title, description, tags, photos & videos from Printables...';
+        if (printablesImportStatus) {
+          printablesImportStatus.style.display = 'block';
+          printablesImportStatus.textContent = 'Fetching data from Printables...';
+        }
+        if (btnAutofillPrintables) {
+          btnAutofillPrintables.disabled = true;
+          btnAutofillPrintables.textContent = 'Fetching...';
+        }
 
         fetch('/api/import/printables', {
           method: 'POST',
@@ -6816,137 +7088,437 @@
             });
           })
           .then(function (res) {
-            btnAutofillPrintables.disabled = false;
-            btnAutofillPrintables.innerHTML = '&#10024; Auto-Fill Page';
-
+            if (btnAutofillPrintables) {
+              btnAutofillPrintables.disabled = false;
+              btnAutofillPrintables.innerHTML = '&#10024; Auto-Fill All';
+            }
             if (!res.ok || res.body.error) {
-              printablesImportStatus.textContent = '⚠ ' + (res.body.error || 'Could not fetch from Printables.');
+              var errMsg = res.body.error || 'Could not fetch from Printables.';
+              if (printablesImportStatus) {
+                printablesImportStatus.textContent = '⚠ ' + errMsg;
+              }
+              if (callback) callback(new Error(errMsg));
               return;
             }
-
-            var d = res.body;
-            var populatedParts = [];
-
-            if (d.title) {
-              var rawTitle = String(d.title || '').trim();
-              var mainTitle = rawTitle;
-              var extTitle = String(d.extendedTitle || '').trim();
-              var pipeIdx = rawTitle.indexOf('|');
-              if (pipeIdx !== -1) {
-                mainTitle = rawTitle.slice(0, pipeIdx).trim();
-                var afterPipe = rawTitle.slice(pipeIdx + 1).trim();
-                extTitle = extTitle ? afterPipe + ' | ' + extTitle : afterPipe;
-              }
-              nameInput.value = mainTitle;
-              extendedTitleInput.value = extTitle;
-              if (!shortnameManuallyEdited && !editingSlug) {
-                shortnameInput.value = d.shortname || slugifyShortname(mainTitle);
-              }
-              populatedParts.push('Title');
-              if (extTitle) {
-                populatedParts.push('Extended Title');
-              }
-            } else if (d.extendedTitle) {
-              extendedTitleInput.value = String(d.extendedTitle).trim();
-              populatedParts.push('Extended Title');
-            }
-
-            var importedTagline = String(d.tagline !== undefined ? d.tagline : d.summary || '').trim();
-            if (importedTagline) {
-              taglineInput.value = importedTagline;
-              populatedParts.push('Tagline');
-            }
-
-            if (d.description) {
-              descInput.value = d.description;
-              populatedParts.push('Description');
-            }
-            autoExpandAllProse();
-
-            if (Array.isArray(d.tags) && d.tags.length > 0) {
-              tagsInput.value = d.tags.join(', ');
-              renderTagPills();
-              populatedParts.push(d.tags.length + ' Tags');
-            }
-
-            if (d.suggestedCategory && !editingSlug) {
-              categorySelect.value = d.suggestedCategory;
-              populatedParts.push('Category');
-            }
-            if (d.suggestedFanFavorite && !editingSlug) {
-              fanFavoriteCheckbox.checked = true;
-              populatedParts.push('Fan Favorite');
-            }
-
-            var addedShorts = 0;
-            var addedVideos = 0;
-            if (Array.isArray(d.youtubeShorts)) {
-              d.youtubeShorts.forEach(function (id) {
-                if (youtubeShorts.indexOf(id) === -1 && youtubeVideos.indexOf(id) === -1) {
-                  youtubeShorts.push(id);
-                  addedShorts++;
-                }
-              });
-            }
-            if (Array.isArray(d.youtubeVideos)) {
-              d.youtubeVideos.forEach(function (id) {
-                if (youtubeShorts.indexOf(id) === -1 && youtubeVideos.indexOf(id) === -1) {
-                  youtubeVideos.push(id);
-                  addedVideos++;
-                }
-              });
-            }
-            if (addedShorts > 0) populatedParts.push(addedShorts + (addedShorts === 1 ? ' Short' : ' Shorts'));
-            if (addedVideos > 0) populatedParts.push(addedVideos + (addedVideos === 1 ? ' Video' : ' Videos'));
-
-            // If no images are currently in the showcase stage and Printables returned images, load them in exact sequence
-            if (sourceImages.length === 0 && Array.isArray(d.imageUrls) && d.imageUrls.length > 0) {
-              var candidatePhotos = d.imageUrls.slice(0, 5).map(function (remoteImgUrl) {
-                return '/api/proxy-image?url=' + encodeURIComponent(remoteImgUrl);
-              });
-              loadImageListInOrder(candidatePhotos, function (orderedImages) {
-                if (orderedImages && orderedImages.length > 0) {
-                  sourceImages = orderedImages;
-                  // Ensure index 0 (the cover photo) is active and selected as the cover
-                  activeStageSelection = { type: 'image', index: 0 };
-                  renderSourceCards();
-                  updateMarkdownPreview();
-                }
-              });
-              populatedParts.push(Math.min(5, d.imageUrls.length) + ' Photos');
-            }
-
-            // Animated GIF from Printables (converted to a looping MP4 on save)
-            if (d.animationUrl) {
-              importedAnimationUrl = d.animationUrl;
-              populatedParts.push('Looping Animation');
-            }
-
-            // Load description images into the Detailed Views section
-            if (Array.isArray(d.descriptionImageUrls) && d.descriptionImageUrls.length > 0) {
-              var loadedDetailCount = 0;
-              d.descriptionImageUrls.forEach(function (descImgUrl) {
-                var proxiedUrl = '/api/proxy-image?url=' + encodeURIComponent(descImgUrl);
-                addDetailedImageFromUrl(proxiedUrl);
-                loadedDetailCount++;
-              });
-              if (loadedDetailCount > 0) {
-                populatedParts.push(loadedDetailCount + ' Detailed View Photos');
-              }
-            }
-
-            syncBreadcrumbs();
-            renderSourceCards();
-            updateMarkdownPreview();
-
-            printablesImportStatus.textContent =
-              '✓ Auto-populated: ' + (populatedParts.join(', ') || 'Model metadata') + '!';
+            cachedPrintablesUrl = urlToFetch;
+            cachedPrintablesData = res.body;
+            if (callback) callback(null, res.body);
           })
           .catch(function (err) {
-            btnAutofillPrintables.disabled = false;
-            btnAutofillPrintables.innerHTML = '&#10024; Auto-Fill Page';
-            printablesImportStatus.textContent = '⚠ Network error: ' + err.message;
+            if (btnAutofillPrintables) {
+              btnAutofillPrintables.disabled = false;
+              btnAutofillPrintables.innerHTML = '&#10024; Auto-Fill All';
+            }
+            if (printablesImportStatus) {
+              printablesImportStatus.textContent = '⚠ Network error: ' + err.message;
+            }
+            if (callback) callback(err);
           });
+      }
+
+      function getParsedPrintablesTitles(d) {
+        var rawTitle = String(d.title || '').trim();
+        var mainTitle = rawTitle;
+        var extTitle = String(d.extendedTitle || '').trim();
+        var pipeIdx = rawTitle.indexOf('|');
+        if (pipeIdx !== -1) {
+          mainTitle = rawTitle.slice(0, pipeIdx).trim();
+          var afterPipe = rawTitle.slice(pipeIdx + 1).trim();
+          extTitle = extTitle ? afterPipe + ' | ' + extTitle : afterPipe;
+        }
+        return { title: mainTitle, extendedTitle: extTitle };
+      }
+
+      function applyPrintablesData(d, options) {
+        options = options || {};
+        var selectedKeys = options.selectedKeys || null; // null means all
+        var overwrite = Boolean(options.overwriteExisting);
+        var populatedParts = [];
+
+        function shouldApply(key, isCurrentEmpty) {
+          if (selectedKeys && selectedKeys.indexOf(key) === -1) return false;
+          if (isCurrentEmpty) return true;
+          return overwrite;
+        }
+
+        var titles = getParsedPrintablesTitles(d);
+
+        // Title
+        var curTitleEmpty = !nameInput.value.trim();
+        if (titles.title && shouldApply('title', curTitleEmpty)) {
+          nameInput.value = titles.title;
+          if (!shortnameManuallyEdited && !editingSlug) {
+            shortnameInput.value = d.shortname || slugifyShortname(titles.title);
+          }
+          populatedParts.push('Title');
+        }
+
+        // Extended Title
+        var curExtEmpty = !extendedTitleInput.value.trim();
+        if (titles.extendedTitle && shouldApply('extended_title', curExtEmpty)) {
+          extendedTitleInput.value = titles.extendedTitle;
+          populatedParts.push('Extended Title');
+        }
+
+        // Tagline
+        var importedTagline = String(d.tagline !== undefined ? d.tagline : d.summary || '').trim();
+        var curTaglineEmpty = !taglineInput.value.trim();
+        if (importedTagline && shouldApply('tagline', curTaglineEmpty)) {
+          taglineInput.value = importedTagline;
+          populatedParts.push('Tagline');
+        }
+
+        // Description
+        var curDescEmpty = !descInput.value.trim();
+        if (d.description && shouldApply('description', curDescEmpty)) {
+          descInput.value = d.description;
+          populatedParts.push('Description');
+        }
+
+        autoExpandAllProse();
+
+        // Tags
+        var curTagsEmpty = !tagsInput.value.trim();
+        if (Array.isArray(d.tags) && d.tags.length > 0 && shouldApply('tags', curTagsEmpty)) {
+          tagsInput.value = d.tags.join(', ');
+          renderTagPills();
+          populatedParts.push(d.tags.length + ' Tags');
+        }
+
+        // Category
+        if (d.suggestedCategory && shouldApply('category', !editingSlug)) {
+          categorySelect.value = d.suggestedCategory;
+          populatedParts.push('Category');
+        }
+
+        // Fan Favorite
+        if (d.suggestedFanFavorite && shouldApply('fan_favorite', !editingSlug)) {
+          fanFavoriteCheckbox.checked = true;
+          populatedParts.push('Fan Favorite');
+        }
+
+        // YouTube Shorts & Videos
+        var curVideosEmpty = (youtubeShorts.length === 0 && youtubeVideos.length === 0);
+        if (shouldApply('videos', curVideosEmpty)) {
+          var addedShorts = 0;
+          var addedVideos = 0;
+          if (Array.isArray(d.youtubeShorts)) {
+            d.youtubeShorts.forEach(function (id) {
+              if (youtubeShorts.indexOf(id) === -1 && youtubeVideos.indexOf(id) === -1) {
+                youtubeShorts.push(id);
+                addedShorts++;
+              }
+            });
+          }
+          if (Array.isArray(d.youtubeVideos)) {
+            d.youtubeVideos.forEach(function (id) {
+              if (youtubeShorts.indexOf(id) === -1 && youtubeVideos.indexOf(id) === -1) {
+                youtubeVideos.push(id);
+                addedVideos++;
+              }
+            });
+          }
+          if (addedShorts > 0) populatedParts.push(addedShorts + (addedShorts === 1 ? ' Short' : ' Shorts'));
+          if (addedVideos > 0) populatedParts.push(addedVideos + (addedVideos === 1 ? ' Video' : ' Videos'));
+        }
+
+        // Showcase Photos
+        var curPhotosEmpty = (sourceImages.length === 0);
+        if (Array.isArray(d.imageUrls) && d.imageUrls.length > 0 && shouldApply('photos', curPhotosEmpty)) {
+          var candidatePhotos = d.imageUrls.slice(0, 5).map(function (remoteImgUrl) {
+            return '/api/proxy-image?url=' + encodeURIComponent(remoteImgUrl);
+          });
+          loadImageListInOrder(candidatePhotos, function (orderedImages) {
+            if (orderedImages && orderedImages.length > 0) {
+              if (curPhotosEmpty || overwrite) {
+                sourceImages = orderedImages;
+              } else {
+                orderedImages.forEach(function (imgObj) {
+                  sourceImages.push(imgObj);
+                });
+              }
+              activeStageSelection = { type: 'image', index: 0 };
+              renderSourceCards();
+              updateMarkdownPreview();
+            }
+          });
+          populatedParts.push(Math.min(5, d.imageUrls.length) + ' Photos');
+        }
+
+        // Looping Animation
+        if (d.animationUrl && shouldApply('animation', !importedAnimationUrl)) {
+          importedAnimationUrl = d.animationUrl;
+          populatedParts.push('Looping Animation');
+        }
+
+        // Detailed View Photos
+        var curDetailsEmpty = (detailedImages.length === 0);
+        if (Array.isArray(d.descriptionImageUrls) && d.descriptionImageUrls.length > 0 && shouldApply('detailed_photos', curDetailsEmpty)) {
+          var loadedDetailCount = 0;
+          d.descriptionImageUrls.forEach(function (descImgUrl) {
+            var proxiedUrl = '/api/proxy-image?url=' + encodeURIComponent(descImgUrl);
+            addDetailedImageFromUrl(proxiedUrl);
+            loadedDetailCount++;
+          });
+          if (loadedDetailCount > 0) {
+            populatedParts.push(loadedDetailCount + ' Detailed View Photos');
+          }
+        }
+
+        syncBreadcrumbs();
+        renderSourceCards();
+        updateMarkdownPreview();
+
+        if (printablesImportStatus) {
+          printablesImportStatus.style.display = 'block';
+          if (populatedParts.length > 0) {
+            printablesImportStatus.textContent = '✓ Auto-populated: ' + populatedParts.join(', ') + '!';
+          } else {
+            printablesImportStatus.textContent = 'ℹ No fields were updated (all chosen fields were already populated or skipped).';
+          }
+        }
+      }
+
+      function importFromPrintables(rawUrl, options) {
+        var urlToFetch = String(rawUrl || dlPrintables.value || '').trim();
+        if (!urlToFetch) {
+          printablesImportStatus.style.display = 'block';
+          printablesImportStatus.textContent = 'Paste a Printables model URL above first.';
+          dlPrintables.focus();
+          return;
+        }
+
+        dlPrintables.value = urlToFetch;
+        syncDownloadButtonHighlights();
+        updateInlinePrintablesButtonsVisibility();
+
+        fetchPrintablesData(urlToFetch, function (err, data) {
+          if (err || !data) return;
+          var opts = options || { overwriteExisting: true };
+          applyPrintablesData(data, opts);
+        });
+      }
+
+      // Selective Auto-Fill Modal logic
+      function openPrintablesSelectiveModal() {
+        var urlToFetch = String(dlPrintables.value || '').trim();
+        if (!urlToFetch) {
+          printablesImportStatus.style.display = 'block';
+          printablesImportStatus.textContent = 'Paste a Printables model URL above first.';
+          dlPrintables.focus();
+          return;
+        }
+
+        fetchPrintablesData(urlToFetch, function (err, data) {
+          if (err || !data) return;
+          populatePrintablesModalTable(data);
+          if (pfModalBackdrop) pfModalBackdrop.classList.add('is-open');
+        });
+      }
+
+      function closePrintablesSelectiveModal() {
+        if (pfModalBackdrop) pfModalBackdrop.classList.remove('is-open');
+      }
+
+      function populatePrintablesModalTable(d) {
+        if (!pfModalFieldsBody) return;
+        var titles = getParsedPrintablesTitles(d);
+        var importedTagline = String(d.tagline !== undefined ? d.tagline : d.summary || '').trim();
+
+        var fields = [
+          {
+            key: 'title',
+            name: 'Title',
+            printablesVal: titles.title || '(none)',
+            currentVal: nameInput.value.trim(),
+            isEmpty: !nameInput.value.trim()
+          },
+          {
+            key: 'extended_title',
+            name: 'Extended Title',
+            printablesVal: titles.extendedTitle || '(none)',
+            currentVal: extendedTitleInput.value.trim(),
+            isEmpty: !extendedTitleInput.value.trim()
+          },
+          {
+            key: 'tagline',
+            name: 'Tagline',
+            printablesVal: importedTagline || '(none)',
+            currentVal: taglineInput.value.trim(),
+            isEmpty: !taglineInput.value.trim()
+          },
+          {
+            key: 'description',
+            name: 'Description',
+            printablesVal: d.description ? (d.description.slice(0, 100) + (d.description.length > 100 ? '...' : '')) : '(none)',
+            currentVal: descInput.value.trim() ? (descInput.value.slice(0, 60) + '...') : '',
+            isEmpty: !descInput.value.trim()
+          },
+          {
+            key: 'tags',
+            name: 'Tags',
+            printablesVal: Array.isArray(d.tags) && d.tags.length ? d.tags.join(', ') : '(none)',
+            currentVal: tagsInput.value.trim(),
+            isEmpty: !tagsInput.value.trim()
+          },
+          {
+            key: 'category',
+            name: 'Category',
+            printablesVal: d.suggestedCategory || '(none)',
+            currentVal: categorySelect.value || '',
+            isEmpty: !editingSlug
+          },
+          {
+            key: 'photos',
+            name: 'Showcase Photos',
+            printablesVal: Array.isArray(d.imageUrls) ? d.imageUrls.length + ' photos' : '(none)',
+            currentVal: sourceImages.length ? sourceImages.length + ' photos' : '',
+            isEmpty: sourceImages.length === 0
+          },
+          {
+            key: 'videos',
+            name: 'YouTube Videos',
+            printablesVal: (Array.isArray(d.youtubeShorts) ? d.youtubeShorts.length : 0) + (Array.isArray(d.youtubeVideos) ? d.youtubeVideos.length : 0) + ' videos',
+            currentVal: (youtubeShorts.length + youtubeVideos.length) ? (youtubeShorts.length + youtubeVideos.length) + ' videos' : '',
+            isEmpty: (youtubeShorts.length + youtubeVideos.length) === 0
+          },
+          {
+            key: 'detailed_photos',
+            name: 'Detailed Views',
+            printablesVal: Array.isArray(d.descriptionImageUrls) ? d.descriptionImageUrls.length + ' photos' : '(none)',
+            currentVal: detailedImages.length ? detailedImages.length + ' photos' : '',
+            isEmpty: detailedImages.length === 0
+          }
+        ];
+
+        var rowsHtml = '';
+        fields.forEach(function (f) {
+          var checkedAttr = f.isEmpty ? 'checked' : '';
+          var emptyBadge = f.isEmpty
+            ? '<span style="color:var(--accent-orange, #ea580c);font-size:0.7rem;font-weight:700;">(currently empty)</span>'
+            : '<span style="color:var(--text-muted);font-size:0.7rem;">(has value)</span>';
+          rowsHtml += '<tr>' +
+            '<td><input type="checkbox" class="pf-field-chk" data-field-key="' + escapeHtmlText(f.key) + '" data-is-empty="' + f.isEmpty + '" ' + checkedAttr + '></td>' +
+            '<td><strong>' + escapeHtmlText(f.name) + '</strong><br>' + emptyBadge + '</td>' +
+            '<td><div class="pf-field-preview" title="' + escapeHtmlText(f.printablesVal) + '">' + escapeHtmlText(f.printablesVal) + '</div></td>' +
+            '<td><div class="pf-field-preview" title="' + escapeHtmlText(f.currentVal || '(blank)') + '">' + (f.currentVal ? escapeHtmlText(f.currentVal) : '<em style="color:var(--text-muted);">(blank)</em>') + '</div></td>' +
+          '</tr>';
+        });
+
+        pfModalFieldsBody.innerHTML = rowsHtml;
+        updatePfModalCount();
+      }
+
+      function updatePfModalCount() {
+        if (!pfModalFieldsBody || !pfModalSelectionCount) return;
+        var chks = pfModalFieldsBody.querySelectorAll('.pf-field-chk:checked');
+        pfModalSelectionCount.textContent = chks.length + ' field' + (chks.length === 1 ? '' : 's') + ' selected';
+      }
+
+      if (pfModalFieldsBody) {
+        pfModalFieldsBody.addEventListener('change', updatePfModalCount);
+      }
+      if (btnPfSelectEmpty) {
+        btnPfSelectEmpty.addEventListener('click', function () {
+          var chks = pfModalFieldsBody.querySelectorAll('.pf-field-chk');
+          chks.forEach(function (chk) {
+            chk.checked = chk.getAttribute('data-is-empty') === 'true';
+          });
+          updatePfModalCount();
+        });
+      }
+      if (btnPfSelectAll) {
+        btnPfSelectAll.addEventListener('click', function () {
+          var chks = pfModalFieldsBody.querySelectorAll('.pf-field-chk');
+          chks.forEach(function (chk) { chk.checked = true; });
+          updatePfModalCount();
+        });
+      }
+      if (btnPfDeselectAll) {
+        btnPfDeselectAll.addEventListener('click', function () {
+          var chks = pfModalFieldsBody.querySelectorAll('.pf-field-chk');
+          chks.forEach(function (chk) { chk.checked = false; });
+          updatePfModalCount();
+        });
+      }
+      if (pfModalClose) pfModalClose.addEventListener('click', closePrintablesSelectiveModal);
+      if (pfModalCancel) pfModalCancel.addEventListener('click', closePrintablesSelectiveModal);
+      if (pfModalBackdrop) {
+        pfModalBackdrop.addEventListener('click', function (e) {
+          if (e.target === pfModalBackdrop) closePrintablesSelectiveModal();
+        });
+      }
+      if (pfModalApply) {
+        pfModalApply.addEventListener('click', function () {
+          if (!cachedPrintablesData) return;
+          var selectedKeys = [];
+          var chks = pfModalFieldsBody.querySelectorAll('.pf-field-chk:checked');
+          chks.forEach(function (chk) {
+            selectedKeys.push(chk.getAttribute('data-field-key'));
+          });
+          var overwrite = chkPfOverwriteExisting ? chkPfOverwriteExisting.checked : true;
+          applyPrintablesData(cachedPrintablesData, {
+            selectedKeys: selectedKeys,
+            overwriteExisting: overwrite
+          });
+          closePrintablesSelectiveModal();
+        });
+      }
+
+      // Individual field fill button helper
+      function fillSingleFieldFromPrintables(key, fieldLabel) {
+        var urlToFetch = String(dlPrintables.value || '').trim();
+        if (!urlToFetch) {
+          printablesImportStatus.style.display = 'block';
+          printablesImportStatus.textContent = 'Paste a Printables model URL above first.';
+          dlPrintables.focus();
+          return;
+        }
+
+        fetchPrintablesData(urlToFetch, function (err, data) {
+          if (err || !data) return;
+          applyPrintablesData(data, {
+            selectedKeys: [key],
+            overwriteExisting: true
+          });
+        });
+      }
+
+      if (btnFillFieldTitle) {
+        btnFillFieldTitle.addEventListener('click', function () {
+          fillSingleFieldFromPrintables('title', 'Title');
+        });
+      }
+      if (btnFillFieldExtTitle) {
+        btnFillFieldExtTitle.addEventListener('click', function () {
+          fillSingleFieldFromPrintables('extended_title', 'Extended Title');
+        });
+      }
+      if (btnFillFieldTagline) {
+        btnFillFieldTagline.addEventListener('click', function () {
+          fillSingleFieldFromPrintables('tagline', 'Tagline');
+        });
+      }
+      if (btnFillFieldDesc) {
+        btnFillFieldDesc.addEventListener('click', function () {
+          fillSingleFieldFromPrintables('description', 'Description');
+        });
+      }
+      if (btnFillFieldTags) {
+        btnFillFieldTags.addEventListener('click', function () {
+          fillSingleFieldFromPrintables('tags', 'Tags');
+        });
+      }
+
+      if (btnAutofillPrintablesEmpty) {
+        btnAutofillPrintablesEmpty.addEventListener('click', function () {
+          importFromPrintables(dlPrintables.value, { overwriteExisting: false });
+        });
+      }
+      if (btnAutofillPrintablesSelective) {
+        btnAutofillPrintablesSelective.addEventListener('click', function () {
+          openPrintablesSelectiveModal();
+        });
       }
 
       function hasExistingFormData() {
@@ -6963,7 +7535,7 @@
       }
 
       btnAutofillPrintables.addEventListener('click', function () {
-        importFromPrintables(dlPrintables.value);
+        importFromPrintables(dlPrintables.value, { overwriteExisting: true });
       });
 
       dlPrintables.addEventListener('paste', function (e) {
@@ -6971,14 +7543,15 @@
         if (clip && /printables\.com\/(?:[a-z]{2}\/)?model\/\d+/i.test(clip.trim())) {
           setTimeout(function () {
             syncDownloadButtonHighlights();
+            updateInlinePrintablesButtonsVisibility();
             updateMarkdownPreview();
-            // If fields are already filled in, do not auto-fill over them; user can still click "✨ Auto-Fill Page" manually if desired
+            // If fields are already filled in, do not overwrite them automatically
             if (hasExistingFormData()) {
               printablesImportStatus.style.display = 'block';
-              printablesImportStatus.textContent = 'Printables link pasted. Click "✨ Auto-Fill Page" if you want to overwrite current fields.';
+              printablesImportStatus.textContent = 'Printables link pasted. Use "Fill Empty Only", "Selective Fill...", or individual field buttons to safely auto-fill without overwriting.';
               return;
             }
-            importFromPrintables(dlPrintables.value);
+            importFromPrintables(dlPrintables.value, { overwriteExisting: true });
           }, 50);
         }
       });
@@ -6992,6 +7565,9 @@
             if (el === taglineInput) {
               updateTaglineCharCounter();
             }
+            if (el === dlPrintables) {
+              updateInlinePrintablesButtonsVisibility();
+            }
             syncDownloadButtonHighlights();
             updateMarkdownPreview();
           });
@@ -7001,6 +7577,9 @@
             }
             if (el === taglineInput) {
               updateTaglineCharCounter();
+            }
+            if (el === dlPrintables) {
+              updateInlinePrintablesButtonsVisibility();
             }
             syncDownloadButtonHighlights();
             updateMarkdownPreview();
@@ -7193,6 +7772,9 @@
         dlPrintables.value = '';
         dlThangs.value = '';
         dlCults3d.value = '';
+        cachedPrintablesUrl = '';
+        cachedPrintablesData = null;
+        updateInlinePrintablesButtonsVisibility();
         autoExpandAllProse();
 
         sourceImages = [];
@@ -7290,6 +7872,9 @@
             renderTagPills();
             syncBreadcrumbs();
             syncDownloadButtonHighlights();
+            cachedPrintablesUrl = '';
+            cachedPrintablesData = null;
+            updateInlinePrintablesButtonsVisibility();
 
             editBannerTitle.textContent = m.title;
             editBannerFile.textContent = '_models/' + m.filename;
