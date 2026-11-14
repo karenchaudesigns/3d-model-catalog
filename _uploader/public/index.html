@@ -4712,11 +4712,16 @@
         <!-- Tags matching .tag-list in _layouts/model.html -->
         <div class="tag-editor-block" style="margin-bottom:0;">
           <div class="tag-editor-header">
-            <div style="display:flex;align-items:center;gap:0.5rem;">
+            <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
               <span style="font-size:0.75rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;">Selected Model Tags</span>
               <button type="button" class="printables-field-autofill-btn" id="btn-fill-field-tags" title="Fill Tags from Printables link" style="display:none;">&#10024; Fill from Printables</button>
             </div>
-            <span id="model-tags-counter" class="model-tags-counter" aria-live="polite">0 / 20 tags</span>
+            <div style="display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;">
+              <span id="model-tags-counter" class="model-tags-counter" aria-live="polite">0 / 20 tags</span>
+              <button type="button" class="btn-ghost" id="btn-copy-first-20-tags" style="padding:0.2rem 0.55rem;font-size:0.75rem;" title="Copy the first 20 tags to clipboard as a comma-separated list">&#128203; Copy First 20</button>
+              <button type="button" class="btn-ghost" id="btn-copy-all-tags" style="padding:0.2rem 0.55rem;font-size:0.75rem;" title="Copy all tags to clipboard">&#128203; Copy All</button>
+              <button type="button" class="btn-ghost" id="btn-paste-tags" style="padding:0.2rem 0.55rem;font-size:0.75rem;" title="Paste copied tags into this model">&#128203; Paste</button>
+            </div>
           </div>
           <ul class="tag-list" id="tag-preview-row" aria-label="Model tags preview">
             <li class="tag-badge">#tags-appear-here</li>
@@ -6582,6 +6587,9 @@
       var btnAddCustomTag = document.getElementById('btn-add-custom-tag');
       var btnCopyTags = document.getElementById('btn-copy-tags');
       var btnClearTags = document.getElementById('btn-clear-tags');
+      var btnCopyFirst20Tags = document.getElementById('btn-copy-first-20-tags');
+      var btnCopyAllTags = document.getElementById('btn-copy-all-tags');
+      var btnPasteTags = document.getElementById('btn-paste-tags');
       var frameworkCounterBadge = document.getElementById('framework-counter-badge');
       var tagCategorySectionsContainer = document.getElementById('tag-category-sections-container');
       var tagFrameworkWidget = document.getElementById('tag-framework-widget');
@@ -6844,29 +6852,138 @@
         });
       }
 
-      // Copy Tags button
-      if (btnCopyTags) {
-        btnCopyTags.addEventListener('click', function () {
-          var tags = parseTagsArray(tagsInput.value);
-          var commaSeparated = tags.join(', ');
-          if (!commaSeparated) {
+      /* Tag Clipboard System (Mirroring Affiliate Links Clipboard Pattern) */
+      var TAGS_CLIPBOARD_KEY = 'kcd-tags-clipboard';
+
+      function getTagsClipboard() {
+        try {
+          var raw = localStorage.getItem(TAGS_CLIPBOARD_KEY);
+          if (!raw) return [];
+          var parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) {
+            return parsed.map(function (t) { return sanitizeSingleWordTag(t); }).filter(Boolean);
+          }
+          return [];
+        } catch (e) {
+          return [];
+        }
+      }
+
+      function setTagsClipboard(tags) {
+        var clean = parseTagsArray(tags);
+        try {
+          localStorage.setItem(TAGS_CLIPBOARD_KEY, JSON.stringify(clean));
+        } catch (e) {}
+        updateTagsPasteButtonState();
+      }
+
+      function updateTagsPasteButtonState() {
+        if (!btnPasteTags) return;
+        var clipboard = getTagsClipboard();
+        if (clipboard.length > 0) {
+          btnPasteTags.disabled = false;
+          btnPasteTags.innerHTML = '&#128203; Paste (' + clipboard.length + ')';
+          btnPasteTags.title = 'Paste ' + clipboard.length + ' copied tag' + (clipboard.length === 1 ? '' : 's') + ' into this model';
+          btnPasteTags.style.opacity = '1';
+        } else {
+          btnPasteTags.disabled = true;
+          btnPasteTags.innerHTML = '&#128203; Paste';
+          btnPasteTags.title = 'No copied tags in clipboard yet. Use "Copy First 20" or "Copy All" first.';
+          btnPasteTags.style.opacity = '0.55';
+        }
+      }
+
+      function copyTagsToClipboard(tagsList, triggerBtn, successLabel) {
+        var cleanTags = parseTagsArray(tagsList);
+        if (!cleanTags.length) {
+          if (triggerBtn) {
+            var orig = triggerBtn.textContent;
+            triggerBtn.textContent = 'No tags to copy';
+            setTimeout(function () { triggerBtn.textContent = orig; }, 1500);
+          } else {
             alert('No tags currently selected to copy.');
+          }
+          return;
+        }
+
+        var commaSeparated = cleanTags.join(', ');
+        setTagsClipboard(cleanTags);
+
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(commaSeparated);
+          }
+        } catch (e) {
+          prompt('Copy your comma-separated tags:', commaSeparated);
+        }
+
+        if (triggerBtn) {
+          var originalHtml = triggerBtn.innerHTML;
+          triggerBtn.innerHTML = '<span>&#10003; ' + (successLabel || ('Copied ' + cleanTags.length + ' Tag' + (cleanTags.length === 1 ? '' : 's') + '!')) + '</span>';
+          triggerBtn.classList.add('is-copied');
+          setTimeout(function () {
+            triggerBtn.classList.remove('is-copied');
+            triggerBtn.innerHTML = originalHtml;
+          }, 1800);
+        }
+      }
+
+      // Copy First 20 Tags button
+      if (btnCopyFirst20Tags) {
+        btnCopyFirst20Tags.addEventListener('click', function () {
+          var allTags = parseTagsArray(tagsInput.value);
+          var first20 = allTags.slice(0, 20);
+          copyTagsToClipboard(first20, btnCopyFirst20Tags, 'Copied ' + first20.length + ' Tag' + (first20.length === 1 ? '' : 's') + '!');
+        });
+      }
+
+      // Copy All Tags button (Header)
+      if (btnCopyAllTags) {
+        btnCopyAllTags.addEventListener('click', function () {
+          var allTags = parseTagsArray(tagsInput.value);
+          copyTagsToClipboard(allTags, btnCopyAllTags, 'Copied ' + allTags.length + ' Tag' + (allTags.length === 1 ? '' : 's') + '!');
+        });
+      }
+
+      // Paste Tags button (Header)
+      if (btnPasteTags) {
+        btnPasteTags.addEventListener('click', function () {
+          var stored = getTagsClipboard();
+          if (!stored || !stored.length) {
+            btnPasteTags.textContent = 'Clipboard empty';
+            setTimeout(function () { updateTagsPasteButtonState(); }, 1500);
             return;
           }
 
-          navigator.clipboard.writeText(commaSeparated).then(function () {
-            btnCopyTags.classList.add('is-copied');
-            var originalHtml = btnCopyTags.innerHTML;
-            btnCopyTags.innerHTML = '<span>&#10003; Copied ' + tags.length + ' Tags!</span>';
-            setTimeout(function () {
-              btnCopyTags.classList.remove('is-copied');
-              btnCopyTags.innerHTML = originalHtml;
-            }, 2200);
-          }).catch(function (err) {
-            console.error('Clipboard copy failed:', err);
-            // Fallback prompt
-            prompt('Copy your comma-separated tags:', commaSeparated);
+          var current = parseTagsArray(tagsInput.value);
+          var existingSet = {};
+          current.forEach(function (t) { existingSet[t.toLowerCase()] = true; });
+
+          var addedCount = 0;
+          stored.forEach(function (t) {
+            if (!existingSet[t.toLowerCase()]) {
+              current.push(t);
+              existingSet[t.toLowerCase()] = true;
+              addedCount++;
+            }
           });
+
+          tagsInput.value = current.join(', ');
+          renderTagPills();
+          updateMarkdownPreview();
+
+          btnPasteTags.innerHTML = '<span>&#10003; ' + (addedCount > 0 ? ('Pasted ' + addedCount + ' Tag' + (addedCount === 1 ? '' : 's') + '!') : 'All tags already added!') + '</span>';
+          setTimeout(function () {
+            updateTagsPasteButtonState();
+          }, 1800);
+        });
+      }
+
+      // Copy Tags button (Framework Topbar)
+      if (btnCopyTags) {
+        btnCopyTags.addEventListener('click', function () {
+          var tags = parseTagsArray(tagsInput.value);
+          copyTagsToClipboard(tags, btnCopyTags, 'Copied ' + tags.length + ' Tags!');
         });
       }
 
@@ -6893,6 +7010,7 @@
           tagsCounterEl.classList.toggle('is-over-limit', count > 20);
         }
 
+        updateTagsPasteButtonState();
         updateFrameworkCounter(count);
         renderCategoryFramework();
 
