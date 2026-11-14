@@ -330,31 +330,21 @@ description: "Browse original 3D printable models by category—Useful Prints, G
       var autoPlayTimer = null;
       var slideInterval = 4000; // 4 seconds per slide
 
-      function getVisibleSlides() {
-        var w = window.innerWidth;
-        if (w >= 1024) return 3;
-        if (w >= 640) return 2;
-        return 1;
-      }
-
       function getMaxIndex() {
-        var visible = getVisibleSlides();
-        return Math.max(0, totalSlides - visible);
+        return Math.max(0, totalSlides - 1);
       }
 
       function renderDots() {
         if (!dotsContainer) return;
         dotsContainer.innerHTML = '';
-        var maxIdx = getMaxIndex();
-        var totalDots = maxIdx + 1;
 
-        for (var i = 0; i < totalDots; i++) {
+        for (var i = 0; i < totalSlides; i++) {
           (function(idx) {
             var dot = document.createElement('button');
             dot.type = 'button';
             dot.className = 'hero-carousel-dot' + (idx === currentIndex ? ' is-active' : '');
             dot.setAttribute('role', 'tab');
-            dot.setAttribute('aria-label', 'Go to slide ' + (idx + 1));
+            dot.setAttribute('aria-label', 'Go to slide ' + (idx + 1) + ' of ' + totalSlides);
             dot.setAttribute('aria-selected', idx === currentIndex ? 'true' : 'false');
             dot.addEventListener('click', function() {
               goToSlide(idx);
@@ -365,20 +355,17 @@ description: "Browse original 3D printable models by category—Useful Prints, G
       }
 
       function updateCarousel(animate) {
-        var visible = getVisibleSlides();
-        var maxIdx = Math.max(0, totalSlides - visible);
-        if (currentIndex > maxIdx) {
-          currentIndex = maxIdx;
+        if (currentIndex >= totalSlides) {
+          currentIndex = 0;
         }
 
         if (animate === false) {
           track.style.transition = 'none';
         } else {
-          track.style.transition = 'transform 0.45s cubic-bezier(0.25, 1, 0.5, 1)';
+          track.style.transition = 'transform 0.5s cubic-bezier(0.25, 1, 0.5, 1)';
         }
 
-        var slidePercentage = 100 / visible;
-        var offset = currentIndex * slidePercentage;
+        var offset = currentIndex * 100;
         track.style.transform = 'translateX(-' + offset + '%)';
 
         // Update active dots
