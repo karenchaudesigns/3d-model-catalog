@@ -3,8 +3,10 @@ title: "TPU yarn"
 extended_title: ""
 tagline: "A model that makes me wish I had ramen-colored TPU! 🍜"
 shortname: "tpu-yarn"
-category: "gifts-decor"
+category: "useful-prints"
 fan_favorite: false
+makerworld_exclusive: false
+premium: false
 hidden: false
 thumbnail_image: "/images/models/tpu-yarn/3d-model-tpu-yarn-thumb.webp"
 cover_image: "/images/models/tpu-yarn/3d-model-tpu-yarn-main.webp"

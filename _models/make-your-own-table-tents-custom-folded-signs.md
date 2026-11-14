@@ -3,8 +3,10 @@ title: "Make Your Own Table Tents - Custom Folded Signs"
 extended_title: ""
 tagline: "Quick and easy signs to print with just one color swap!"
 shortname: "make-your-own-table-tents-custom-folded-signs"
-category: "gifts-decor"
+category: "useful-prints"
 fan_favorite: false
+makerworld_exclusive: false
+premium: false
 hidden: false
 thumbnail_image: "/images/models/make-your-own-table-tents-custom-folded-signs/3d-model-make-your-own-table-tents-custom-folded-signs-thumb.webp"
 cover_image: "/images/models/make-your-own-table-tents-custom-folded-signs/3d-model-make-your-own-table-tents-custom-folded-signs-main.webp"

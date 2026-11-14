@@ -3,8 +3,10 @@ title: "Friendship Bracelet Making Kit"
 extended_title: "Design and make your own pony bead jewelry!"
 tagline: "Approved by my 6-year-old niece, this FUNctional gift is a helpful tool for designing and making friendship bracelets!"
 shortname: "friendship-bracelet-making-kit"
-category: "gifts-decor"
+category: "useful-prints"
 fan_favorite: true
+makerworld_exclusive: false
+premium: false
 hidden: false
 thumbnail_image: "/images/models/friendship-bracelet-making-kit/3d-model-friendship-bracelet-making-kit-thumb.webp"
 cover_image: "/images/models/friendship-bracelet-making-kit/3d-model-friendship-bracelet-making-kit-main.webp"

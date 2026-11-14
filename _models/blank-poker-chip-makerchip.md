@@ -3,8 +3,10 @@ title: "Blank poker chip / MakerChip"
 extended_title: "Fits 1\" sticker label -- good for QR codes, logos, photos, etc"
 tagline: "With indentations to feel like real poker chips! See description section for video."
 shortname: "blank-poker-chip-makerchip"
-category: "gifts-decor"
+category: "useful-prints"
 fan_favorite: true
+makerworld_exclusive: false
+premium: false
 hidden: false
 thumbnail_image: "/images/models/blank-poker-chip-makerchip/3d-model-blank-poker-chip-makerchip-thumb.webp"
 cover_image: "/images/models/blank-poker-chip-makerchip/3d-model-blank-poker-chip-makerchip-main.webp"
