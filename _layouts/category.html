@@ -8,11 +8,22 @@ layout: default
   {% assign ff_models = visible_models | where: "fan_favorite", true %}
   {% assign legacy_ff_models = visible_models | where: "category", "fan-favorites" %}
   {% assign category_models = ff_models | concat: legacy_ff_models | uniq %}
+{% elsif current_slug == "seasonal" %}
+  {% assign raw_seasonal = visible_models | where: "category", "seasonal" %}
+  {% assign priority_slugs = "cute-fall-pumpkins-with-vine,patch-the-pumpkin-duck,small-gift-box-w-insert-for-up-to-8-aa-batteries,boxes-style-a,boxes-style-c,mooncake-coasters" | split: "," %}
+  {% assign top_seasonal = "" | split: "" %}
+  {% for p_slug in priority_slugs %}
+    {% assign found_m = raw_seasonal | where: "shortname", p_slug | first %}
+    {% if found_m %}
+      {% assign top_seasonal = top_seasonal | push: found_m %}
+    {% endif %}
+  {% endfor %}
+  {% assign category_models = top_seasonal | concat: raw_seasonal | uniq %}
 {% else %}
   {% assign category_models = visible_models | where: "category", current_slug %}
 {% endif %}
 
-<section class="category-page container" id="category-page-{{ current_slug }}">
+<section class="category-page container" id="category-page-{{ current_slug }}" data-category-slug="{{ current_slug }}">
   <nav class="breadcrumb" aria-label="Breadcrumb">
     <a href="{{ '/' | relative_url }}" id="breadcrumb-catalog">Catalog</a>
     <span class="breadcrumb-sep" aria-hidden="true">/</span>
@@ -36,6 +47,13 @@ layout: default
   {% if content and content != "" %}
     <div class="category-intro prose">
       {{ content }}
+    </div>
+  {% endif %}
+
+  {% if current_slug == "seasonal" and category_models.size > 0 %}
+    <div class="seasonal-priority-banner" id="seasonal-priority-banner">
+      <span>Showing designs for <strong id="seasonal-active-label">Autumn, Thanksgiving &amp; Holiday Gifting</strong> at the top</span>
+      <span class="seasonal-priority-pill" id="seasonal-active-pill">🍂 Current Season &amp; Upcoming Holidays</span>
     </div>
   {% endif %}
 
@@ -149,8 +167,137 @@ layout: default
     var countEl = document.getElementById('category-search-count');
     var emptyState = document.getElementById('category-search-empty');
     var emptyTerm = document.getElementById('cat-empty-search-term');
+    var gridEl = document.getElementById('category-model-grid');
+    var pageSection = document.querySelector('.category-page');
+    var categorySlug = pageSection ? pageSection.getAttribute('data-category-slug') : '';
     var cards = Array.prototype.slice.call(document.querySelectorAll('#category-model-grid .model-thumb-card'));
     var totalCards = cards.length;
+
+    // Automatically sort Seasonal category models so upcoming holidays & current season appear on top
+    if (categorySlug === 'seasonal' && gridEl && cards.length > 0) {
+      var now = new Date();
+      var month = now.getMonth() + 1; // 1 = Jan ... 12 = Dec
+      var day = now.getDate();
+
+      var seasonLabel = 'Autumn, Thanksgiving & Holiday Gifting';
+      var seasonPill = '🍂 Current Season & Upcoming Holidays';
+      var ribbonText = '🍂 Current Season';
+      var primaryKeywords = [];
+      var secondaryKeywords = [];
+
+      if (month === 1 || (month === 2 && day <= 15)) {
+        // Jan 1 - Feb 15: Valentine's Day
+        seasonLabel = "Valentine's Day & Sweetheart Gifts";
+        seasonPill = '💝 Upcoming Holiday';
+        ribbonText = "💝 Valentine's Pick";
+        primaryKeywords = ['valentine', 'valentines', 'valentinesday', 'heart', 'hearts', 'love', 'chocolate', 'candies'];
+        secondaryKeywords = ['stpatricksday', 'leprechaun', 'easter', 'bunny', 'marchmagnets'];
+      } else if (month === 2 || month === 3 || (month === 4 && day <= 20)) {
+        // Mid Feb - Apr 20: St. Patrick's Day, March Magnets, Easter & Spring
+        seasonLabel = "Spring, St. Patrick's Day & Easter";
+        seasonPill = '🌷 Spring & Upcoming Holidays';
+        ribbonText = '🌷 Spring & Easter';
+        primaryKeywords = ['easter', 'easterbunny', 'eastereggs', 'bunny', 'rabbit', 'egg', 'eggs', 'stpatricksday', 'leprechaun', 'marchmagnets'];
+        secondaryKeywords = ['mothersday', 'mothersdaygift', 'giftbox', 'gift'];
+      } else if (month === 4 || month === 5) {
+        // Late Apr - May: Mother's Day & Spring Gifting
+        seasonLabel = "Mother's Day & Spring Gifting";
+        seasonPill = '💐 Upcoming Holidays';
+        ribbonText = '💐 Holiday Gifting';
+        primaryKeywords = ['mothersday', 'mothersdaygift', 'heart', 'giftbox', 'ribbongiftbox', 'gifts'];
+        secondaryKeywords = ['easter', 'bunny', 'spring'];
+      } else if (month >= 6 && month <= 8) {
+        // Jun - Aug: Summer Games & Early Autumn Preview
+        seasonLabel = 'Summer Fun & Upcoming Fall Preview';
+        seasonPill = '☀️ Current Season';
+        ribbonText = '☀️ Seasonal Pick';
+        primaryKeywords = ['game', 'familygame', 'ringtoss', 'giftbox', 'gifts'];
+        secondaryKeywords = ['midautumn', 'mooncake', 'autumn', 'fall', 'pumpkin'];
+      } else if (month === 9 || month === 10) {
+        // Sep - Oct: Halloween, Spooky Season & Autumn
+        seasonLabel = 'Halloween, Spooky Season & Autumn';
+        seasonPill = '🎃 Halloween & Fall';
+        ribbonText = '🎃 Spooky & Fall';
+        primaryKeywords = ['halloween', 'halloweendecor', 'spookyseason', 'gravestone', 'ghost', 'cauldron', 'witch', 'candycorn', 'pumpkin', 'pumpkinduck', 'autumn', 'fall', 'midautumn', 'mooncake', 'october'];
+        secondaryKeywords = ['november', 'harvest', 'psl', 'thanksgiving'];
+      } else if (month === 11) {
+        // Nov: Autumn, Thanksgiving & Holiday Gifting
+        seasonLabel = 'Autumn, Thanksgiving & Holiday Gifting';
+        seasonPill = '🍂 Current Season & Upcoming Holidays';
+        ribbonText = '🍂 Season & Holidays';
+        primaryKeywords = ['november', 'thanksgiving', 'harvest', 'psl', 'pumpkinspice', 'falldecor', 'autumn', 'fall', 'pumpkin', 'pumpkinduck', 'christmasgift', 'christmasgiftbox', 'giftwrapping', 'gifting', 'aabattery', 'ribbongiftbox', 'presents'];
+        secondaryKeywords = ['giftbox', 'gifts', 'midautumn', 'mooncake'];
+      } else {
+        // Dec: Christmas & Holiday Gifting
+        seasonLabel = 'Christmas & Holiday Gifting';
+        seasonPill = '🎄 Holiday Season';
+        ribbonText = '🎄 Holiday Gift Pick';
+        primaryKeywords = ['christmas', 'christmasgift', 'christmasgiftbox', 'giftwrapping', 'gifting', 'presents', 'ribbongiftbox', 'aabattery', 'giftbox', 'gifts'];
+        secondaryKeywords = ['valentine', 'heart', 'winter'];
+      }
+
+      var labelEl = document.getElementById('seasonal-active-label');
+      var pillEl = document.getElementById('seasonal-active-pill');
+      if (labelEl) labelEl.textContent = seasonLabel;
+      if (pillEl) pillEl.textContent = seasonPill;
+
+      function scoreCard(card) {
+        var text = (card.getAttribute('data-search-text') || '').toLowerCase();
+        var primaryMatches = 0;
+        var secondaryMatches = 0;
+
+        for (var i = 0; i < primaryKeywords.length; i++) {
+          if (text.indexOf(primaryKeywords[i]) !== -1) {
+            primaryMatches++;
+          }
+        }
+        for (var j = 0; j < secondaryKeywords.length; j++) {
+          if (text.indexOf(secondaryKeywords[j]) !== -1) {
+            secondaryMatches++;
+          }
+        }
+
+        if (primaryMatches > 0) {
+          return 100 + primaryMatches * 10 + secondaryMatches;
+        }
+        if (secondaryMatches > 0) {
+          return 20 + secondaryMatches * 5;
+        }
+        return 0;
+      }
+
+      var scoredCards = cards.map(function (card, index) {
+        return {
+          card: card,
+          score: scoreCard(card),
+          index: index
+        };
+      });
+
+      scoredCards.sort(function (a, b) {
+        if (b.score !== a.score) {
+          return b.score - a.score;
+        }
+        return a.index - b.index;
+      });
+
+      scoredCards.forEach(function (item) {
+        gridEl.appendChild(item.card);
+        var mediaEl = item.card.querySelector('.model-thumb-media');
+        var existingRibbon = mediaEl ? mediaEl.querySelector('.seasonal-card-ribbon') : null;
+        if (existingRibbon) {
+          existingRibbon.remove();
+        }
+        if (item.score >= 100 && mediaEl) {
+          var ribbon = document.createElement('span');
+          ribbon.className = 'seasonal-card-ribbon';
+          ribbon.textContent = ribbonText;
+          mediaEl.appendChild(ribbon);
+        }
+      });
+
+      cards = scoredCards.map(function (item) { return item.card; });
+    }
 
     if (!searchInput || !cards.length) return;
 
