@@ -1071,13 +1071,19 @@
       font-family: var(--font-display);
       font-size: clamp(1.65rem, 2.8vw, 2.25rem);
       font-weight: 600;
-      line-height: 1.18;
+      line-height: 1.25;
       letter-spacing: -0.02em;
       color: var(--text-primary);
       background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-sm);
-      padding: 0.45rem 4.5rem 0.45rem 0.7rem;
+      padding: 0.45rem 5.2rem 0.45rem 0.7rem;
+      resize: none;
+      overflow-y: hidden;
+      field-sizing: content;
+      min-height: 3rem;
+      box-sizing: border-box;
+      display: block;
       transition: border-color 0.16s ease, box-shadow 0.16s ease;
     }
 
@@ -4478,17 +4484,17 @@
             </div>
 
             <div class="model-title-wrapper">
-              <input
-                type="text"
+              <textarea
                 id="model-name"
                 class="model-title-input"
+                rows="1"
                 required
                 placeholder="Model Title (e.g., Baby Ducks)"
                 aria-label="Model Title"
-              >
-              <div style="position:absolute;right:0.6rem;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:0.4rem;">
+              ></textarea>
+              <div style="position:absolute;right:0.6rem;bottom:0.5rem;display:flex;align-items:center;gap:0.4rem;z-index:2;">
                 <button type="button" class="printables-field-autofill-btn" id="btn-fill-field-title" title="Fill Title from Printables link" style="display:none;">&#10024; Fill</button>
-                <span id="title-char-counter" class="model-title-counter" aria-live="polite">0/50</span>
+                <span id="title-char-counter" class="model-title-counter" style="position:static;" aria-live="polite">0/50</span>
               </div>
             </div>
 
@@ -4499,8 +4505,9 @@
                 rows="1"
                 placeholder="Extended Title (e.g., Multi-color 3mf | Free to a good home)"
                 aria-label="Extended Title"
+                style="padding-right:4.8rem;"
               ></textarea>
-              <button type="button" class="printables-field-autofill-btn" id="btn-fill-field-extended-title" title="Fill Extended Title from Printables link" style="display:none;position:absolute;right:0.6rem;top:0.45rem;">&#10024; Fill</button>
+              <button type="button" class="printables-field-autofill-btn" id="btn-fill-field-extended-title" title="Fill Extended Title from Printables link" style="display:none;position:absolute;right:0.6rem;bottom:0.45rem;">&#10024; Fill</button>
             </div>
 
             <div class="model-tagline-wrapper">
@@ -4510,10 +4517,11 @@
                 rows="1"
                 placeholder="Tagline (auto-filled from Printables summary)..."
                 aria-label="Model Tagline"
+                style="padding-right:5.5rem;"
               ></textarea>
-              <div style="position:absolute;right:0.6rem;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:0.4rem;">
+              <div style="position:absolute;right:0.6rem;bottom:0.45rem;display:flex;align-items:center;gap:0.4rem;z-index:2;">
                 <button type="button" class="printables-field-autofill-btn" id="btn-fill-field-tagline" title="Fill Tagline from Printables link" style="display:none;">&#10024; Fill</button>
-                <span id="tagline-char-counter" class="model-tagline-counter" aria-live="polite">0/120</span>
+                <span id="tagline-char-counter" class="model-tagline-counter" style="position:static;" aria-live="polite">0/120</span>
               </div>
             </div>
           </div>
@@ -6454,12 +6462,21 @@
       });
 
       nameInput.addEventListener('input', function () {
+        autoExpandTextarea(nameInput);
         if (!shortnameManuallyEdited && !editingSlug) {
           shortnameInput.value = slugifyShortname(nameInput.value);
         }
         syncBreadcrumbs();
         rebuildWebPAssets();
         updateTitleCharCounter();
+        updateMarkdownPreview();
+      });
+
+      nameInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          nameInput.blur();
+        }
       });
 
       shortnameInput.addEventListener('input', function () {
@@ -7351,11 +7368,12 @@
       function autoExpandTextarea(el) {
         if (!el) return;
         el.style.height = 'auto';
-        var minH = (el === descInput || el === settingsInput) ? 120 : 36;
+        var minH = (el === descInput || el === settingsInput) ? 120 : (el === nameInput ? 48 : 36);
         el.style.height = Math.max(minH, el.scrollHeight + 2) + 'px';
       }
 
       function autoExpandAllProse() {
+        autoExpandTextarea(nameInput);
         autoExpandTextarea(extendedTitleInput);
         autoExpandTextarea(taglineInput);
         autoExpandTextarea(descInput);
@@ -7922,11 +7940,14 @@
         }
       });
 
-      [extendedTitleInput, taglineInput, fanFavoriteCheckbox, makerworldExclusiveCheckbox, premiumCheckbox, hiddenCheckbox, descInput, settingsInput, dlMakerworld, dlPrintables, dlThangs, dlCults3d].forEach(
+      [nameInput, extendedTitleInput, taglineInput, fanFavoriteCheckbox, makerworldExclusiveCheckbox, premiumCheckbox, hiddenCheckbox, descInput, settingsInput, dlMakerworld, dlPrintables, dlThangs, dlCults3d].forEach(
         function (el) {
           el.addEventListener('input', function () {
-            if (el === descInput || el === settingsInput || el === extendedTitleInput || el === taglineInput) {
+            if (el === nameInput || el === descInput || el === settingsInput || el === extendedTitleInput || el === taglineInput) {
               autoExpandTextarea(el);
+            }
+            if (el === nameInput) {
+              updateTitleCharCounter();
             }
             if (el === taglineInput) {
               updateTaglineCharCounter();
@@ -7938,8 +7959,11 @@
             updateMarkdownPreview();
           });
           el.addEventListener('change', function () {
-            if (el === descInput || el === settingsInput || el === extendedTitleInput || el === taglineInput) {
+            if (el === nameInput || el === descInput || el === settingsInput || el === extendedTitleInput || el === taglineInput) {
               autoExpandTextarea(el);
+            }
+            if (el === nameInput) {
+              updateTitleCharCounter();
             }
             if (el === taglineInput) {
               updateTaglineCharCounter();
