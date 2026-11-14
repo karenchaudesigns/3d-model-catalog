@@ -4,7 +4,9 @@ extended_title: "Halloween flexi fidget toys / keychains"
 tagline: "Cute and fun fidget for you and your trick or treaters!"
 shortname: "articulated-kawaii-ghosts"
 category: "seasonal"
-fan_favorite: false
+fan_favorite: true
+makerworld_exclusive: false
+premium: false
 hidden: false
 thumbnail_image: "/images/models/articulated-kawaii-ghosts/3d-model-articulated-kawaii-ghosts-thumb.webp"
 cover_image: "/images/models/articulated-kawaii-ghosts/3d-model-articulated-kawaii-ghosts-main.webp"
