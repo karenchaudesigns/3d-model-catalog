@@ -1962,21 +1962,23 @@
       font-family: var(--font-sans);
       font-size: 0.92rem;
       color: var(--text-primary);
-      background: var(--bg-primary);
+      background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-sm);
       padding: 0.75rem 0.85rem;
       line-height: 1.6;
-      resize: none;
-      overflow-y: hidden;
+      resize: vertical;
       min-height: 120px;
       field-sizing: content;
+      box-sizing: border-box;
+      transition: border-color 0.16s ease, box-shadow 0.16s ease;
     }
 
     .prose-textarea:focus {
       outline: none;
       border-color: var(--accent-terracotta);
-      background: #fff;
+      box-shadow: 0 0 0 3px var(--accent-soft);
+      background: var(--bg-surface);
     }
 
     /* Frozen / Sticky Footer Save Panel */
@@ -8381,6 +8383,10 @@
         document.body.classList.add('is-form-mode');
         btnNavNew.classList.toggle('is-active', !isEdit);
         btnNavLibrary.classList.toggle('is-active', false);
+        // Ensure dynamically sized textareas expand correctly once the container is unhidden
+        requestAnimationFrame(function () {
+          autoExpandAllProse();
+        });
       }
 
       function hideFormMode() {
