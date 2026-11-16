@@ -5642,7 +5642,7 @@
 
         if (slugLiveLink) {
           var currentShortname = (shortnameInput && shortnameInput.value.trim()) || editingSlug || (nameInput && slugifyShortname(nameInput.value.trim())) || '';
-          var printablesVal = (printablesInput && printablesInput.value.trim()) || '';
+          var printablesVal = (typeof dlPrintables !== 'undefined' && dlPrintables && dlPrintables.value.trim()) || '';
           var idMatch = printablesVal.match(/printables\.com\/(?:[a-z]{2}\/)?model\/(\d+)/i);
           var mId = idMatch ? idMatch[1] : '';
 
