@@ -1,4 +1,11 @@
 ---
+model_id: 1451771
+permalink: /model/1451771-halloween-gravestone-starter-pack/
+redirect_from:
+  - /models/halloween-gravestone-starter-pack/
+  - /models/halloween-gravestone-starter-pack
+  - /model/1451771/
+  - /model/1451771
 title: "Halloween Gravestone Starter Pack"
 extended_title: "Sampler & Templates"
 tagline: "Download these ready-to-print gravestone designs and blank templates to make your spooky season decor!"

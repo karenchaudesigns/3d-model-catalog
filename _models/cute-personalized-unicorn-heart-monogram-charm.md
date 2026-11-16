@@ -1,4 +1,11 @@
 ---
+model_id: 546290
+permalink: /model/546290-cute-personalized-unicorn-heart-monogram-charm/
+redirect_from:
+  - /models/cute-personalized-unicorn-heart-monogram-charm/
+  - /models/cute-personalized-unicorn-heart-monogram-charm
+  - /model/546290/
+  - /model/546290
 title: "Cute personalized unicorn heart monogram charm"
 extended_title: "Letters A-Z & blank"
 tagline: "Fun accessory for anyone who loves unicorns! Use these unicorn charms in multiple ways!"

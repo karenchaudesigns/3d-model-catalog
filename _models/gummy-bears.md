@@ -1,4 +1,11 @@
 ---
+model_id: 976900
+permalink: /model/976900-gummy-bears/
+redirect_from:
+  - /models/gummy-bears/
+  - /models/gummy-bears
+  - /model/976900/
+  - /model/976900
 title: "Gummy Bears"
 extended_title: "Includes 3mf to make a TPU squeaky toy | Compatible w/ \"The Squeaker!\" by SpoolDesigns"
 tagline: "Print gummy bears in your favorite colors! Option to make into a squeaky toy (see description)"

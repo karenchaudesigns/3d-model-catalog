@@ -1,4 +1,11 @@
 ---
+model_id: 973992
+permalink: /model/973992-pony-bead/
+redirect_from:
+  - /models/pony-bead/
+  - /models/pony-bead
+  - /model/973992/
+  - /model/973992
 title: "Pony bead"
 extended_title: "Standard 6mm x 9mm | Beads for friendship bracelets and other beaded crafts! | Filament swatches"
 tagline: "Pony beads are great for kids crafting activities! Print them as filament swatches or to use up the last of your spools!"

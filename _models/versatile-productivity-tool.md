@@ -1,4 +1,11 @@
 ---
+model_id: 562845
+permalink: /model/562845-versatile-productivity-tool/
+redirect_from:
+  - /models/versatile-productivity-tool/
+  - /models/versatile-productivity-tool
+  - /model/562845/
+  - /model/562845
 title: "Versatile Productivity Tool"
 extended_title: "Desktop Backlog and/or Modular Task Board"
 tagline: "Use one to focus on your top priorities or use multiple side-by-side as a task board (e.g. to do, in progress, done)"

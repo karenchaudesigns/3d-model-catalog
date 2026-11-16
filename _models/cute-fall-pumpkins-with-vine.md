@@ -1,4 +1,11 @@
 ---
+model_id: 587616
+permalink: /model/587616-cute-fall-pumpkins-with-vine/
+redirect_from:
+  - /models/cute-fall-pumpkins-with-vine/
+  - /models/cute-fall-pumpkins-with-vine
+  - /model/587616/
+  - /model/587616
 title: "Cute fall pumpkins with vine"
 extended_title: "Autumn seasonal decor | Thanksgiving magnets | Pumpkin Spice Latte \"PSL\""
 tagline: "Cute pumpkins for the cozy season! Add any size magnet you want to the back and stick it everywhere!"

@@ -1,4 +1,11 @@
 ---
+model_id: 592925
+permalink: /model/592925-1-12-dollhouse-storage-bench-with-accessories/
+redirect_from:
+  - /models/1-12-dollhouse-storage-bench-with-accessories/
+  - /models/1-12-dollhouse-storage-bench-with-accessories
+  - /model/592925/
+  - /model/592925
 title: "1:12 Dollhouse Storage Bench with Accessories"
 extended_title: "Inspired by IKEA SMÅSTAD"
 tagline: "Bench with storage and optional handles and seat cushion. (Washi tape sold separately)"

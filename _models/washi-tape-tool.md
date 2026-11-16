@@ -1,4 +1,11 @@
 ---
+model_id: 546271
+permalink: /model/546271-washi-tape-tool/
+redirect_from:
+  - /models/washi-tape-tool/
+  - /models/washi-tape-tool
+  - /model/546271/
+  - /model/546271
 title: "Washi tape tool"
 extended_title: "straight edge, zig zag edge, arrows, chevrons"
 tagline: "Cut washi tape into fun shapes and patterns!"

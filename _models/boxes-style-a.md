@@ -1,4 +1,11 @@
 ---
+model_id: 689542
+permalink: /model/689542-boxes-style-a/
+redirect_from:
+  - /models/boxes-style-a/
+  - /models/boxes-style-a
+  - /model/689542/
+  - /model/689542
 title: "Boxes - Style A"
 extended_title: "Sized for AA batteries | Basic Box & Ribbon Gift Box"
 tagline: "Classiest way to include AA batteries as a gift. Basic and ribbon-compatible options."

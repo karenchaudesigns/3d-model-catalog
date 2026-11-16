@@ -8,11 +8,14 @@ baseurl: ""
 markdown: kramdown
 permalink: pretty
 
+plugins:
+  - jekyll-redirect-from
+
 # Custom Collections
 collections:
   models:
     output: true
-    permalink: /models/:name/
+    permalink: /model/:name/
 
 # Front Matter Defaults
 defaults:

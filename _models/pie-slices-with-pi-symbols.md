@@ -1,4 +1,11 @@
 ---
+model_id: 862528
+permalink: /model/862528-pie-slices-with-pi-symbols/
+redirect_from:
+  - /models/pie-slices-with-pi-symbols/
+  - /models/pie-slices-with-pi-symbols
+  - /model/862528/
+  - /model/862528
 title: "Pie Slices with Pi Symbols"
 extended_title: "Pi-themed pie for Pi Day | Fun stackable magnets"
 tagline: "Use the pieces separately or print 6 for a full pie! This pi-themed stacked magnet set is perfect for Pi Day (March 14)!"

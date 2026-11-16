@@ -736,11 +736,12 @@ layout: default
 
       var pageTitle = {{ page.title | jsonify }};
       var pageDesc = {{ page.tagline | default: page.extended_title | default: page.title | jsonify }};
-      var pageUrl = window.location.href;
+      var canonicalShareUrl = {{ page.url | absolute_url | jsonify }};
+      var pageUrl = canonicalShareUrl || window.location.href;
 
-      // Update social share hrefs dynamically with current absolute URL
+      // Update social share hrefs dynamically with canonical model URL
       function updateShareLinks() {
-        pageUrl = window.location.href;
+        pageUrl = canonicalShareUrl || window.location.href;
         var encUrl = encodeURIComponent(pageUrl);
         var encTitle = encodeURIComponent(pageTitle + ' — 3D Printable Model');
         var encDesc = encodeURIComponent(pageDesc);
@@ -811,7 +812,7 @@ layout: default
           navigator.share({
             title: pageTitle,
             text: pageDesc,
-            url: window.location.href
+            url: canonicalShareUrl || window.location.href
           }).catch(function (err) {
             if (err.name !== 'AbortError') {
               toggleShareMenu();
@@ -841,7 +842,7 @@ layout: default
       if (btnCopy) {
         btnCopy.addEventListener('click', function (e) {
           e.preventDefault();
-          var url = window.location.href;
+          var url = canonicalShareUrl || window.location.href;
           if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(url).then(function () {
               if (copyText) copyText.textContent = 'Copied!';

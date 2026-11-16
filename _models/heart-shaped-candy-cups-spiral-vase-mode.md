@@ -1,4 +1,11 @@
 ---
+model_id: 1585952
+permalink: /model/1585952-heart-shaped-candy-cups-spiral-vase-mode/
+redirect_from:
+  - /models/heart-shaped-candy-cups-spiral-vase-mode/
+  - /models/heart-shaped-candy-cups-spiral-vase-mode
+  - /model/1585952/
+  - /model/1585952
 title: "Heart-Shaped Candy Cups (Spiral Vase Mode)"
 extended_title: ""
 tagline: "This design is inspired by mini cupcake liners (aka baking cups/liners, candy cups) that come in a box of chocolates."

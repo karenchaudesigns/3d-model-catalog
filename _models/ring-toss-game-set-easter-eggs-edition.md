@@ -1,4 +1,11 @@
 ---
+model_id: 825406
+permalink: /model/825406-ring-toss-game-set-easter-eggs-edition/
+redirect_from:
+  - /models/ring-toss-game-set-easter-eggs-edition/
+  - /models/ring-toss-game-set-easter-eggs-edition
+  - /model/825406/
+  - /model/825406
 title: "Ring Toss Game Set - Easter Eggs Edition"
 extended_title: ""
 tagline: "The modular pieces make this set fun to mix and match and set up in many different ways for better replayability!"

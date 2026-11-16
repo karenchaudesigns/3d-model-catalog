@@ -1,4 +1,11 @@
 ---
+model_id: 554421
+permalink: /model/554421-6-slot-paint-brush-rack-with-drip-tray/
+redirect_from:
+  - /models/6-slot-paint-brush-rack-with-drip-tray/
+  - /models/6-slot-paint-brush-rack-with-drip-tray
+  - /model/554421/
+  - /model/554421
 title: "6-slot paint brush rack with drip tray"
 extended_title: "Extended brush sizes!"
 tagline: "Easily hang your brushes with bristles down -- great for drying, storing and even for switching brushes while painting!"

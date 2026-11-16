@@ -1,4 +1,11 @@
 ---
+model_id: 645968
+permalink: /model/645968-thanks-folded-card-3-x5/
+redirect_from:
+  - /models/thanks-folded-card-3-x5/
+  - /models/thanks-folded-card-3-x5
+  - /model/645968/
+  - /model/645968
 title: "\"thanks\" Folded Card 3\"x5\""
 extended_title: "Thank You Card | Greeting Card | Tent Sign / Decor"
 tagline: "Quick and easy folded thank you card"

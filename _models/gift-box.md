@@ -1,4 +1,11 @@
 ---
+model_id: 943763
+permalink: /model/943763-gift-box/
+redirect_from:
+  - /models/gift-box/
+  - /models/gift-box
+  - /model/943763/
+  - /model/943763
 title: "Gift Box"
 extended_title: "Holds 6 heart display stands"
 tagline: "2 fit options; Designed to hold 6 heart display stands for a quick & cute FUNctional 3D printed gift set!"

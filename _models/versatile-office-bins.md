@@ -1,4 +1,11 @@
 ---
+model_id: 563791
+permalink: /model/563791-versatile-office-bins/
+redirect_from:
+  - /models/versatile-office-bins/
+  - /models/versatile-office-bins
+  - /model/563791/
+  - /model/563791
 title: "Versatile Office Bins"
 extended_title: "Storage, Organization, Trash & Recycling"
 tagline: "Hide your clutter from plain sight with these bins! Stash away sensitive items in the hidden side compartment!"

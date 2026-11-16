@@ -1,4 +1,11 @@
 ---
+model_id: 596385
+permalink: /model/596385-mooncake-coasters/
+redirect_from:
+  - /models/mooncake-coasters/
+  - /models/mooncake-coasters
+  - /model/596385/
+  - /model/596385
 title: "Mooncake Coasters"
 extended_title: "Mid-Autumn Festival | Chinese holiday | \"Moon Cake Day\""
 tagline: "Celebrate the Mid-Autumn Festival (aka Moon Festival), a Chinese holiday I like to call Moon Cake Day! 🥮"

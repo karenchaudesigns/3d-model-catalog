@@ -1,4 +1,11 @@
 ---
+model_id: 689695
+permalink: /model/689695-friendship-bracelet-making-kit/
+redirect_from:
+  - /models/friendship-bracelet-making-kit/
+  - /models/friendship-bracelet-making-kit
+  - /model/689695/
+  - /model/689695
 title: "Friendship Bracelet Making Kit"
 extended_title: "Design and make your own pony bead jewelry!"
 tagline: "Approved by my 6-year-old niece, this FUNctional gift is a helpful tool for designing and making friendship bracelets!"

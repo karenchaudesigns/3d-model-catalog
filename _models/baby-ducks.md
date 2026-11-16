@@ -1,4 +1,11 @@
 ---
+model_id: 986068
+permalink: /model/986068-baby-ducks/
+redirect_from:
+  - /models/baby-ducks/
+  - /models/baby-ducks
+  - /model/986068/
+  - /model/986068
 title: "Baby Ducks"
 extended_title: "Multi-color 3mf included | Free to a good home"
 tagline: "My cutest creation so far this year! Enjoy!"

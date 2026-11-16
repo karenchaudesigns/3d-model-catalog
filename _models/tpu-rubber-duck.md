@@ -1,4 +1,11 @@
 ---
+model_id: 968685
+permalink: /model/968685-tpu-rubber-duck/
+redirect_from:
+  - /models/tpu-rubber-duck/
+  - /models/tpu-rubber-duck
+  - /model/968685/
+  - /model/968685
 title: "TPU Rubber Duck"
 extended_title: "Compatible with The Squeaker! by SpoolDesigns | 3D print your own squeaky toy!"
 tagline: "3D print your own squeaky toy! Compatible with \"The Squeaker!\", a fully 3D printable squeaker by SpoolDesigns"

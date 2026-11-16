@@ -1,4 +1,11 @@
 ---
+model_id: 943486
+permalink: /model/943486-hexagon-framed-numbers/
+redirect_from:
+  - /models/hexagon-framed-numbers/
+  - /models/hexagon-framed-numbers
+  - /model/943486/
+  - /model/943486
 title: "Hexagon Framed Numbers"
 extended_title: "0-31 Small Digits in Hexagon Frame with Base"
 tagline: "Great as signage and decoration for weddings, anniversaries, birthdays and other events"

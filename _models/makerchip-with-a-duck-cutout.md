@@ -1,4 +1,11 @@
 ---
+model_id: 1701108
+permalink: /model/1701108-makerchip-with-a-duck-cutout/
+redirect_from:
+  - /models/makerchip-with-a-duck-cutout/
+  - /models/makerchip-with-a-duck-cutout
+  - /model/1701108/
+  - /model/1701108
 title: "MakerChip with a Duck cutout"
 extended_title: "Multiple variations"
 tagline: "Multipurpose MakerChip! Print Baby Ducks at 15mm tall to snap in! Use the duck cutout as a stencil and more -- see reel"

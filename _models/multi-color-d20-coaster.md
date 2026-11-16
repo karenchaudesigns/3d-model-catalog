@@ -1,4 +1,11 @@
 ---
+model_id: 943532
+permalink: /model/943532-multi-color-d20-coaster/
+redirect_from:
+  - /models/multi-color-d20-coaster/
+  - /models/multi-color-d20-coaster
+  - /model/943532/
+  - /model/943532
 title: "Multi-color d20 coaster"
 extended_title: "Tabletop gaming accessories"
 tagline: "A coaster in the design of a 20-sided die! Catches all the condensation from drinks to protect your games and tables!"

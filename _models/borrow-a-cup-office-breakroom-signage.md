@@ -1,4 +1,11 @@
 ---
+model_id: 1828845
+permalink: /model/1828845-borrow-a-cup-office-breakroom-signage/
+redirect_from:
+  - /models/borrow-a-cup-office-breakroom-signage/
+  - /models/borrow-a-cup-office-breakroom-signage
+  - /model/1828845/
+  - /model/1828845
 title: "\"Borrow a Cup\" Office Breakroom Signage"
 extended_title: ""
 tagline: "Keep this \"Borrow a Cup\" sign near the cups to provide instructions to keep your communal kitchen area running smoothly!"

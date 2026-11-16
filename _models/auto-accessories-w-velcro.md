@@ -1,4 +1,11 @@
 ---
+model_id: 548898
+permalink: /model/548898-auto-accessories-w-velcro/
+redirect_from:
+  - /models/auto-accessories-w-velcro/
+  - /models/auto-accessories-w-velcro
+  - /model/548898/
+  - /model/548898
 title: "Auto accessories w/ Velcro"
 extended_title: "Securely transport cake, pizza and other precious cargo!"
 tagline: "Prevent precious cargo from sliding and tumbling around! Use one of the racks to keep things from touching dirty floors!"

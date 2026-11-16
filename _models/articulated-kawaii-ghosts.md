@@ -1,4 +1,11 @@
 ---
+model_id: 1038764
+permalink: /model/1038764-articulated-kawaii-ghosts/
+redirect_from:
+  - /models/articulated-kawaii-ghosts/
+  - /models/articulated-kawaii-ghosts
+  - /model/1038764/
+  - /model/1038764
 title: "Articulated Kawaii Ghosts"
 extended_title: "Halloween flexi fidget toys / keychains"
 tagline: "Cute and fun fidget for you and your trick or treaters!"

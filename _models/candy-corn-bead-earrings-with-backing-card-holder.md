@@ -1,4 +1,11 @@
 ---
+model_id: 977018
+permalink: /model/977018-candy-corn-bead-earrings-with-backing-card-holder/
+redirect_from:
+  - /models/candy-corn-bead-earrings-with-backing-card-holder/
+  - /models/candy-corn-bead-earrings-with-backing-card-holder
+  - /model/977018/
+  - /model/977018
 title: "Candy Corn Bead Earrings with Backing Card Holder"
 extended_title: ""
 tagline: "Design your own Halloween earrings with the fun size and queen size candy corn beads!"

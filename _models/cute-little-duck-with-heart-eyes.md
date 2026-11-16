@@ -1,4 +1,11 @@
 ---
+model_id: 1596589
+permalink: /model/1596589-cute-little-duck-with-heart-eyes/
+redirect_from:
+  - /models/cute-little-duck-with-heart-eyes/
+  - /models/cute-little-duck-with-heart-eyes
+  - /model/1596589/
+  - /model/1596589
 title: "Cute Little Duck with Heart Eyes"
 extended_title: "Valentine Ducky"
 tagline: "Spread some joy with this cute little duck with big heart eyes!"

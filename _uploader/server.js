@@ -92,6 +92,9 @@ function parseModelMarkdown(filename) {
   const result = {
     filename,
     slug,
+    model_id: '',
+    permalink: '',
+    redirect_from: [],
     title: slug,
     extended_title: '',
     tagline: '',
@@ -161,7 +164,8 @@ function parseModelMarkdown(filename) {
         currentKey === 'detailed_images' ||
         currentKey === 'tags' ||
         currentKey === 'youtube_shorts' ||
-        currentKey === 'youtube_videos')
+        currentKey === 'youtube_videos' ||
+        currentKey === 'redirect_from')
     ) {
       result[currentKey].push(yamlUnquote(listMatch[1]));
       continue;
@@ -193,7 +197,8 @@ function parseModelMarkdown(filename) {
         key === 'tags' ||
         key === 'youtube_shorts' ||
         key === 'youtube_videos' ||
-        key === 'products'
+        key === 'products' ||
+        key === 'redirect_from'
       ) {
         if (rawVal === '[]') {
           result[key] = [];
@@ -393,6 +398,10 @@ function saveAndDeployModel(req, res) {
   try {
     const {
       originalSlug = null,
+      model_id = '',
+      modelId = '',
+      permalink = '',
+      redirect_from = null,
       title,
       extendedTitle = '',
       extended_title = '',
@@ -535,9 +544,59 @@ function saveAndDeployModel(req, res) {
     }
     const primaryYoutubeId = parsedShorts[0] || parsedVideos[0] || '';
 
+    // Resolve model_id: from explicit param, or downloads.printables, or existing file if editing
+    let resolvedModelId = String(model_id || modelId || '').trim();
+    if (!resolvedModelId && downloads.printables) {
+      const pm = String(downloads.printables).match(/printables\.com\/(?:[a-z]{2}\/)?model\/(\d+)/i);
+      if (pm) resolvedModelId = pm[1];
+    }
+    if (!resolvedModelId && isEdit && originalSlug) {
+      const origFile = `${originalSlug}.md`;
+      const origPath = path.join(MODELS_DIR, origFile);
+      if (fs.existsSync(origPath)) {
+        const parsedOrig = parseModelMarkdown(origFile);
+        if (parsedOrig.model_id) resolvedModelId = parsedOrig.model_id;
+      }
+    }
+
+    const resolvedPermalink = resolvedModelId
+      ? `/model/${resolvedModelId}-${shortname}/`
+      : `/model/${shortname}/`;
+
     // 6. Build Jekyll Markdown with YAML Front Matter
-    const yamlLines = [
-      '---',
+    const yamlLines = ['---'];
+    if (resolvedModelId) {
+      yamlLines.push(`model_id: ${resolvedModelId}`);
+    }
+    yamlLines.push(`permalink: ${resolvedPermalink}`);
+
+    // Build redirect_from aliases
+    const targetSlugForRedirect = isEdit && originalSlug ? originalSlug : shortname;
+    const redirectAliases = new Set();
+    // Legacy URLs
+    redirectAliases.add(`/models/${targetSlugForRedirect}/`);
+    redirectAliases.add(`/models/${targetSlugForRedirect}`);
+    if (shortname !== targetSlugForRedirect) {
+      redirectAliases.add(`/models/${shortname}/`);
+      redirectAliases.add(`/models/${shortname}`);
+    }
+    // ID-only and ID-redirect URLs
+    if (resolvedModelId) {
+      redirectAliases.add(`/model/${resolvedModelId}/`);
+      redirectAliases.add(`/model/${resolvedModelId}`);
+    }
+    if (Array.isArray(redirect_from)) {
+      redirect_from.forEach((r) => { if (r && r !== resolvedPermalink) redirectAliases.add(String(r).trim()); });
+    }
+
+    if (redirectAliases.size > 0) {
+      yamlLines.push('redirect_from:');
+      Array.from(redirectAliases).forEach((r) => {
+        yamlLines.push(`  - ${r}`);
+      });
+    }
+
+    yamlLines.push(
       `title: ${yamlQuote(cleanTitle)}`,
       `extended_title: ${yamlQuote(resolvedExtendedTitle)}`,
       `tagline: ${yamlQuote(resolvedTagline)}`,
@@ -549,7 +608,7 @@ function saveAndDeployModel(req, res) {
       `hidden: ${Boolean(hidden)}`,
       `thumbnail_image: ${yamlQuote(thumbWebPath)}`,
       `cover_image: ${yamlQuote(mainWebPath)}`
-    ];
+    );
 
     if (galleryWebPaths.length > 0) {
       yamlLines.push('gallery_images:');
@@ -716,6 +775,9 @@ function saveAndDeployModel(req, res) {
       success: true,
       isEdit,
       slug: targetSlug,
+      model_id: resolvedModelId,
+      permalink: resolvedPermalink,
+      liveUrl: `https://models.karenchaudesigns.com${resolvedPermalink}`,
       shortname,
       title: cleanTitle,
       extendedTitle: resolvedExtendedTitle,

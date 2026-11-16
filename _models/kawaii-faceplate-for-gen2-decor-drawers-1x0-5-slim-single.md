@@ -1,4 +1,11 @@
 ---
+model_id: 1042884
+permalink: /model/1042884-kawaii-faceplate-for-gen2-decor-drawers-1x0-5-slim-single/
+redirect_from:
+  - /models/kawaii-faceplate-for-gen2-decor-drawers-1x0-5-slim-single/
+  - /models/kawaii-faceplate-for-gen2-decor-drawers-1x0-5-slim-single
+  - /model/1042884/
+  - /model/1042884
 title: "Kawaii Faceplate for GEN2 Decor Drawers 1x0.5 (Slim Single)"
 extended_title: "Quick Swap"
 tagline: "Cute interchangeable drawer faceplate with built-in handles for the GEN2 Decor Drawers by Jerrari."

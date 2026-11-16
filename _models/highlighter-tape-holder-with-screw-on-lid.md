@@ -1,4 +1,11 @@
 ---
+model_id: 944709
+permalink: /model/944709-highlighter-tape-holder-with-screw-on-lid/
+redirect_from:
+  - /models/highlighter-tape-holder-with-screw-on-lid/
+  - /models/highlighter-tape-holder-with-screw-on-lid
+  - /model/944709/
+  - /model/944709
 title: "Highlighter tape holder with screw-on lid"
 extended_title: "5 rolls of 8mm width craft tape | washi tape organizer"
 tagline: "Screw-on lid for compartment to keep small accessories -- great for additional stationery storage."

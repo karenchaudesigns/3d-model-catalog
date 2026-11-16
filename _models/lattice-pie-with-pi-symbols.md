@@ -1,4 +1,11 @@
 ---
+model_id: 861413
+permalink: /model/861413-lattice-pie-with-pi-symbols/
+redirect_from:
+  - /models/lattice-pie-with-pi-symbols/
+  - /models/lattice-pie-with-pi-symbols
+  - /model/861413/
+  - /model/861413
 title: "Lattice Pie with Pi Symbols"
 extended_title: "Pi-themed pie for Pi Day"
 tagline: "Get ready for Pi Day on March 14th with this pi-themed lattice pie design! Great for fridge magnets & other accessories!"

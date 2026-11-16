@@ -1,4 +1,11 @@
 ---
+model_id: 565486
+permalink: /model/565486-decorative-functional-desk-grommets/
+redirect_from:
+  - /models/decorative-functional-desk-grommets/
+  - /models/decorative-functional-desk-grommets
+  - /model/565486/
+  - /model/565486
 title: "Decorative & Functional Desk Grommets"
 extended_title: ""
 tagline: "Don't like how your desk grommets look or function? Check out these options and remix to create your own!"

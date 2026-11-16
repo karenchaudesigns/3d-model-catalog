@@ -1,4 +1,11 @@
 ---
+model_id: 1454955
+permalink: /model/1454955-tpu-yarn/
+redirect_from:
+  - /models/tpu-yarn/
+  - /models/tpu-yarn
+  - /model/1454955/
+  - /model/1454955
 title: "TPU yarn"
 extended_title: ""
 tagline: "A model that makes me wish I had ramen-colored TPU! 🍜"

@@ -1,0 +1,64 @@
+---
+layout: default
+title: "Page Not Found"
+permalink: /404.html
+---
+
+<div class="container not-found-page" style="padding: 4rem 1.5rem; text-align: center; max-width: 700px; margin: 0 auto;">
+  <div id="redirect-spinner" style="display: none; margin-bottom: 2rem;">
+    <div class="spinner-icon" style="display: inline-block; width: 40px; height: 40px; border: 3px solid rgba(0,0,0,0.1); border-top-color: var(--primary, #0066cc); border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+    <h1 style="font-size: 1.5rem; margin-top: 1rem; color: var(--text-color, #222);">Redirecting to model...</h1>
+    <p style="color: var(--text-muted, #666); font-size: 0.95rem;">Finding the latest model URL for your link.</p>
+  </div>
+
+  <div id="not-found-content">
+    <h1 style="font-size: 3rem; margin-bottom: 0.5rem; font-family: var(--font-display, serif);">404</h1>
+    <h2 style="font-size: 1.5rem; margin-bottom: 1.5rem;">Page Not Found</h2>
+    <p style="color: var(--text-muted, #666); margin-bottom: 2rem; line-height: 1.6;">
+      The 3D model or page you are looking for may have been moved, renamed, or is temporarily unavailable.
+    </p>
+    <a href="{{ '/' | relative_url }}" class="btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background: var(--text-color, #222); color: #fff; text-decoration: none; border-radius: 8px; font-weight: 500;">
+      &larr; Return to Catalog
+    </a>
+  </div>
+</div>
+
+<style>
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+</style>
+
+<script>
+(function() {
+  // Built-in map of model IDs to their canonical URLs
+  var MODEL_REDIRECT_MAP = {
+    {% assign all_models = site.models %}
+    {% for m in all_models %}
+      {% if m.model_id %}
+        {{ m.model_id | append: "" | jsonify }}: {{ m.url | relative_url | jsonify }}{% unless forloop.last %},{% endunless %}
+      {% endif %}
+    {% endfor %}
+  };
+
+  var pathname = window.location.pathname;
+  // Match paths like /model/1916517, /model/1916517/, /model/1916517-any-title, /models/1916517...
+  var match = pathname.match(/^\/models?\/(\d+)(?:-[^/]+)?\/?$/i);
+
+  if (match && match[1]) {
+    var modelId = match[1];
+    var targetUrl = MODEL_REDIRECT_MAP[modelId];
+
+    if (targetUrl) {
+      // Show redirect spinner and immediately navigate to current canonical URL
+      var spinner = document.getElementById('redirect-spinner');
+      var content = document.getElementById('not-found-content');
+      if (spinner) spinner.style.display = 'block';
+      if (content) content.style.display = 'none';
+
+      window.location.replace(targetUrl);
+    }
+  }
+})();
+</script>

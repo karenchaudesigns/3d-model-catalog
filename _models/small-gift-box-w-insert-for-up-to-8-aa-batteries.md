@@ -1,4 +1,11 @@
 ---
+model_id: 666268
+permalink: /model/666268-small-gift-box-w-insert-for-up-to-8-aa-batteries/
+redirect_from:
+  - /models/small-gift-box-w-insert-for-up-to-8-aa-batteries/
+  - /models/small-gift-box-w-insert-for-up-to-8-aa-batteries
+  - /model/666268/
+  - /model/666268
 title: "Small Gift Box w/ Insert for up to 8 AA Batteries"
 extended_title: ""
 tagline: "Be the hero this holiday season and ensure no one's gifts are short on batteries!"

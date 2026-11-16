@@ -1,4 +1,11 @@
 ---
+model_id: 943790
+permalink: /model/943790-thanks-folded-card-for-cash-gifts/
+redirect_from:
+  - /models/thanks-folded-card-for-cash-gifts/
+  - /models/thanks-folded-card-for-cash-gifts
+  - /model/943790/
+  - /model/943790
 title: "\"thanks\" Folded Card for Cash Gifts"
 extended_title: "Fits cash envelopes from the bank | Sized for US bank notes"
 tagline: "This is sized to fit US bank notes. It fits inside the pictured cash envelope from Chase Bank that are provided for free"

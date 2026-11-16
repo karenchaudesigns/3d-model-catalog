@@ -1,4 +1,11 @@
 ---
+model_id: 1829821
+permalink: /model/1829821-make-your-own-table-tents-custom-folded-signs/
+redirect_from:
+  - /models/make-your-own-table-tents-custom-folded-signs/
+  - /models/make-your-own-table-tents-custom-folded-signs
+  - /model/1829821/
+  - /model/1829821
 title: "Make Your Own Table Tents - Custom Folded Signs"
 extended_title: ""
 tagline: "Quick and easy signs to print with just one color swap!"

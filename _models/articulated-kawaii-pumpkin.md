@@ -1,4 +1,11 @@
 ---
+model_id: 1038710
+permalink: /model/1038710-articulated-kawaii-pumpkin/
+redirect_from:
+  - /models/articulated-kawaii-pumpkin/
+  - /models/articulated-kawaii-pumpkin
+  - /model/1038710/
+  - /model/1038710
 title: "Articulated Kawaii Pumpkin"
 extended_title: "Halloween flexi fidget toy/keychain"
 tagline: "Cute and fun fidget for you and your trick or treaters!"

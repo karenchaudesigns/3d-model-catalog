@@ -1,4 +1,11 @@
 ---
+model_id: 1038811
+permalink: /model/1038811-articulated-kawaii-candy-corn/
+redirect_from:
+  - /models/articulated-kawaii-candy-corn/
+  - /models/articulated-kawaii-candy-corn
+  - /model/1038811/
+  - /model/1038811
 title: "Articulated Kawaii Candy Corn"
 extended_title: "Halloween flexi fidget toys / keychains"
 tagline: "Cute and fun fidget for you and your trick or treaters!"

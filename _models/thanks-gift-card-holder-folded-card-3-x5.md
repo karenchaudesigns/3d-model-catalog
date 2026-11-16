@@ -1,4 +1,11 @@
 ---
+model_id: 655158
+permalink: /model/655158-thanks-gift-card-holder-folded-card-3-x5/
+redirect_from:
+  - /models/thanks-gift-card-holder-folded-card-3-x5/
+  - /models/thanks-gift-card-holder-folded-card-3-x5
+  - /model/655158/
+  - /model/655158
 title: "\"thanks\" Gift Card Holder Folded Card 3\"x5\""
 extended_title: "Thank you card | Greeting card | Appreciation / Tip"
 tagline: "Folded greeting card with \"thanks\" design on the front and slits inside to hold a gift card"

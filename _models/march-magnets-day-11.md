@@ -1,4 +1,11 @@
 ---
+model_id: 943820
+permalink: /model/943820-march-magnets-day-11/
+redirect_from:
+  - /models/march-magnets-day-11/
+  - /models/march-magnets-day-11
+  - /model/943820/
+  - /model/943820
 title: "March Magnets - Day 11"
 extended_title: "Kawaii Bunny (w/ optional magnet hole) | Cute Easter Bunny"
 tagline: "Multi-color carrot with optional magnet hole. Compatible with magnets smaller than 16mm wide and at least 2mm thick."

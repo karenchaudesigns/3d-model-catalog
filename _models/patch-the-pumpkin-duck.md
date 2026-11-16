@@ -1,4 +1,11 @@
 ---
+model_id: 1834922
+permalink: /model/1834922-patch-the-pumpkin-duck/
+redirect_from:
+  - /models/patch-the-pumpkin-duck/
+  - /models/patch-the-pumpkin-duck
+  - /model/1834922/
+  - /model/1834922
 title: "Patch the Pumpkin Duck"
 extended_title: ""
 tagline: "Meet Patch the pumpkin duck! Print this teeny tiny or scale it up! Cute decor and fun little gift to share with all!"

@@ -1,4 +1,11 @@
 ---
+model_id: 943757
+permalink: /model/943757-heart-display-stand/
+redirect_from:
+  - /models/heart-display-stand/
+  - /models/heart-display-stand
+  - /model/943757/
+  - /model/943757
 title: "Heart display stand"
 extended_title: "Holder for photos, cards, notes and more! | Cute love theme accessory"
 tagline: "2 thickness options available; print a few to give as a cute and easy 3D printed gift! Gift boxes linked in description."

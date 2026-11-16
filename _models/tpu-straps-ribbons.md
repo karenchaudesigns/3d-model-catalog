@@ -1,4 +1,11 @@
 ---
+model_id: 1452926
+permalink: /model/1452926-tpu-straps-ribbons/
+redirect_from:
+  - /models/tpu-straps-ribbons/
+  - /models/tpu-straps-ribbons
+  - /model/1452926/
+  - /model/1452926
 title: "TPU straps / ribbons"
 extended_title: ""
 tagline: "Various sizes and lengths of straps/ribbons you can print out of TPU!"

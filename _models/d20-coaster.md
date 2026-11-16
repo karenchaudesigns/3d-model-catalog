@@ -1,4 +1,11 @@
 ---
+model_id: 556114
+permalink: /model/556114-d20-coaster/
+redirect_from:
+  - /models/d20-coaster/
+  - /models/d20-coaster
+  - /model/556114/
+  - /model/556114
 title: "d20 coaster"
 extended_title: ""
 tagline: "Critical hit! Protect your games & tables with a natural 20."

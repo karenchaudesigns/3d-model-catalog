@@ -1,4 +1,11 @@
 ---
+model_id: 710660
+permalink: /model/710660-meeple-board-game-piece/
+redirect_from:
+  - /models/meeple-board-game-piece/
+  - /models/meeple-board-game-piece
+  - /model/710660/
+  - /model/710660
 title: "Meeple - Board game piece"
 extended_title: ""
 tagline: "Board game upgrades & replacement pieces"

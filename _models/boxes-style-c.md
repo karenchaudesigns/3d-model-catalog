@@ -1,4 +1,11 @@
 ---
+model_id: 689581
+permalink: /model/689581-boxes-style-c/
+redirect_from:
+  - /models/boxes-style-c/
+  - /models/boxes-style-c
+  - /model/689581/
+  - /model/689581
 title: "Boxes - Style C"
 extended_title: "Basic Box & Ribbon Gift Box"
 tagline: "Basic and ribbon-compatible options."

@@ -1,4 +1,11 @@
 ---
+model_id: 763218
+permalink: /model/763218-vase-mode-heart-shaped-boxes/
+redirect_from:
+  - /models/vase-mode-heart-shaped-boxes/
+  - /models/vase-mode-heart-shaped-boxes
+  - /model/763218/
+  - /model/763218
 title: "Vase mode heart-shaped boxes"
 extended_title: ""
 tagline: "Quick vase mode heart-shaped box to hold some sweets or small gifts!"

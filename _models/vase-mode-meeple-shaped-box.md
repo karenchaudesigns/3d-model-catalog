@@ -1,4 +1,11 @@
 ---
+model_id: 1915782
+permalink: /model/1915782-vase-mode-meeple-shaped-box/
+redirect_from:
+  - /models/vase-mode-meeple-shaped-box/
+  - /models/vase-mode-meeple-shaped-box
+  - /model/1915782/
+  - /model/1915782
 title: "Vase mode meeple-shaped box"
 extended_title: ""
 tagline: "A box in the shape of a meeple to be printed in vase mode."

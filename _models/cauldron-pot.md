@@ -1,4 +1,11 @@
 ---
+model_id: 1418745
+permalink: /model/1418745-cauldron-pot/
+redirect_from:
+  - /models/cauldron-pot/
+  - /models/cauldron-pot
+  - /model/1418745/
+  - /model/1418745
 title: "Cauldron / Pot"
 extended_title: ""
 tagline: "Use as a witch's cauldron for Halloween or a leprechaun's pot for gold for St. Patrick's Day"

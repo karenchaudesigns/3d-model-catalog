@@ -1,4 +1,11 @@
 ---
+model_id: 973971
+permalink: /model/973971-hall-passes-for-back-to-school/
+redirect_from:
+  - /models/hall-passes-for-back-to-school/
+  - /models/hall-passes-for-back-to-school
+  - /model/973971/
+  - /model/973971
 title: "Hall Passes for Back to School"
 extended_title: "Multiple styles | \"Pencil Holder\" Display Stand for Classroom"
 tagline: "Get the classroom refreshed with new pencil-shaped hall passes! See video demo!"

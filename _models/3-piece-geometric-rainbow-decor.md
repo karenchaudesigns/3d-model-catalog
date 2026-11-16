@@ -1,4 +1,11 @@
 ---
+model_id: 549627
+permalink: /model/549627-3-piece-geometric-rainbow-decor/
+redirect_from:
+  - /models/3-piece-geometric-rainbow-decor/
+  - /models/3-piece-geometric-rainbow-decor
+  - /model/549627/
+  - /model/549627
 title: "3-piece geometric rainbow decor"
 extended_title: ""
 tagline: "Print all three pieces in the same color or print them separately in your choice of colors to match any mood and style!"

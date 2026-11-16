@@ -1,4 +1,11 @@
 ---
+model_id: 546251
+permalink: /model/546251-articulated-moon/
+redirect_from:
+  - /models/articulated-moon/
+  - /models/articulated-moon
+  - /model/546251/
+  - /model/546251
 title: "Articulated moon"
 extended_title: "Flexible fidget toy"
 tagline: "Print-in-place articulated moon. Super satisfying sounds, flexible and fun to fidget! Contains cute craters!"

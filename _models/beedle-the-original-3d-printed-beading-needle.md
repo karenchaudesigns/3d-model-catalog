@@ -1,4 +1,11 @@
 ---
+model_id: 943588
+permalink: /model/943588-beedle-the-original-3d-printed-beading-needle/
+redirect_from:
+  - /models/beedle-the-original-3d-printed-beading-needle/
+  - /models/beedle-the-original-3d-printed-beading-needle
+  - /model/943588/
+  - /model/943588
 title: "Beedle - The Original 3D printed beading needle"
 extended_title: "Bead craft tool for making friendship bracelets and other beaded jewelry and accessories!"
 tagline: "Works great with pony beads -- store bought or 3D printed! Recommended to use with my Friendship Bracelet Making Tool"

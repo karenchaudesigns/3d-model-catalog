@@ -1,4 +1,11 @@
 ---
+model_id: 763197
+permalink: /model/763197-heart-shaped-chocolate-candies/
+redirect_from:
+  - /models/heart-shaped-chocolate-candies/
+  - /models/heart-shaped-chocolate-candies
+  - /model/763197/
+  - /model/763197
 title: "Heart-Shaped Chocolate Candies"
 extended_title: "Plain, drizzle, \"love\", \"xoxo\""
 tagline: "Make your own box of chocolates with a variety of heart-shaped designs!"

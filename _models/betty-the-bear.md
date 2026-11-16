@@ -1,4 +1,11 @@
 ---
+model_id: 1379149
+permalink: /model/1379149-betty-the-bear/
+redirect_from:
+  - /models/betty-the-bear/
+  - /models/betty-the-bear
+  - /model/1379149/
+  - /model/1379149
 title: "Betty the Bear"
 extended_title: "Fun squishy TPU gummy bear toy!"
 tagline: "Fun model for your translucent filament! Use TPU for a squishy gummy candy feel! Squeakify it with The Squeakquel!"

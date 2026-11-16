@@ -1,4 +1,11 @@
 ---
+model_id: 943752
+permalink: /model/943752-blank-poker-chip-makerchip/
+redirect_from:
+  - /models/blank-poker-chip-makerchip/
+  - /models/blank-poker-chip-makerchip
+  - /model/943752/
+  - /model/943752
 title: "Blank poker chip / MakerChip"
 extended_title: "Fits 1\" sticker label -- good for QR codes, logos, photos, etc"
 tagline: "With indentations to feel like real poker chips! See description section for video."

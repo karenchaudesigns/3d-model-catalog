@@ -1,4 +1,11 @@
 ---
+model_id: 1750563
+permalink: /model/1750563-pond-tray/
+redirect_from:
+  - /models/pond-tray/
+  - /models/pond-tray
+  - /model/1750563/
+  - /model/1750563
 title: "Pond Tray"
 extended_title: ""
 tagline: "I designed this pond-shaped tray to organize my cute little ducks, but it's good as a small catch-all tray!"

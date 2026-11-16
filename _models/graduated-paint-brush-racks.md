@@ -1,4 +1,11 @@
 ---
+model_id: 638141
+permalink: /model/638141-graduated-paint-brush-racks/
+redirect_from:
+  - /models/graduated-paint-brush-racks/
+  - /models/graduated-paint-brush-racks
+  - /model/638141/
+  - /model/638141
 title: "Graduated Paint Brush Racks"
 extended_title: ""
 tagline: "Take care of your brushes by drying them with the bristles down to prevent water deteriorating the glue in the ferrule"

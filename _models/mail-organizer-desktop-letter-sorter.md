@@ -1,4 +1,11 @@
 ---
+model_id: 545149
+permalink: /model/545149-mail-organizer-desktop-letter-sorter/
+redirect_from:
+  - /models/mail-organizer-desktop-letter-sorter/
+  - /models/mail-organizer-desktop-letter-sorter
+  - /model/545149/
+  - /model/545149
 title: "Mail organizer desktop letter sorter"
 extended_title: ""
 tagline: "Sick of stacks of snail mail and seeking a slim solution? Stop stacking and start sorting!"

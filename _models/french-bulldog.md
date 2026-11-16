@@ -1,4 +1,11 @@
 ---
+model_id: 943806
+permalink: /model/943806-french-bulldog/
+redirect_from:
+  - /models/french-bulldog/
+  - /models/french-bulldog
+  - /model/943806/
+  - /model/943806
 title: "French Bulldog"
 extended_title: "3mf file included | Color Swap | Frenchies Dog Face"
 tagline: "Color swap French bulldog design"

@@ -1,4 +1,11 @@
 ---
+model_id: 1010858
+permalink: /model/1010858-tray/
+redirect_from:
+  - /models/tray/
+  - /models/tray
+  - /model/1010858/
+  - /model/1010858
 title: "Tray"
 extended_title: "Compatible with KCD mooncake coasters"
 tagline: "This tray design is inspired by the trays holding mooncakes. I designed it to hold my mooncake inspired coasters."

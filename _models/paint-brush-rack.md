@@ -1,4 +1,11 @@
 ---
+model_id: 546305
+permalink: /model/546305-paint-brush-rack/
+redirect_from:
+  - /models/paint-brush-rack/
+  - /models/paint-brush-rack
+  - /model/546305/
+  - /model/546305
 title: "Paint brush rack"
 extended_title: ""
 tagline: "Dry and store your paint brushes with the bristles down!"

@@ -1,4 +1,11 @@
 ---
+model_id: 1350142
+permalink: /model/1350142-glueless-pin-mounting-slot/
+redirect_from:
+  - /models/glueless-pin-mounting-slot/
+  - /models/glueless-pin-mounting-slot
+  - /model/1350142/
+  - /model/1350142
 title: "Glueless pin mounting slot"
 extended_title: "Design your own glueless pin button (badge)"
 tagline: "Cut out a pin mounting slot in your model using the provided model as a negative part -- see description"

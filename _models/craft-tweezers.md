@@ -1,4 +1,11 @@
 ---
+model_id: 1384085
+permalink: /model/1384085-craft-tweezers/
+redirect_from:
+  - /models/craft-tweezers/
+  - /models/craft-tweezers
+  - /model/1384085/
+  - /model/1384085
 title: "Craft Tweezers"
 extended_title: "Great for crafting w/ pony beads"
 tagline: "Great for crafting with my pony beads and friendship bracelet maker -- see demo in description"

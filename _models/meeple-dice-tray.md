@@ -1,4 +1,11 @@
 ---
+model_id: 554400
+permalink: /model/554400-meeple-dice-tray/
+redirect_from:
+  - /models/meeple-dice-tray/
+  - /models/meeple-dice-tray
+  - /model/554400/
+  - /model/554400
 title: "Meeple dice tray / trinket tray / catch-all tray"
 extended_title: "Board game room decoration"
 tagline: "This dice tray in the shape of a meeple board game piece is both functional and decorative!"

@@ -1,4 +1,11 @@
 ---
+model_id: 943812
+permalink: /model/943812-march-magnets-day-9/
+redirect_from:
+  - /models/march-magnets-day-9/
+  - /models/march-magnets-day-9
+  - /model/943812/
+  - /model/943812
 title: "March Magnets - Day 9"
 extended_title: "Carrot"
 tagline: "Multi-color carrot with optional magnet hole. Compatible with magnets smaller than 16mm wide and at least 2mm thick."

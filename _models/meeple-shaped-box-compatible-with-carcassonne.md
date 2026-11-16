@@ -1,4 +1,11 @@
 ---
+model_id: 712743
+permalink: /model/712743-meeple-shaped-box-compatible-with-carcassonne/
+redirect_from:
+  - /models/meeple-shaped-box-compatible-with-carcassonne/
+  - /models/meeple-shaped-box-compatible-with-carcassonne
+  - /model/712743/
+  - /model/712743
 title: "Meeple-shaped box"
 extended_title: "Compatible with Carcassonne"
 tagline: "Store your meeples or other small accessories with this cute 2-piece meeple-shaped box! Great desk or shelfie decor!"

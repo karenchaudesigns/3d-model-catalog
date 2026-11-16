@@ -1,4 +1,11 @@
 ---
+model_id: 906910
+permalink: /model/906910-hex-box/
+redirect_from:
+  - /models/hex-box/
+  - /models/hex-box
+  - /model/906910/
+  - /model/906910
 title: "Hex box"
 extended_title: "Travel container to bring Layer Connections tiles to RMRRF / MRRF / 3D Printopia / SMRRF"
 tagline: "Hex-shaped box with 3 fit options. Compatible with the Layer Connections Tile (see description)."

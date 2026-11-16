@@ -4300,10 +4300,10 @@
             rel="noopener noreferrer"
             title="Click to open this model's live page on models.karenchaudesigns.com"
           >
-            <span>URL Slug: <code>/models/</code></span>
+            <span>URL Slug: <code>/model/</code></span>
             <span style="font-size:0.7rem;opacity:0.75;" aria-hidden="true">&#8599;</span>
           </a>
-          <input type="text" id="model-shortname" required placeholder="model-shortname" title="SEO shortname used for /models/[shortname]/ and image filenames">
+          <input type="text" id="model-shortname" required placeholder="model-shortname" title="SEO shortname used for /model/[id]-[shortname]/ and image filenames">
         </div>
       </div>
 
@@ -5625,9 +5625,14 @@
         breadcrumbTitleLabel.textContent = nameInput.value.trim() || (editingSlug ? editingSlug : 'New 3D Model');
 
         if (slugLiveLink) {
-          var currentSlug = (shortnameInput && shortnameInput.value.trim()) || editingSlug || (nameInput && slugifyShortname(nameInput.value.trim())) || '';
-          if (currentSlug) {
-            var liveUrl = 'https://models.karenchaudesigns.com/models/' + encodeURIComponent(currentSlug) + '/';
+          var currentShortname = (shortnameInput && shortnameInput.value.trim()) || editingSlug || (nameInput && slugifyShortname(nameInput.value.trim())) || '';
+          var printablesVal = (printablesInput && printablesInput.value.trim()) || '';
+          var idMatch = printablesVal.match(/printables\.com\/(?:[a-z]{2}\/)?model\/(\d+)/i);
+          var mId = idMatch ? idMatch[1] : '';
+
+          if (currentShortname) {
+            var urlPath = mId ? ('/model/' + mId + '-' + encodeURIComponent(currentShortname) + '/') : ('/model/' + encodeURIComponent(currentShortname) + '/');
+            var liveUrl = 'https://models.karenchaudesigns.com' + urlPath;
             slugLiveLink.setAttribute('href', liveUrl);
             slugLiveLink.setAttribute('title', 'Open live page: ' + liveUrl);
           } else {
@@ -10927,7 +10932,7 @@
                 '"' + b.title + '" has been saved to ' + b.markdownPath + (b.deployed ? ' and pushed to origin/main.' : '.');
 
               var liveSlug = b.slug || b.shortname || lastSavedSlug;
-              var liveUrl = liveSlug ? 'https://models.karenchaudesigns.com/models/' + encodeURIComponent(liveSlug) + '/' : 'https://models.karenchaudesigns.com/';
+              var liveUrl = b.liveUrl || (liveSlug ? ('https://models.karenchaudesigns.com/model/' + encodeURIComponent(liveSlug) + '/') : 'https://models.karenchaudesigns.com/');
               if (postUploadLiveLink && postUploadLiveRow) {
                 postUploadLiveLink.href = liveUrl;
                 postUploadLiveLink.textContent = liveUrl;

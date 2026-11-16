@@ -1,4 +1,11 @@
 ---
+model_id: 546280
+permalink: /model/546280-washi-tape-holder-travel-stationery-organizer/
+redirect_from:
+  - /models/washi-tape-holder-travel-stationery-organizer/
+  - /models/washi-tape-holder-travel-stationery-organizer
+  - /model/546280/
+  - /model/546280
 title: "Washi tape holder / travel stationery organizer"
 extended_title: "25mm diameter"
 tagline: "Keep your washi tape organized at your desk and on the go!"

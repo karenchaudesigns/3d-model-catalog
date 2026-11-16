@@ -1,4 +1,11 @@
 ---
+model_id: 943774
+permalink: /model/943774-1-6-scale-miniature-whole-pie/
+redirect_from:
+  - /models/1-6-scale-miniature-whole-pie/
+  - /models/1-6-scale-miniature-whole-pie
+  - /model/943774/
+  - /model/943774
 title: "1:6 scale miniature whole pie"
 extended_title: "As seen on YouTube (Autodesk Fusion 360 tutorial)"
 tagline: "Learn how I designed this in the video below!"
