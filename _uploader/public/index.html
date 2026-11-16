@@ -2884,15 +2884,62 @@
       border-color: hsla(16, 62%, 46%, 0.35);
     }
 
+    .search-wrapper {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+
     .links-search-input {
       font-family: var(--font-sans);
       font-size: 0.8rem;
-      padding: 0.34rem 0.7rem;
+      padding: 0.34rem 1.8rem 0.34rem 0.7rem;
       border: 1px solid var(--border-subtle);
       border-radius: 999px;
       background: var(--bg-primary);
       color: var(--text-primary);
       min-width: 190px;
+    }
+
+    .links-search-input::-webkit-search-decoration,
+    .links-search-input::-webkit-search-cancel-button,
+    .links-search-input::-webkit-search-results-button,
+    .links-search-input::-webkit-search-results-decoration {
+      display: none;
+      -webkit-appearance: none;
+    }
+
+    .search-clear-btn {
+      position: absolute;
+      right: 0.4rem;
+      appearance: none;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      width: 18px;
+      height: 18px;
+      padding: 0;
+      border-radius: 50%;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: color 0.16s ease, background-color 0.16s ease, transform 0.12s ease;
+    }
+
+    .search-clear-btn svg {
+      display: block;
+      pointer-events: none;
+    }
+
+    .search-clear-btn:hover {
+      background: var(--border-subtle);
+      color: var(--text-primary);
+    }
+
+    .search-clear-btn:active {
+      transform: scale(0.9);
     }
 
     .links-search-input:focus {
@@ -3496,13 +3543,21 @@
     .catalog-search-input {
       font-family: var(--font-sans);
       font-size: 0.82rem;
-      padding: 0.38rem 0.75rem;
+      padding: 0.38rem 1.8rem 0.38rem 0.75rem;
       border: 1px solid var(--border-subtle);
       border-radius: 999px;
       background: var(--bg-primary);
       color: var(--text-primary);
       min-width: 240px;
       outline: none;
+    }
+
+    .catalog-search-input::-webkit-search-decoration,
+    .catalog-search-input::-webkit-search-cancel-button,
+    .catalog-search-input::-webkit-search-results-button,
+    .catalog-search-input::-webkit-search-results-decoration {
+      display: none;
+      -webkit-appearance: none;
     }
 
     .catalog-search-input:focus {
@@ -5185,13 +5240,21 @@
       <!-- Selection & Search Toolbar for Catalog Library -->
       <div class="catalog-selection-toolbar" id="catalog-selection-toolbar">
         <div class="catalog-toolbar-left">
-          <input
-            type="search"
-            class="catalog-search-input"
-            id="catalog-library-search"
-            placeholder="Search catalog models by title, slug, or tags..."
-            aria-label="Search catalog models"
-          >
+          <div class="search-wrapper">
+            <input
+              type="search"
+              class="catalog-search-input"
+              id="catalog-library-search"
+              placeholder="Search catalog models by title, slug, or tags..."
+              aria-label="Search catalog models"
+            >
+            <button type="button" class="search-clear-btn" id="catalog-library-search-clear" style="display:none;" aria-label="Clear search" title="Clear search">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
           <button type="button" class="btn-catalog-action" id="btn-select-all-models">Select All</button>
           <button type="button" class="btn-catalog-action" id="btn-deselect-all-models" style="display:none;">Deselect All</button>
           <button type="button" class="btn-catalog-action" id="btn-bulk-edit-attributes" title="Bulk update category, visibility, exclusive, fan favorite, or premium for selected models" style="display:none;background:var(--accent-soft);border-color:var(--accent-terracotta);color:var(--accent-terracotta);font-weight:700;">&#9998; Bulk Edit (<span id="bulk-edit-count">0</span>)</button>
@@ -5264,14 +5327,22 @@
             <span style="font-family:var(--font-display);font-weight:600;font-size:0.95rem;color:var(--text-primary);">
               Editable Columns Table (1 Model Per Column)
             </span>
-            <input
-              type="search"
-              class="links-search-input"
-              id="matrix-table-search"
-              placeholder="Search / filter columns by model name or tags..."
-              aria-label="Filter model columns"
-              style="width:280px;"
-            >
+            <div class="search-wrapper">
+              <input
+                type="search"
+                class="links-search-input"
+                id="matrix-table-search"
+                placeholder="Search / filter columns by model name or tags..."
+                aria-label="Filter model columns"
+                style="width:280px;"
+              >
+              <button type="button" class="search-clear-btn" id="matrix-table-search-clear" style="display:none;" aria-label="Clear search" title="Clear search">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
           </div>
           <div class="links-toolbar-right">
             <span class="links-table-status" id="matrix-table-status" aria-live="polite"></span>
@@ -5304,13 +5375,21 @@
             <button type="button" class="filter-pill-btn" data-links-filter="complete" id="filter-links-complete">
               All 4 Linked (<span id="count-links-complete">0</span>)
             </button>
-            <input
-              type="search"
-              class="links-search-input"
-              id="links-table-search"
-              placeholder="Filter models by name or slug..."
-              aria-label="Filter models by name or slug"
-            >
+            <div class="search-wrapper">
+              <input
+                type="search"
+                class="links-search-input"
+                id="links-table-search"
+                placeholder="Filter models by name or slug..."
+                aria-label="Filter models by name or slug"
+              >
+              <button type="button" class="search-clear-btn" id="links-table-search-clear" style="display:none;" aria-label="Clear search" title="Clear search">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
           </div>
           <div class="links-toolbar-right">
             <span class="links-table-status" id="links-table-status" aria-live="polite"></span>
@@ -5537,6 +5616,9 @@
       var catalogSelectedSlugs = new Set();
       var catalogSearchQuery = '';
       var catalogLibrarySearch = document.getElementById('catalog-library-search');
+      var catalogLibrarySearchClear = document.getElementById('catalog-library-search-clear');
+      var matrixTableSearchClear = document.getElementById('matrix-table-search-clear');
+      var linksTableSearchClear = document.getElementById('links-table-search-clear');
       var filterCatalogCategory = document.getElementById('filter-catalog-category');
       var filterCatalogHidden = document.getElementById('filter-catalog-hidden');
       var filterCatalogExclusive = document.getElementById('filter-catalog-exclusive');
@@ -10355,9 +10437,27 @@
         });
       });
 
+      function updateLinksTableSearchClear() {
+        if (linksTableSearchClear) {
+          linksTableSearchClear.style.display = (linksTableSearch && linksTableSearch.value) ? '' : 'none';
+        }
+      }
+
       linksTableSearch.addEventListener('input', function () {
+        updateLinksTableSearchClear();
         renderExistingModelsTable();
       });
+
+      if (linksTableSearchClear) {
+        linksTableSearchClear.addEventListener('click', function () {
+          if (linksTableSearch) {
+            linksTableSearch.value = '';
+            linksTableSearch.focus();
+          }
+          updateLinksTableSearchClear();
+          renderExistingModelsTable();
+        });
+      }
 
       btnDiscardTableLinks.addEventListener('click', function () {
         tableLinkDrafts = {};
@@ -10722,8 +10822,26 @@
         }
       }
 
+      function updateMatrixTableSearchClear() {
+        if (matrixTableSearchClear) {
+          matrixTableSearchClear.style.display = (matrixTableSearch && matrixTableSearch.value) ? '' : 'none';
+        }
+      }
+
       if (matrixTableSearch) {
         matrixTableSearch.addEventListener('input', function () {
+          updateMatrixTableSearchClear();
+          renderMatrixTable();
+        });
+      }
+
+      if (matrixTableSearchClear) {
+        matrixTableSearchClear.addEventListener('click', function () {
+          if (matrixTableSearch) {
+            matrixTableSearch.value = '';
+            matrixTableSearch.focus();
+          }
+          updateMatrixTableSearchClear();
           renderMatrixTable();
         });
       }
@@ -10760,9 +10878,28 @@
       }
 
       // Selection & Search Event Listeners for Catalog Library
+      function updateCatalogLibrarySearchClear() {
+        if (catalogLibrarySearchClear) {
+          catalogLibrarySearchClear.style.display = (catalogLibrarySearch && catalogLibrarySearch.value) ? '' : 'none';
+        }
+      }
+
       if (catalogLibrarySearch) {
         catalogLibrarySearch.addEventListener('input', function () {
           catalogSearchQuery = catalogLibrarySearch.value;
+          updateCatalogLibrarySearchClear();
+          renderExistingModelsList();
+        });
+      }
+
+      if (catalogLibrarySearchClear) {
+        catalogLibrarySearchClear.addEventListener('click', function () {
+          if (catalogLibrarySearch) {
+            catalogLibrarySearch.value = '';
+            catalogSearchQuery = '';
+            catalogLibrarySearch.focus();
+          }
+          updateCatalogLibrarySearchClear();
           renderExistingModelsList();
         });
       }
@@ -10825,6 +10962,7 @@
           if (chipFilterPremium) chipFilterPremium.classList.remove('is-active');
           if (sortCatalogBy) sortCatalogBy.value = 'date-desc';
           if (catalogLibrarySearch) catalogLibrarySearch.value = '';
+          updateCatalogLibrarySearchClear();
 
           renderExistingModelsList();
         });
