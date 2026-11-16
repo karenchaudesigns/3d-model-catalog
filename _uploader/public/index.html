@@ -4042,6 +4042,116 @@
       border: 1px solid var(--success);
       color: var(--success);
     }
+  
+    /* ==========================================================================
+       Floating Quick-Jump Margin Navigation (Model Edit View)
+       ========================================================================== */
+    .edit-quick-jump-nav {
+      position: fixed;
+      right: 1.25rem;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 95;
+      display: none;
+      flex-direction: column;
+      gap: 0.35rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 999px;
+      padding: 0.45rem 0.35rem;
+      box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.12), 0 2px 6px -1px rgba(0, 0, 0, 0.08);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      opacity: 0.92;
+    }
+
+    .edit-quick-jump-nav:hover {
+      opacity: 1;
+    }
+
+    body.is-form-mode .edit-quick-jump-nav {
+      display: flex;
+    }
+
+    .quick-jump-btn {
+      appearance: none;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.15s ease;
+      text-decoration: none;
+    }
+
+    .quick-jump-btn:hover {
+      background: var(--bg-subtle);
+      color: var(--accent-terracotta);
+      transform: scale(1.08);
+    }
+
+    .quick-jump-btn.is-active {
+      background: var(--accent-soft);
+      color: var(--accent-terracotta);
+      font-weight: 700;
+    }
+
+    .quick-jump-btn .quick-jump-tooltip {
+      position: absolute;
+      right: calc(100% + 0.6rem);
+      top: 50%;
+      transform: translateY(-50%);
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      border: 1px solid var(--border-subtle);
+      box-shadow: var(--shadow-card);
+      padding: 0.3rem 0.6rem;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-sans);
+      font-size: 0.72rem;
+      font-weight: 600;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.15s ease, transform 0.15s ease;
+      transform: translateY(-50%) translateX(4px);
+      z-index: 100;
+    }
+
+    .quick-jump-btn:hover .quick-jump-tooltip {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(-50%) translateX(0);
+    }
+
+    .quick-jump-sep {
+      width: 1.2rem;
+      height: 1px;
+      background: var(--border-subtle);
+      margin: 0.15rem auto;
+    }
+
+    @media (max-width: 900px) {
+      .edit-quick-jump-nav {
+        right: 0.5rem;
+        padding: 0.35rem 0.25rem;
+      }
+      .quick-jump-btn {
+        width: 1.95rem;
+        height: 1.95rem;
+        font-size: 0.85rem;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -4297,6 +4407,44 @@
     </div>
 
     <form id="uploader-form" novalidate>
+
+    <!-- Floating Quick-Jump Margin Navigation (Visible in Edit / Form Mode) -->
+    <nav class="edit-quick-jump-nav" id="edit-quick-jump-nav" aria-label="Quick jump between model edit sections">
+      <button type="button" class="quick-jump-btn is-active" data-jump="section-hero" aria-label="Jump to Showcase & Overview">
+        <span aria-hidden="true">&#128444;</span>
+        <span class="quick-jump-tooltip">Showcase &amp; Overview</span>
+      </button>
+      <button type="button" class="quick-jump-btn" data-jump="section-downloads" aria-label="Jump to Download Links">
+        <span aria-hidden="true">&#128229;</span>
+        <span class="quick-jump-tooltip">Download Links</span>
+      </button>
+      <button type="button" class="quick-jump-btn" data-jump="section-model-products" aria-label="Jump to Affiliate Products">
+        <span aria-hidden="true">&#128279;</span>
+        <span class="quick-jump-tooltip">Affiliate Products</span>
+      </button>
+      <button type="button" class="quick-jump-btn" data-jump="section-details" aria-label="Jump to Description & Print Settings">
+        <span aria-hidden="true">&#9998;</span>
+        <span class="quick-jump-tooltip">Description &amp; Settings</span>
+      </button>
+      <button type="button" class="quick-jump-btn" data-jump="detailed-views-section" aria-label="Jump to Detailed Views & Photos">
+        <span aria-hidden="true">&#128247;</span>
+        <span class="quick-jump-tooltip">Detailed Views</span>
+      </button>
+      <button type="button" class="quick-jump-btn" data-jump="model-tags-section" aria-label="Jump to Model Tags & Framework">
+        <span aria-hidden="true">&#127991;</span>
+        <span class="quick-jump-tooltip">Model Tags</span>
+      </button>
+      <div class="quick-jump-sep"></div>
+      <button type="button" class="quick-jump-btn" data-jump="top" aria-label="Scroll to Top">
+        <span aria-hidden="true">&#8593;</span>
+        <span class="quick-jump-tooltip">Scroll to Top</span>
+      </button>
+      <button type="button" class="quick-jump-btn" data-jump="save" aria-label="Jump to Save & Push">
+        <span aria-hidden="true">&#128190;</span>
+        <span class="quick-jump-tooltip">Save &amp; Push</span>
+      </button>
+    </nav>
+
       <!-- Breadcrumb Bar matching _layouts/model.html -->
       <div class="breadcrumb-row">
         <nav class="breadcrumb" aria-label="Breadcrumb">
@@ -4324,7 +4472,7 @@
       </div>
 
       <!-- Model Hero Grid: Left Column (Media Stage + Thumbnails) | Right Column (Title, Tags, Downloads, Prose) -->
-      <div class="model-hero-grid">
+      <div class="model-hero-grid" id="section-hero">
         <!-- LEFT COLUMN: Main Showcase Image & Thumbnail Strip -->
         <div class="model-media-column">
           <div
@@ -4605,7 +4753,7 @@
           </div>
 
           <!-- Download 3D Print Files Panel matching .download-panel in _layouts/model.html -->
-          <section class="download-panel" aria-labelledby="download-heading">
+          <section class="download-panel" id="section-downloads" aria-labelledby="download-heading">
             <h2 class="download-heading" id="download-heading">Download 3D Print Files</h2>
             <p class="download-subtext">Paste links for any platforms where this model is available (empty buttons stay hidden on the live page):</p>
             <div class="download-buttons">
@@ -4714,7 +4862,7 @@
       </div>
 
       <!-- Below-the-Fold Section 1: Model Description & Recommended Print Settings -->
-      <section class="model-description-section" aria-labelledby="description-heading">
+      <section class="model-description-section" id="section-details" aria-labelledby="description-heading">
         <div class="section-header">
           <div>
             <h2 class="section-title" id="description-heading">Model Description &amp; Print Settings</h2>
@@ -11313,6 +11461,67 @@
           return '';
         }
       });
+
+      
+      // Quick-Jump Navigation Handling
+      var quickJumpNav = document.getElementById('edit-quick-jump-nav');
+      if (quickJumpNav) {
+        quickJumpNav.addEventListener('click', function (e) {
+          var btn = e.target.closest('.quick-jump-btn');
+          if (!btn) return;
+          var targetId = btn.getAttribute('data-jump');
+          if (targetId === 'top') {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+          }
+          if (targetId === 'save') {
+            var saveBtn = document.getElementById('btn-submit-model');
+            if (saveBtn) {
+              saveBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              saveBtn.focus();
+            }
+            return;
+          }
+          var targetEl = document.getElementById(targetId);
+          if (targetEl) {
+            var topOffset = targetEl.getBoundingClientRect().top + window.pageYOffset - 24;
+            window.scrollTo({ top: topOffset, behavior: 'smooth' });
+          }
+        });
+
+        // ScrollSpy to highlight active section in floating nav
+        var jumpSections = [
+          { id: 'section-hero', btn: quickJumpNav.querySelector('[data-jump="section-hero"]') },
+          { id: 'section-downloads', btn: quickJumpNav.querySelector('[data-jump="section-downloads"]') },
+          { id: 'section-model-products', btn: quickJumpNav.querySelector('[data-jump="section-model-products"]') },
+          { id: 'section-details', btn: quickJumpNav.querySelector('[data-jump="section-details"]') },
+          { id: 'detailed-views-section', btn: quickJumpNav.querySelector('[data-jump="detailed-views-section"]') },
+          { id: 'model-tags-section', btn: quickJumpNav.querySelector('[data-jump="model-tags-section"]') }
+        ];
+
+        var scrollSpyScheduled = false;
+        window.addEventListener('scroll', function () {
+          if (scrollSpyScheduled) return;
+          scrollSpyScheduled = true;
+          requestAnimationFrame(function () {
+            scrollSpyScheduled = false;
+            if (!document.body.classList.contains('is-form-mode')) return;
+            var scrollPos = window.pageYOffset + 140;
+            var activeId = 'section-hero';
+            for (var i = 0; i < jumpSections.length; i++) {
+              var sEl = document.getElementById(jumpSections[i].id);
+              if (sEl && sEl.offsetTop <= scrollPos) {
+                activeId = jumpSections[i].id;
+              }
+            }
+            jumpSections.forEach(function (item) {
+              if (item.btn) {
+                item.btn.classList.toggle('is-active', item.id === activeId);
+              }
+            });
+          });
+        });
+      }
 
       renderTagPills();
       syncBreadcrumbs();
