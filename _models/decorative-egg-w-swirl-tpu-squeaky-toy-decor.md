@@ -42,9 +42,10 @@ downloads:
   printables: "https://www.printables.com/model/1916805-decorative-egg-wswirl-decor-and-tpu-squeaky-toy"
   thangs: ""
   cults3d: ""
-youtube_shorts: []
+youtube_shorts:
+  - "2k7TiuB70eQ"
 youtube_videos: []
-youtube_id: ""
+youtube_id: "2k7TiuB70eQ"
 ---
 This is a model of an egg with a decorative twist! With its 24 swirls from the top to the bottom, it stands with a stylized design ready to decorate your mantel, desk or party table!
 

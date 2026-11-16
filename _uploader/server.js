@@ -42,7 +42,7 @@ function cleanYoutubeId(raw) {
   const str = String(raw || '').trim();
   if (!str) return '';
   const match = str.match(
-    /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/
+    /(?:youtube(?:-nocookie)?\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/i
   );
   return match ? match[1] : str;
 }
@@ -1773,7 +1773,7 @@ async function checkIsYoutubeShort(videoId, rawUrlHint = '') {
  */
 async function extractAndClassifyYoutubeVideos(text, allowBareIds = false) {
   const raw = String(text || '');
-  const regex = /(https?:\/\/(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11}))/gi;
+  const regex = /(https?:\/\/(?:www\.)?(?:youtube(?:-nocookie)?\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11}))/gi;
   const entries = [];
   const seen = new Set();
 
