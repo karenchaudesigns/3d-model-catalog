@@ -11280,13 +11280,15 @@
         document.getElementById('existing-models-section').scrollIntoView({ behavior: 'smooth' });
       });
 
-      btnCancelEdit.addEventListener('click', function () {
-        confirmUnsavedChanges(function () {
-          resetToNewModel(true);
-          hideFormMode();
-          setLibraryViewMode(libraryViewMode || 'grid');
+      if (btnCancelEdit) {
+        btnCancelEdit.addEventListener('click', function () {
+          confirmUnsavedChanges(function () {
+            resetToNewModel(true);
+            hideFormMode();
+            setLibraryViewMode(libraryViewMode || 'grid');
+          });
         });
-      });
+      }
 
       resetBtn.addEventListener('click', function () {
         confirmUnsavedChanges(function () {
@@ -11294,26 +11296,30 @@
         });
       });
 
-      btnNewFromLibrary.addEventListener('click', function () {
-        confirmUnsavedChanges(function () {
-          showFormMode(false);
-          resetToNewModel(true);
-          nameInput.focus();
-          window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (btnNewFromLibrary) {
+        btnNewFromLibrary.addEventListener('click', function () {
+          confirmUnsavedChanges(function () {
+            showFormMode(false);
+            resetToNewModel(true);
+            nameInput.focus();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          });
         });
-      });
+      }
 
-      btnNavNew.addEventListener('click', function () {
-        confirmUnsavedChanges(function () {
-          showFormMode(false);
-          btnNavNew.classList.add('is-active');
-          btnNavLibrary.classList.remove('is-active');
-          btnNavTable.classList.remove('is-active');
-          resetToNewModel(true);
-          nameInput.focus();
-          window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (btnNavNew) {
+        btnNavNew.addEventListener('click', function () {
+          confirmUnsavedChanges(function () {
+            showFormMode(false);
+            btnNavNew.classList.add('is-active');
+            btnNavLibrary.classList.remove('is-active');
+            btnNavTable.classList.remove('is-active');
+            resetToNewModel(true);
+            nameInput.focus();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          });
         });
-      });
+      }
 
       brandResetLink.addEventListener('click', function (e) {
         e.preventDefault();
