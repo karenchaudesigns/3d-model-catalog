@@ -8638,9 +8638,7 @@
 
       function deleteModel(slug, title, buttonEl) {
         var displayTitle = title || slug;
-        var msg = 'Are you sure you want to permanently delete "' + displayTitle + '"?
-
-' +
+        var msg = 'Are you sure you want to permanently delete "' + displayTitle + '"?\n\n' +
                   'This will remove _models/' + slug + '.md, clean up model images, and push the deletion to GitHub.';
         if (!confirm(msg)) {
           return;

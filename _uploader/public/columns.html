@@ -1610,9 +1610,7 @@
           var delSlug = delBtn.getAttribute('data-slug');
           var delTitle = delBtn.getAttribute('data-title') || delSlug;
           if (delSlug) {
-            var msg = 'Are you sure you want to permanently delete "' + delTitle + '"?
-
-' +
+            var msg = 'Are you sure you want to permanently delete "' + delTitle + '"?\n\n' +
                       'This will remove _models/' + delSlug + '.md, clean up model images, and push the deletion to GitHub.';
             if (confirm(msg)) {
               var origText = delBtn.textContent;
