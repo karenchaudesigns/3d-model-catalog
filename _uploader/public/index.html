@@ -2733,14 +2733,30 @@
 
     .model-card-actions {
       display: flex;
-      gap: 0.4rem;
-      padding: 0.6rem 0.9rem 0.8rem;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      padding: 0.55rem 0.8rem 0.75rem;
       border-top: 1px solid var(--border-subtle);
       background: var(--bg-primary);
     }
 
     .model-card-actions button {
-      flex: 1;
+      flex: 1 1 calc(50% - 0.35rem);
+      min-width: 0;
+      padding: 0.32rem 0.45rem;
+      font-size: 0.74rem;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    .btn-danger-ghost {
+      color: var(--danger, #dc2626) !important;
+    }
+
+    .btn-danger-ghost:hover {
+      background: hsla(0, 84%, 60%, 0.1) !important;
+      border-color: var(--danger, #dc2626) !important;
     }
 
     /* ==========================================================================
@@ -8510,6 +8526,184 @@
           });
       }
 
+      function openDuplicateModel(slug) {
+        fetch('/api/models/' + encodeURIComponent(slug))
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            if (!data.model) return;
+            var m = data.model;
+            // Clear editing slug so saving creates a brand new model
+            editingSlug = null;
+            editingModelData = null;
+            shortnameManuallyEdited = true;
+            activeStageSelection = { type: 'image', index: 0 };
+
+            postUploadCard.classList.remove('is-visible');
+            statusBox.className = 'status-box';
+            statusBox.innerHTML = '';
+            printablesImportStatus.style.display = 'none';
+            printablesImportStatus.textContent = '';
+
+            var copyTitle = (m.title || 'Untitled') + ' (Copy)';
+            var baseShortname = (m.shortname || m.slug || 'model').replace(/-copy(-\d+)?$/, '');
+            var copyShortname = baseShortname + '-copy';
+
+            nameInput.value = copyTitle;
+            extendedTitleInput.value = m.extended_title || '';
+            taglineInput.value = m.tagline || '';
+            shortnameInput.value = copyShortname;
+            categorySelect.value = m.category === 'fan-favorites' ? 'useful-prints' : (m.category || 'useful-prints');
+            fanFavoriteCheckbox.checked = Boolean(m.fan_favorite || m.category === 'fan-favorites');
+            makerworldExclusiveCheckbox.checked = Boolean(m.makerworld_exclusive);
+            premiumCheckbox.checked = Boolean(m.premium);
+            hiddenCheckbox.checked = false; // Duplicates start visible unless user toggles
+            descInput.value = m.description || '';
+            settingsInput.value = m.printSettings || '';
+            autoExpandAllProse();
+            tagsInput.value = Array.isArray(m.tags) ? m.tags.join(', ') : '';
+            youtubeAddInput.value = '';
+            youtubeShorts = Array.isArray(m.youtube_shorts) ? m.youtube_shorts.slice() : [];
+            youtubeVideos = Array.isArray(m.youtube_videos) ? m.youtube_videos.slice() : [];
+            if (youtubeShorts.length === 0 && youtubeVideos.length === 0 && m.youtube_id) {
+              youtubeVideos = [m.youtube_id];
+            }
+
+            // Keep platform links except Printables URL if user wants unique ID/routing, but preserve existing for convenience
+            dlMakerworld.value = (m.downloads && m.downloads.makerworld) || '';
+            dlPrintables.value = (m.downloads && m.downloads.printables) || '';
+            dlThangs.value = (m.downloads && m.downloads.thangs) || '';
+            dlCults3d.value = (m.downloads && m.downloads.cults3d) || '';
+
+            modelProducts = Array.isArray(m.products) ? JSON.parse(JSON.stringify(m.products)) : [];
+            renderProductsEditor();
+
+            renderTagPills();
+            syncBreadcrumbs();
+            syncDownloadButtonHighlights();
+            cachedPrintablesUrl = '';
+            cachedPrintablesData = null;
+            updateInlinePrintablesButtonsVisibility();
+
+            editBannerTitle.textContent = copyTitle + ' (Duplicating from ' + (m.title || m.slug) + ')';
+            editBannerFile.textContent = 'Will save as new model';
+            editBanner.classList.add('is-visible');
+            showFormMode(false);
+
+            submitBtn.textContent = 'Save Duplicated Model & Push to GitHub →';
+
+            sourceImages = [];
+            detailedImages = [];
+            renderSourceCards();
+            var allUrls = [];
+            if (m.cover_image) allUrls.push(m.cover_image);
+            if (Array.isArray(m.gallery_images)) {
+              m.gallery_images.forEach(function (gPath) {
+                allUrls.push(gPath);
+              });
+            }
+            allUrls.forEach(function (u, idx) {
+              var img = new Image();
+              img.crossOrigin = 'anonymous';
+              img.onload = function () {
+                sourceImages.push({
+                  id: Date.now() + '-' + idx + '-' + Math.random(),
+                  imgElement: img,
+                  originalUrl: u
+                });
+                activeStageSelection = { type: 'image', index: 0 };
+                renderSourceCards();
+              };
+              img.src = u;
+            });
+
+            if (Array.isArray(m.detailed_images)) {
+              m.detailed_images.forEach(function (du) {
+                addDetailedImageFromUrl(du);
+              });
+            }
+
+            if (window.history && window.history.replaceState) {
+              window.history.replaceState({}, '', window.location.pathname);
+            }
+
+            renderExistingModelsList();
+            editBaselineSnapshot = null; // New model creation, not editing existing slug
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          })
+          .catch(function (err) {
+            statusBox.className = 'status-box is-error';
+            statusBox.textContent = 'Could not duplicate model: ' + err.message;
+          });
+      }
+
+      function deleteModel(slug, title, buttonEl) {
+        var displayTitle = title || slug;
+        var msg = 'Are you sure you want to permanently delete "' + displayTitle + '"?
+
+' +
+                  'This will remove _models/' + slug + '.md, clean up model images, and push the deletion to GitHub.';
+        if (!confirm(msg)) {
+          return;
+        }
+
+        var origText = buttonEl ? buttonEl.textContent : '';
+        if (buttonEl) {
+          buttonEl.disabled = true;
+          buttonEl.textContent = 'Deleting...';
+        }
+
+        var autoDeploy = autoDeployCheckbox ? autoDeployCheckbox.checked : true;
+        fetch('/api/models/' + encodeURIComponent(slug), {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ autoDeploy: autoDeploy, deleteImages: true })
+        })
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            if (buttonEl) {
+              buttonEl.disabled = false;
+              buttonEl.textContent = origText;
+            }
+            if (data.error) {
+              alert('Error deleting model: ' + data.error);
+              return;
+            }
+
+            // If the deleted model was currently loaded in the editor, reset the editor
+            if (editingSlug === slug) {
+              resetToNewModel(true);
+            }
+
+            // Remove from local cache
+            catalogModelsCache = catalogModelsCache.filter(function (item) {
+              return item.slug !== slug;
+            });
+            delete recentlySavedSlugs[slug];
+            delete matrixDrafts[slug];
+
+            renderExistingModelsList();
+            syncCatalogSelectionBar();
+
+            var statusMsg = 'Deleted "' + displayTitle + '"' + (data.deployed ? ' and pushed to GitHub.' : ' locally.');
+            if (statusBox) {
+              statusBox.className = 'status-box';
+              statusBox.textContent = statusMsg;
+              setTimeout(function () {
+                if (statusBox.textContent === statusMsg) {
+                  statusBox.textContent = '';
+                }
+              }, 6000);
+            }
+          })
+          .catch(function (err) {
+            if (buttonEl) {
+              buttonEl.disabled = false;
+              buttonEl.textContent = origText;
+            }
+            alert('Failed to delete model: ' + err.message);
+          });
+      }
+
       function getCurrentFormSnapshot() {
         return {
           title: nameInput ? nameInput.value.trim() : '',
@@ -8910,7 +9104,9 @@
               '<div class="table-row-actions">' +
               '<button type="button" class="' + saveBtnClass + '" data-slug="' + safeSlug + '" title="Save download links for ' + safeTitle + '">' + saveBtnLabel + '</button>' +
               '<button type="button" class="btn-ghost btn-edit-model" data-slug="' + safeSlug + '" style="padding:0.32rem 0.58rem;font-size:0.75rem;">' + (isCurrentEdit ? 'Editing&hellip;' : 'Edit') + '</button>' +
+              '<button type="button" class="btn-ghost btn-duplicate-model" data-slug="' + safeSlug + '" style="padding:0.32rem 0.58rem;font-size:0.75rem;" title="Duplicate ' + safeTitle + '">Duplicate</button>' +
               '<button type="button" class="btn-ghost btn-toggle-hidden" data-slug="' + safeSlug + '" data-hidden="' + (m.hidden ? 'true' : 'false') + '" style="padding:0.32rem 0.58rem;font-size:0.75rem;">' + (m.hidden ? 'Unhide' : 'Hide') + '</button>' +
+              '<button type="button" class="btn-ghost btn-danger-ghost btn-delete-model" data-slug="' + safeSlug + '" data-title="' + safeTitle + '" style="padding:0.32rem 0.58rem;font-size:0.75rem;" title="Delete ' + safeTitle + '">Delete</button>' +
               '</div>' +
               '</td>' +
               '</tr>'
@@ -9124,9 +9320,11 @@
           var saveBtnClass = 'btn-row-save' + (isDirty ? ' is-dirty' : isSaved ? ' is-saved' : '');
           rowSave +=
             '<td class="model-col-cell' + dirtyClass + '" data-col-slug="' + sSlug + '" style="text-align:center;">' +
-            '<div style="display:flex;align-items:center;justify-content:center;gap:0.4rem;">' +
+            '<div style="display:flex;align-items:center;justify-content:center;gap:0.35rem;flex-wrap:wrap;">' +
             '<button type="button" class="' + saveBtnClass + ' btn-col-save" data-slug="' + sSlug + '" title="Save changes for ' + sSlug + ' and push to GitHub">' + saveBtnLabel + '</button>' +
             '<button type="button" class="btn-ghost btn-matrix-load-editor" data-slug="' + sSlug + '" style="padding:0.32rem 0.55rem;font-size:0.75rem;" title="Open in top page editor">Edit &#8599;</button>' +
+            '<button type="button" class="btn-ghost btn-duplicate-model" data-slug="' + sSlug + '" style="padding:0.32rem 0.55rem;font-size:0.75rem;" title="Duplicate ' + escapeHtmlText(cur.title || sSlug) + '">Duplicate</button>' +
+            '<button type="button" class="btn-ghost btn-danger-ghost btn-delete-model" data-slug="' + sSlug + '" data-title="' + escapeHtmlText(cur.title || sSlug) + '" style="padding:0.32rem 0.55rem;font-size:0.75rem;" title="Delete ' + escapeHtmlText(cur.title || sSlug) + '">Delete</button>' +
             '</div>' +
             '</td>';
         });
@@ -9598,11 +9796,17 @@
               '<span class="model-card-filename" style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-muted);">_models/' + m.filename + '</span>' +
               '</div>' +
               '<div class="model-card-actions">' +
+              '<button type="button" class="btn-ghost btn-edit-model" data-slug="' + m.slug + '" title="Edit ' + (cur.title || m.slug).replace(/"/g, '&quot;') + '">' +
+              (isCurrentEdit ? 'Editing&hellip;' : 'Edit') +
+              '</button>' +
+              '<button type="button" class="btn-ghost btn-duplicate-model" data-slug="' + m.slug + '" title="Duplicate ' + (cur.title || m.slug).replace(/"/g, '&quot;') + '">' +
+              'Duplicate' +
+              '</button>' +
               '<button type="button" class="btn-ghost btn-toggle-hidden" data-slug="' + m.slug + '" data-hidden="' + (m.hidden ? 'true' : 'false') + '">' +
               (m.hidden ? 'Unhide' : 'Hide') +
               '</button>' +
-              '<button type="button" class="btn-ghost btn-edit-model" data-slug="' + m.slug + '">' +
-              (isCurrentEdit ? 'Editing&hellip;' : 'Edit Model') +
+              '<button type="button" class="btn-ghost btn-danger-ghost btn-delete-model" data-slug="' + m.slug + '" data-title="' + (cur.title || m.slug).replace(/"/g, '&quot;') + '" title="Delete ' + (cur.title || m.slug).replace(/"/g, '&quot;') + '">' +
+              'Delete' +
               '</button>' +
               '</div>' +
               '</article>'
@@ -9825,6 +10029,27 @@
           toggleBtn.disabled = true;
           toggleBtn.textContent = currentlyHidden ? 'Unhiding...' : 'Hiding...';
           toggleModelVisibility(tSlug, !currentlyHidden);
+          return;
+        }
+
+        var dupBtn = e.target.closest('.btn-duplicate-model');
+        if (dupBtn) {
+          var dSlug = dupBtn.getAttribute('data-slug');
+          if (dSlug) {
+            confirmUnsavedChanges(function () {
+              openDuplicateModel(dSlug);
+            });
+          }
+          return;
+        }
+
+        var delBtn = e.target.closest('.btn-delete-model');
+        if (delBtn) {
+          var delSlug = delBtn.getAttribute('data-slug');
+          var delTitle = delBtn.getAttribute('data-title') || delSlug;
+          if (delSlug) {
+            deleteModel(delSlug, delTitle, delBtn);
+          }
           return;
         }
 
@@ -10052,6 +10277,27 @@
               confirmUnsavedChanges(function () {
                 openEditModel(eSlug);
               });
+            }
+            return;
+          }
+
+          var dupBtn = e.target.closest('.btn-duplicate-model');
+          if (dupBtn) {
+            var dSlug = dupBtn.getAttribute('data-slug');
+            if (dSlug) {
+              confirmUnsavedChanges(function () {
+                openDuplicateModel(dSlug);
+              });
+            }
+            return;
+          }
+
+          var delBtn = e.target.closest('.btn-delete-model');
+          if (delBtn) {
+            var delSlug = delBtn.getAttribute('data-slug');
+            var delTitle = delBtn.getAttribute('data-title') || delSlug;
+            if (delSlug) {
+              deleteModel(delSlug, delTitle, delBtn);
             }
             return;
           }
@@ -10720,6 +10966,28 @@
           toggleModelVisibility(tSlug, !currentlyHidden);
           return;
         }
+
+        var dupBtn = e.target.closest('.btn-duplicate-model');
+        if (dupBtn) {
+          var dSlug = dupBtn.getAttribute('data-slug');
+          if (dSlug) {
+            confirmUnsavedChanges(function () {
+              openDuplicateModel(dSlug);
+            });
+          }
+          return;
+        }
+
+        var delBtn = e.target.closest('.btn-delete-model');
+        if (delBtn) {
+          var delSlug = delBtn.getAttribute('data-slug');
+          var delTitle = delBtn.getAttribute('data-title') || delSlug;
+          if (delSlug) {
+            deleteModel(delSlug, delTitle, delBtn);
+          }
+          return;
+        }
+
         var editTrigger = e.target.closest('.btn-edit-model, .model-thumb-media');
         if (!editTrigger) return;
         var slug = editTrigger.getAttribute('data-slug');
@@ -11071,7 +11339,10 @@
           try { savedMode = localStorage.getItem('kcd-catalog-view-mode') || 'grid'; } catch (e) {}
           setLibraryViewMode(savedMode);
         }
-        if (editParam) {
+        var duplicateParam = params.get('duplicate');
+        if (duplicateParam) {
+          openDuplicateModel(duplicateParam);
+        } else if (editParam) {
           openEditModel(editParam);
         }
       });

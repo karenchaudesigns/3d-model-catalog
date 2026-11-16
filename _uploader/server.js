@@ -803,6 +803,105 @@ app.put('/api/models/:slug', (req, res) => {
 });
 
 /**
+ * DELETE /api/models/:slug — Delete a model's Markdown file (and optionally its images folder)
+ */
+app.delete('/api/models/:slug', (req, res) => {
+  try {
+    const slug = String(req.params.slug || '').replace(/\.md$/, '').trim();
+    if (!slug) {
+      return res.status(400).json({ error: 'Model slug is required.' });
+    }
+    const filename = `${slug}.md`;
+    const mdPath = path.join(MODELS_DIR, filename);
+    if (!fs.existsSync(mdPath)) {
+      return res.status(404).json({ error: `Model "${slug}" not found in _models/.` });
+    }
+
+    const model = parseModelMarkdown(filename);
+    const modelTitle = model.title || slug;
+    const modelShortname = model.shortname || slug;
+
+    // Delete markdown file
+    fs.unlinkSync(mdPath);
+
+    // Also remove dedicated image folder under images/models/<shortname> if it exists and deleteImages is not false
+    const deleteImages = req.query.deleteImages !== 'false' && req.body.deleteImages !== false;
+    let imagesDeleted = false;
+    if (deleteImages && modelShortname) {
+      const imgDir = path.join(IMAGES_MODELS_DIR, modelShortname);
+      if (fs.existsSync(imgDir)) {
+        try {
+          fs.rmSync(imgDir, { recursive: true, force: true });
+          imagesDeleted = true;
+        } catch (e) {
+          console.warn(`Could not remove image folder for ${modelShortname}:`, e.message);
+        }
+      }
+    }
+
+    // Git commit & push if autoDeploy !== false
+    const autoDeploy = req.query.autoDeploy !== 'false' && req.body.autoDeploy !== false;
+    const gitLog = [];
+    let deployed = false;
+    let gitError = null;
+
+    if (autoDeploy) {
+      try {
+        execFileSync('git', ['add', '-A'], { cwd: REPO_ROOT, encoding: 'utf8' });
+        gitLog.push('$ git add -A');
+
+        const commitMessage = `Delete ${modelTitle}`;
+        const commitOut = execFileSync('git', ['commit', '-m', commitMessage], {
+          cwd: REPO_ROOT,
+          encoding: 'utf8'
+        });
+        gitLog.push(`$ git commit -m "${commitMessage}"\n${commitOut.trim()}`);
+
+        try {
+          const pushOut = execFileSync('git', ['push'], {
+            cwd: REPO_ROOT,
+            encoding: 'utf8',
+            stdio: ['pipe', 'pipe', 'pipe']
+          });
+          gitLog.push(`$ git push\n${(pushOut || 'Pushed to remote origin.').trim()}`);
+        } catch (pushErr) {
+          execFileSync('git', ['pull', '--rebase'], {
+            cwd: REPO_ROOT,
+            encoding: 'utf8',
+            stdio: ['pipe', 'pipe', 'pipe']
+          });
+          const retryPushOut = execFileSync('git', ['push'], {
+            cwd: REPO_ROOT,
+            encoding: 'utf8',
+            stdio: ['pipe', 'pipe', 'pipe']
+          });
+          gitLog.push(`$ git pull --rebase && git push\n${(retryPushOut || 'Rebased and pushed to remote origin.').trim()}`);
+        }
+        deployed = true;
+      } catch (gitErr) {
+        const stderr = gitErr.stderr ? gitErr.stderr.toString() : '';
+        const stdout = gitErr.stdout ? gitErr.stdout.toString() : '';
+        gitError = (stderr || stdout || gitErr.message).trim();
+        gitLog.push(`Git warning/error: ${gitError}`);
+      }
+    }
+
+    return res.json({
+      success: true,
+      deletedSlug: slug,
+      deletedTitle: modelTitle,
+      imagesDeleted,
+      deployed,
+      gitError,
+      gitLog: gitLog.join('\n\n')
+    });
+  } catch (err) {
+    console.error('Delete model error:', err);
+    return res.status(500).json({ error: err.message || 'Failed to delete model.' });
+  }
+});
+
+/**
  * PATCH /api/models/:slug/visibility — Quick toggle for hidden: true / false
  */
 app.patch('/api/models/:slug/visibility', (req, res) => {

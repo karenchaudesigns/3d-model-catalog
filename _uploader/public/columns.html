@@ -1263,9 +1263,11 @@
           var saveBtnClass = 'btn-row-save' + (isDirty ? ' is-dirty' : isSaved ? ' is-saved' : '');
           rowSave +=
             '<td class="model-col-cell' + dirtyClass + '" data-col-slug="' + sSlug + '" style="text-align:center;">' +
-            '<div style="display:flex;align-items:center;justify-content:center;gap:0.4rem;">' +
+            '<div style="display:flex;align-items:center;justify-content:center;gap:0.35rem;flex-wrap:wrap;">' +
             '<button type="button" class="' + saveBtnClass + ' btn-col-save" data-slug="' + sSlug + '" title="Save changes for ' + sSlug + ' and push to GitHub">' + saveBtnLabel + '</button>' +
             '<a href="/?edit=' + encodeURIComponent(m.slug) + '" class="btn-ghost" style="padding:0.32rem 0.55rem;font-size:0.75rem;text-decoration:none;" title="Open in main page editor">Edit &#8599;</a>' +
+            '<a href="/?duplicate=' + encodeURIComponent(m.slug) + '" class="btn-ghost" style="padding:0.32rem 0.55rem;font-size:0.75rem;text-decoration:none;" title="Duplicate ' + escapeHtmlText(cur.title || sSlug) + '">Duplicate</a>' +
+            '<button type="button" class="btn-ghost btn-delete-col-model" data-slug="' + sSlug + '" data-title="' + escapeHtmlText(cur.title || sSlug) + '" style="padding:0.32rem 0.55rem;font-size:0.75rem;color:var(--danger, #dc2626);" title="Delete ' + escapeHtmlText(cur.title || sSlug) + '">Delete</button>' +
             '</div>' +
             '</td>';
         });
@@ -1600,6 +1602,47 @@
         if (saveBtn) {
           var sSlug = saveBtn.getAttribute('data-slug');
           if (sSlug) saveSingleModelMatrix(sSlug, saveBtn);
+          return;
+        }
+
+        var delBtn = e.target.closest('.btn-delete-col-model');
+        if (delBtn) {
+          var delSlug = delBtn.getAttribute('data-slug');
+          var delTitle = delBtn.getAttribute('data-title') || delSlug;
+          if (delSlug) {
+            var msg = 'Are you sure you want to permanently delete "' + delTitle + '"?
+
+' +
+                      'This will remove _models/' + delSlug + '.md, clean up model images, and push the deletion to GitHub.';
+            if (confirm(msg)) {
+              var origText = delBtn.textContent;
+              delBtn.disabled = true;
+              delBtn.textContent = 'Deleting...';
+              fetch('/api/models/' + encodeURIComponent(delSlug), {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ autoDeploy: true, deleteImages: true })
+              })
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                  delBtn.disabled = false;
+                  delBtn.textContent = origText;
+                  if (data.error) {
+                    alert('Error deleting model: ' + data.error);
+                    return;
+                  }
+                  catalogModelsCache = catalogModelsCache.filter(function (item) { return item.slug !== delSlug; });
+                  delete matrixDrafts[delSlug];
+                  delete recentlySavedMatrixSlugs[delSlug];
+                  renderMatrixTable();
+                })
+                .catch(function (err) {
+                  delBtn.disabled = false;
+                  delBtn.textContent = origText;
+                  alert('Failed to delete model: ' + err.message);
+                });
+            }
+          }
           return;
         }
 
