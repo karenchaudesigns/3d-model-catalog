@@ -4152,9 +4152,104 @@
       }
     }
 
+  
+    /* ==========================================================================
+       Large Floating Action Button (FAB) for Creating a New Model
+       ========================================================================== */
+    .fab-create-model {
+      position: fixed;
+      right: 1.5rem;
+      bottom: 4.5rem;
+      z-index: 98;
+      width: 3.5rem;
+      height: 3.5rem;
+      border-radius: 50%;
+      background: var(--accent-terracotta, #c25e3e);
+      color: #ffffff;
+      border: none;
+      box-shadow: 0 6px 24px -2px hsla(16, 62%, 46%, 0.45), 0 2px 8px -1px rgba(0, 0, 0, 0.12);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+      outline: none;
+    }
+
+    .fab-create-model:hover {
+      background: var(--accent-terracotta-hover, #a84e32);
+      transform: scale(1.1) rotate(90deg);
+      box-shadow: 0 8px 30px -2px hsla(16, 62%, 46%, 0.6), 0 4px 12px -1px rgba(0, 0, 0, 0.18);
+    }
+
+    .fab-create-model:active {
+      transform: scale(0.95);
+    }
+
+    .fab-create-model svg {
+      width: 1.75rem;
+      height: 1.75rem;
+      stroke: currentColor;
+      stroke-width: 2.6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+      transition: transform 0.22s ease;
+    }
+
+    .fab-create-model .fab-tooltip {
+      position: absolute;
+      right: calc(100% + 0.75rem);
+      top: 50%;
+      transform: translateY(-50%) translateX(6px);
+      background: var(--bg-surface, #ffffff);
+      color: var(--text-primary, #1c1917);
+      border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.12));
+      box-shadow: var(--shadow-card);
+      padding: 0.4rem 0.75rem;
+      border-radius: var(--radius-sm, 8px);
+      font-family: var(--font-sans);
+      font-size: 0.8rem;
+      font-weight: 600;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+      z-index: 100;
+    }
+
+    .fab-create-model:hover .fab-tooltip {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(-50%) translateX(0);
+    }
+
+    @media (max-width: 640px) {
+      .fab-create-model {
+        right: 1rem;
+        bottom: 4.8rem;
+        width: 3.1rem;
+        height: 3.1rem;
+      }
+      .fab-create-model svg {
+        width: 1.5rem;
+        height: 1.5rem;
+      }
+    }
+
   </style>
 </head>
 <body>
+  <!-- Floating Action Button: Create New Model -->
+  <button type="button" class="fab-create-model" id="fab-create-model" aria-label="Create New Model" title="Create New Model">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <line x1="12" y1="5" x2="12" y2="19"></line>
+      <line x1="5" y1="12" x2="19" y2="12"></line>
+    </svg>
+    <span class="fab-tooltip">Create New Model</span>
+  </button>
+
   <!-- Unsaved Changes Confirmation Modal -->
   <div class="unsaved-modal-backdrop" id="unsaved-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="unsaved-modal-title">
     <div class="unsaved-modal-card">
@@ -4355,7 +4450,7 @@
       </a>
       <nav class="site-nav" aria-label="Editor navigation">
         <button type="button" class="nav-btn is-active" id="btn-nav-library">Existing Catalog Models (<span id="nav-model-count">0</span>)</button>
-        <button type="button" class="nav-btn" id="btn-nav-new">+ Upload New Model</button>
+        
         <a href="/columns.html" class="nav-btn" id="btn-nav-matrix" style="text-decoration:none;">Columns Table View</a>
         <button type="button" class="nav-btn" id="btn-nav-table">Download Links Table</button>
         <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode" title="Toggle theme">
@@ -4403,7 +4498,7 @@
         <strong>Editing Existing Model Page:</strong> <span id="edit-banner-title"></span>
         <code id="edit-banner-file"></code>
       </div>
-      <button type="button" class="btn-ghost" id="btn-cancel-edit">+ Switch to Upload New Model</button>
+      
     </div>
 
     <form id="uploader-form" novalidate>
@@ -5065,7 +5160,7 @@
               <span>Links Table View</span>
             </button>
           </div>
-          <button type="button" class="btn-ghost" id="btn-new-from-library">+ Upload New Model</button>
+          
         </div>
       </div>
 
@@ -8553,7 +8648,7 @@
 
       function showFormMode(isEdit) {
         document.body.classList.add('is-form-mode');
-        btnNavNew.classList.toggle('is-active', !isEdit);
+        if (btnNavNew) btnNavNew.classList.toggle('is-active', !isEdit);
         btnNavLibrary.classList.toggle('is-active', false);
         // Ensure dynamically sized textareas expand correctly once the container is unhidden
         requestAnimationFrame(function () {
@@ -8563,7 +8658,7 @@
 
       function hideFormMode() {
         document.body.classList.remove('is-form-mode');
-        btnNavNew.classList.remove('is-active');
+        if (btnNavNew) btnNavNew.classList.remove('is-active');
         btnNavLibrary.classList.add('is-active');
       }
 
@@ -11156,6 +11251,18 @@
           .catch(function () {});
       }
 
+      var fabCreateModel = document.getElementById('fab-create-model');
+      if (fabCreateModel) {
+        fabCreateModel.addEventListener('click', function () {
+          confirmUnsavedChanges(function () {
+            showFormMode(false);
+            resetToNewModel(true);
+            nameInput.focus();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          });
+        });
+      }
+
       btnUploadAnother.addEventListener('click', function () {
         showFormMode(false);
         resetToNewModel(true);
@@ -11222,7 +11329,7 @@
         hideFormMode();
         setLibraryViewMode(libraryViewMode === 'table' ? 'grid' : libraryViewMode || 'grid');
         btnNavLibrary.classList.add('is-active');
-        btnNavNew.classList.remove('is-active');
+        if (btnNavNew) btnNavNew.classList.remove('is-active');
         btnNavTable.classList.remove('is-active');
         document.getElementById('existing-models-section').scrollIntoView({ behavior: 'smooth' });
       });
@@ -11232,7 +11339,7 @@
           setLibraryViewMode('table');
           renderExistingModelsTable();
           btnNavTable.classList.add('is-active');
-          btnNavNew.classList.remove('is-active');
+          if (btnNavNew) btnNavNew.classList.remove('is-active');
           btnNavLibrary.classList.remove('is-active');
           if (btnNavMatrix) btnNavMatrix.classList.remove('is-active');
           document.getElementById('existing-models-section').scrollIntoView({ behavior: 'smooth' });
