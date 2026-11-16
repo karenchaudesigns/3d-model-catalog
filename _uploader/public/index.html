@@ -11157,8 +11157,10 @@
       }
 
       btnUploadAnother.addEventListener('click', function () {
+        showFormMode(false);
         resetToNewModel(true);
         nameInput.focus();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       });
 
       btnEditJustSaved.addEventListener('click', function () {
@@ -11364,6 +11366,7 @@
               postUploadCard.classList.add('is-visible');
 
               resetToNewModel(false);
+              hideFormMode();
               fetchExistingModels();
               resolve(b);
             })
