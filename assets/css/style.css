@@ -169,12 +169,54 @@ a {
 }
 
 .brand-mark {
-  width: 1.35rem;
-  height: 1.35rem;
-  background-color: var(--accent-terracotta);
-  clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);
-  display: inline-block;
+  width: 1.85rem;
+  height: 1.85rem;
+  color: var(--accent-terracotta);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
+  transition: transform 0.16s ease;
+}
+
+.brand-logo:hover .brand-mark {
+  transform: rotate(-4deg) scale(1.04);
+}
+
+.brand-mark svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.brand-mark-ring {
+  stroke: #FFFFFF;
+  opacity: 0.45;
+}
+
+.brand-mark-text {
+  fill: #FFFFFF;
+  font-family: var(--font-sans);
+}
+
+[data-theme="dark"] .brand-mark-ring {
+  stroke: #2A0716;
+  opacity: 0.35;
+}
+
+[data-theme="dark"] .brand-mark-text {
+  fill: #2A0716;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .brand-mark-ring {
+    stroke: #2A0716;
+    opacity: 0.35;
+  }
+
+  :root:not([data-theme="light"]) .brand-mark-text {
+    fill: #2A0716;
+  }
 }
 
 .site-nav {
