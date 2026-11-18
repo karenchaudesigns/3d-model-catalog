@@ -178,11 +178,11 @@ layout: default
               {% assign card_cat = site.catalog_categories | where: "slug", model.category | first %}
               <div class="model-card-meta-row">
                 {% if card_cat %}
-                  <span class="model-card-category">{{ card_cat.title }}</span>
+                  <span class="model-card-category" data-cat="{{ model.category }}">{{ card_cat.title }}</span>
                 {% elsif category_meta %}
-                  <span class="model-card-category">{{ category_meta.title }}</span>
+                  <span class="model-card-category" data-cat="{{ model.category }}">{{ category_meta.title }}</span>
                 {% elsif model.category %}
-                  <span class="model-card-category">{{ model.category }}</span>
+                  <span class="model-card-category" data-cat="{{ model.category }}">{{ model.category }}</span>
                 {% endif %}
                 {% if model.fan_favorite == true %}
                   <span class="fan-favorite-badge">⭐ Fan Favorite</span>

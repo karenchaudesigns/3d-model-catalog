@@ -18,31 +18,31 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-primary: hsl(36, 33%, 97%);
-      --bg-surface: hsl(0, 0%, 100%);
-      --bg-subtle: hsl(34, 24%, 93%);
-      --text-primary: hsl(24, 18%, 14%);
-      --text-secondary: hsl(24, 10%, 38%);
-      --text-muted: hsl(24, 8%, 54%);
-      --accent-terracotta: hsl(16, 62%, 46%);
-      --accent-terracotta-hover: hsl(16, 66%, 38%);
-      --accent-soft: hsl(16, 55%, 94%);
-      --border-subtle: hsl(32, 18%, 87%);
-      --border-strong: hsl(28, 16%, 76%);
+      --bg-primary: #FFFBF5;
+      --bg-surface: #FFFFFF;
+      --bg-subtle: #F8EFE3;
+      --text-primary: #1D1B22;
+      --text-secondary: #524E5C;
+      --text-muted: #7B7685;
+      --accent-terracotta: #E5287F;
+      --accent-terracotta-hover: #C41F69;
+      --accent-soft: #FFE0EE;
+      --border-subtle: #EADFD2;
+      --border-strong: #D6C6B2;
 
       --color-makerworld: hsl(150, 100%, 33%);
       --color-printables: hsl(16, 95%, 56%);
       --color-thangs: hsl(215, 28%, 17%);
       --color-cults3d: hsl(243, 75%, 59%);
 
-      --edit-blue: hsl(214, 72%, 44%);
-      --edit-blue-soft: hsl(214, 80%, 95%);
-      --success: hsl(150, 75%, 28%);
-      --success-bg: hsl(150, 55%, 94%);
+      --edit-blue: #1456B8;
+      --edit-blue-soft: #DCEBFF;
+      --success: #0B6B3A;
+      --success-bg: #D6F5E3;
       --danger: hsl(0, 70%, 48%);
 
       --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      --font-display: 'Fraunces', Georgia, serif;
+      --font-display: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       --font-mono: 'JetBrains Mono', monospace;
 
       --radius-xs: 4px;
@@ -53,48 +53,48 @@
 
     @media (prefers-color-scheme: dark) {
       :root:not([data-theme="light"]) {
-        --bg-primary: hsl(24, 14%, 10%);
-        --bg-surface: hsl(24, 12%, 14%);
-        --bg-subtle: hsl(24, 10%, 18%);
-        --text-primary: hsl(36, 25%, 93%);
-        --text-secondary: hsl(32, 14%, 72%);
-        --text-muted: hsl(28, 10%, 55%);
-        --accent-terracotta: hsl(16, 75%, 58%);
-        --accent-terracotta-hover: hsl(16, 80%, 65%);
-        --accent-soft: hsla(16, 75%, 58%, 0.15);
-        --border-subtle: hsl(24, 10%, 22%);
-        --border-strong: hsl(24, 12%, 30%);
+        --bg-primary: #17151B;
+        --bg-surface: #211E27;
+        --bg-subtle: #2A2631;
+        --text-primary: #F6F2EE;
+        --text-secondary: #C4BDC9;
+        --text-muted: #8F8898;
+        --accent-terracotta: #FF4F9E;
+        --accent-terracotta-hover: #FF74B3;
+        --accent-soft: rgba(255, 79, 158, 0.16);
+        --border-subtle: #2F2B36;
+        --border-strong: #403A49;
         --shadow-card: 0 2px 10px -2px hsla(0, 0%, 0%, 0.4), 0 1px 3px hsla(0, 0%, 0%, 0.3);
       }
     }
 
     [data-theme="dark"] {
-      --bg-primary: hsl(24, 14%, 10%);
-      --bg-surface: hsl(24, 12%, 14%);
-      --bg-subtle: hsl(24, 10%, 18%);
-      --text-primary: hsl(36, 25%, 93%);
-      --text-secondary: hsl(32, 14%, 72%);
-      --text-muted: hsl(28, 10%, 55%);
-      --accent-terracotta: hsl(16, 75%, 58%);
-      --accent-terracotta-hover: hsl(16, 80%, 65%);
-      --accent-soft: hsla(16, 75%, 58%, 0.15);
-      --border-subtle: hsl(24, 10%, 22%);
-      --border-strong: hsl(24, 12%, 30%);
+      --bg-primary: #17151B;
+      --bg-surface: #211E27;
+      --bg-subtle: #2A2631;
+      --text-primary: #F6F2EE;
+      --text-secondary: #C4BDC9;
+      --text-muted: #8F8898;
+      --accent-terracotta: #FF4F9E;
+      --accent-terracotta-hover: #FF74B3;
+      --accent-soft: rgba(255, 79, 158, 0.16);
+      --border-subtle: #2F2B36;
+      --border-strong: #403A49;
       --shadow-card: 0 2px 10px -2px hsla(0, 0%, 0%, 0.4), 0 1px 3px hsla(0, 0%, 0%, 0.3);
     }
 
     [data-theme="light"] {
-      --bg-primary: hsl(36, 33%, 97%);
-      --bg-surface: hsl(0, 0%, 100%);
-      --bg-subtle: hsl(34, 24%, 93%);
-      --text-primary: hsl(24, 18%, 14%);
-      --text-secondary: hsl(24, 10%, 38%);
-      --text-muted: hsl(24, 8%, 54%);
-      --accent-terracotta: hsl(16, 62%, 46%);
-      --accent-terracotta-hover: hsl(16, 66%, 38%);
-      --accent-soft: hsl(16, 55%, 94%);
-      --border-subtle: hsl(32, 18%, 87%);
-      --border-strong: hsl(28, 16%, 76%);
+      --bg-primary: #FFFBF5;
+      --bg-surface: #FFFFFF;
+      --bg-subtle: #F8EFE3;
+      --text-primary: #1D1B22;
+      --text-secondary: #524E5C;
+      --text-muted: #7B7685;
+      --accent-terracotta: #E5287F;
+      --accent-terracotta-hover: #C41F69;
+      --accent-soft: #FFE0EE;
+      --border-subtle: #EADFD2;
+      --border-strong: #D6C6B2;
       --shadow-card: 0 2px 10px -2px hsla(24, 20%, 14%, 0.06), 0 1px 3px hsla(24, 20%, 14%, 0.04);
     }
 
