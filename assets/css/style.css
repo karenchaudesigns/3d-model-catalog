@@ -38,39 +38,39 @@
 /* System Dark Mode */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg-primary: #17151B;
-    --bg-surface: #211E27;
-    --bg-subtle: #2A2631;
-    --header-bg: rgba(23, 21, 27, 0.92);
+    --bg-primary: #0E1424;
+    --bg-surface: #172036;
+    --bg-subtle: #1E2842;
+    --header-bg: rgba(14, 20, 36, 0.92);
     --text-primary: #F6F2EE;
-    --text-secondary: #C4BDC9;
-    --text-muted: #8F8898;
+    --text-secondary: #B8C0D6;
+    --text-muted: #8490AB;
     --accent-terracotta: #FF4F9E;
     --accent-terracotta-hover: #FF74B3;
     --accent-soft: rgba(255, 79, 158, 0.16);
-    --border-subtle: #2F2B36;
-    --border-strong: #403A49;
-    --shadow-card: 0 2px 0 #2F2B36;
-    --shadow-hover: 0 12px 24px -8px rgba(0, 0, 0, 0.6), 0 2px 0 #2F2B36;
+    --border-subtle: #25304D;
+    --border-strong: #33405F;
+    --shadow-card: 0 2px 0 #25304D;
+    --shadow-hover: 0 12px 24px -8px rgba(0, 0, 0, 0.6), 0 2px 0 #25304D;
   }
 }
 
 /* Explicit Dark Mode Override */
 [data-theme="dark"] {
-  --bg-primary: #17151B;
-  --bg-surface: #211E27;
-  --bg-subtle: #2A2631;
-  --header-bg: rgba(23, 21, 27, 0.92);
+  --bg-primary: #0E1424;
+  --bg-surface: #172036;
+  --bg-subtle: #1E2842;
+  --header-bg: rgba(14, 20, 36, 0.92);
   --text-primary: #F6F2EE;
-  --text-secondary: #C4BDC9;
-  --text-muted: #8F8898;
+  --text-secondary: #B8C0D6;
+  --text-muted: #8490AB;
   --accent-terracotta: #FF4F9E;
   --accent-terracotta-hover: #FF74B3;
   --accent-soft: rgba(255, 79, 158, 0.16);
-  --border-subtle: #2F2B36;
-  --border-strong: #403A49;
-  --shadow-card: 0 2px 0 #2F2B36;
-  --shadow-hover: 0 12px 24px -8px rgba(0, 0, 0, 0.6), 0 2px 0 #2F2B36;
+  --border-subtle: #25304D;
+  --border-strong: #33405F;
+  --shadow-card: 0 2px 0 #25304D;
+  --shadow-hover: 0 12px 24px -8px rgba(0, 0, 0, 0.6), 0 2px 0 #25304D;
 }
 
 /* Explicit Light Mode Override */
@@ -2674,7 +2674,7 @@ a {
   --cat-seasonal-bg: #12392A; --cat-seasonal-fg: #6FE0A8;
   --cat-fan-bg: #4A3A08;      --cat-fan-fg: #FFD84D;
   --new-bg: #4A2610;          --new-fg: #FFA45C;
-  --pegboard-dot: #34303C;
+  --pegboard-dot: #25304D;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -2683,7 +2683,7 @@ a {
     --cat-seasonal-bg: #12392A; --cat-seasonal-fg: #6FE0A8;
     --cat-fan-bg: #4A3A08;      --cat-fan-fg: #FFD84D;
     --new-bg: #4A2610;          --new-fg: #FFA45C;
-    --pegboard-dot: #34303C;
+    --pegboard-dot: #25304D;
   }
 }
 

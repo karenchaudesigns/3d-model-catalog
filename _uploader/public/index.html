@@ -56,17 +56,17 @@
 
     @media (prefers-color-scheme: dark) {
       :root:not([data-theme="light"]) {
-        --bg-primary: #17151B;
-        --bg-surface: #211E27;
-        --bg-subtle: #2A2631;
+        --bg-primary: #0E1424;
+        --bg-surface: #172036;
+        --bg-subtle: #1E2842;
         --text-primary: #F6F2EE;
-        --text-secondary: #C4BDC9;
-        --text-muted: #8F8898;
+        --text-secondary: #B8C0D6;
+        --text-muted: #8490AB;
         --accent-terracotta: #FF4F9E;
         --accent-terracotta-hover: #FF74B3;
         --accent-soft: rgba(255, 79, 158, 0.16);
-        --border-subtle: #2F2B36;
-        --border-strong: #403A49;
+        --border-subtle: #25304D;
+        --border-strong: #33405F;
         --shadow-card: 0 2px 10px -2px hsla(0, 0%, 0%, 0.4), 0 1px 3px hsla(0, 0%, 0%, 0.3);
         --shadow-hover: 0 14px 28px -6px hsla(0, 0%, 0%, 0.5), 0 4px 10px -2px hsla(0, 0%, 0%, 0.35);
         --edit-blue-soft: #1B3254;
@@ -76,17 +76,17 @@
     }
 
     [data-theme="dark"] {
-      --bg-primary: #17151B;
-      --bg-surface: #211E27;
-      --bg-subtle: #2A2631;
+      --bg-primary: #0E1424;
+      --bg-surface: #172036;
+      --bg-subtle: #1E2842;
       --text-primary: #F6F2EE;
-      --text-secondary: #C4BDC9;
-      --text-muted: #8F8898;
+      --text-secondary: #B8C0D6;
+      --text-muted: #8490AB;
       --accent-terracotta: #FF4F9E;
       --accent-terracotta-hover: #FF74B3;
       --accent-soft: rgba(255, 79, 158, 0.16);
-      --border-subtle: #2F2B36;
-      --border-strong: #403A49;
+      --border-subtle: #25304D;
+      --border-strong: #33405F;
       --shadow-card: 0 2px 10px -2px hsla(0, 0%, 0%, 0.4), 0 1px 3px hsla(0, 0%, 0%, 0.3);
       --shadow-hover: 0 14px 28px -6px hsla(0, 0%, 0%, 0.5), 0 4px 10px -2px hsla(0, 0%, 0%, 0.35);
       --edit-blue-soft: #1B3254;
@@ -4311,6 +4311,83 @@
       }
     }
 
+  
+    /* ==========================================================================
+       Brand Refresh — category + badge colors (matches live site)
+       Useful = blue, Gifts = pink, Seasonal = green, Fan Favorites = yellow
+       ========================================================================== */
+    :root {
+      --cat-useful-bg: #DCEBFF;   --cat-useful-fg: #1456B8;
+      --cat-gifts-bg: #FFE0EE;    --cat-gifts-fg: #B3125F;
+      --cat-seasonal-bg: #D6F5E3; --cat-seasonal-fg: #0B6B3A;
+      --cat-fan-bg: #FFEFA8;      --cat-fan-fg: #6B5000;
+    }
+    [data-theme="dark"] {
+      --cat-useful-bg: #1B3254;   --cat-useful-fg: #8FBDFF;
+      --cat-gifts-bg: #4A1530;    --cat-gifts-fg: #FF8FC2;
+      --cat-seasonal-bg: #12392A; --cat-seasonal-fg: #6FE0A8;
+      --cat-fan-bg: #4A3A08;      --cat-fan-fg: #FFD84D;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --cat-useful-bg: #1B3254;   --cat-useful-fg: #8FBDFF;
+        --cat-gifts-bg: #4A1530;    --cat-gifts-fg: #FF8FC2;
+        --cat-seasonal-bg: #12392A; --cat-seasonal-fg: #6FE0A8;
+        --cat-fan-bg: #4A3A08;      --cat-fan-fg: #FFD84D;
+      }
+    }
+
+    /* Category chips on model cards */
+    .model-card-category {
+      padding: 0.1rem 0.5rem;
+      border-radius: 6px;
+      background-color: var(--accent-soft);
+    }
+    .model-card-category[data-cat="useful-prints"],
+    .category-pill-select[data-cat="useful-prints"] { background-color: var(--cat-useful-bg); color: var(--cat-useful-fg); }
+    .model-card-category[data-cat="gifts-decor"],
+    .category-pill-select[data-cat="gifts-decor"]   { background-color: var(--cat-gifts-bg);  color: var(--cat-gifts-fg); }
+    .model-card-category[data-cat="seasonal"],
+    .category-pill-select[data-cat="seasonal"]      { background-color: var(--cat-seasonal-bg); color: var(--cat-seasonal-fg); }
+    .model-card-category[data-cat="fan-favorites"],
+    .category-pill-select[data-cat="fan-favorites"] { background-color: var(--cat-fan-bg);    color: var(--cat-fan-fg); }
+
+    /* Category select (editor): colored chip + matching arrow + border */
+    .category-pill-select { border-radius: 8px; }
+    .category-pill-select[data-cat] {
+      border-color: currentColor;
+      background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
+                        linear-gradient(135deg, currentColor 50%, transparent 50%);
+    }
+    .category-pill-select option { background: var(--bg-surface); color: var(--text-primary); }
+
+    /* Toggle pills */
+    .hidden-pill-toggle,
+    .fan-favorite-pill-toggle,
+    .exclusive-pill-toggle,
+    .premium-pill-toggle { border-radius: 8px; }
+    .fan-favorite-pill-toggle:has(input:checked),
+    [data-theme="dark"] .fan-favorite-pill-toggle:has(input:checked) {
+      background: var(--cat-fan-bg); border-color: var(--cat-fan-fg); color: var(--cat-fan-fg);
+    }
+    .exclusive-pill-toggle:has(input:checked),
+    [data-theme="dark"] .exclusive-pill-toggle:has(input:checked) {
+      background: var(--cat-seasonal-bg); border-color: var(--cat-seasonal-fg); color: var(--cat-seasonal-fg);
+    }
+    .premium-pill-toggle:has(input:checked),
+    [data-theme="dark"] .premium-pill-toggle:has(input:checked) {
+      background: var(--cat-gifts-bg); border-color: var(--cat-gifts-fg); color: var(--cat-gifts-fg);
+    }
+
+    /* Misc badges/buttons: retire old terracotta/orange values */
+    .btn-live-page { box-shadow: 0 2px 6px rgba(229, 40, 127, 0.28); }
+    .btn-live-page:hover { background: var(--accent-terracotta-hover); }
+    .gallery-card-badge { background: rgba(29, 27, 34, 0.82); }
+    .gallery-card-badge.is-description-photo { background: var(--cat-useful-fg); }
+    [data-theme="dark"] .gallery-card-badge.is-description-photo { background: #2F6FD0; }
+    .fab-create-model { box-shadow: 0 6px 24px -2px rgba(229, 40, 127, 0.45), 0 2px 8px -1px rgba(0, 0, 0, 0.12); }
+    .fab-create-model:hover { box-shadow: 0 8px 30px -2px rgba(229, 40, 127, 0.6), 0 4px 12px -1px rgba(0, 0, 0, 0.18); }
+    .code-preview { background: #1D1B22; color: #F6F2EE; }
   </style>
 </head>
 <body>
@@ -10129,7 +10206,7 @@
               '</div>' +
               '<div class="model-thumb-body">' +
               '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.4rem;flex-wrap:wrap;">' +
-              '<span class="model-card-category">' + (CATEGORY_LABELS[m.category] || m.category || 'Useful Prints') + '</span>' +
+              '<span class="model-card-category" data-cat="' + (m.category || 'useful-prints') + '">' + (CATEGORY_LABELS[m.category] || m.category || 'Useful Prints') + '</span>' +
               '<span style="font-family:var(--font-mono);font-size:0.68rem;color:var(--text-muted);">' + photoCount + ' photo' + (photoCount === 1 ? '' : 's') + ' &bull; ' + tagCount + ' tag' + (tagCount === 1 ? '' : 's') + '</span>' +
               '</div>' +
               '<h3 class="model-card-title">' + (cur.title || m.slug) + '</h3>' +
@@ -11828,5 +11905,17 @@
     })();
   </script>
   <script src="/timer.js"></script>
+
+<script>
+  // Tint the category <select> to match the live-site category colors
+  (function () {
+    var sel = document.getElementById('model-category');
+    if (!sel) return;
+    function sync() { if (sel.dataset.cat !== sel.value) sel.dataset.cat = sel.value; }
+    sel.addEventListener('change', sync);
+    setInterval(sync, 300); // also catches programmatic value changes (loading a model)
+    sync();
+  })();
+</script>
 </body>
 </html>
