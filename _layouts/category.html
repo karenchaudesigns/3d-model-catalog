@@ -81,6 +81,49 @@ layout: default
       </button>
       <span id="category-search-count" class="catalog-search-count">{{ category_models.size }} models</span>
     </div>
+
+    <!-- Platform Filter Selector -->
+    <div class="platform-filter-bar" id="category-platform-filter-bar" role="region" aria-label="Filter category models by platform">
+      <span class="platform-filter-label" id="category-platform-filter-label">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+        </svg>
+        Platform:
+      </span>
+      <div class="platform-filter-pills" role="group" aria-labelledby="category-platform-filter-label">
+        <button type="button" class="platform-pill platform-pill-all is-active" data-platform="all" aria-pressed="true">
+          <span class="platform-pill-dot" aria-hidden="true"></span>
+          <span>All Platforms</span>
+        </button>
+        <button type="button" class="platform-pill platform-pill-makerworld" data-platform="makerworld" aria-pressed="false">
+          <span class="platform-pill-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M11.96 0A12 12 0 0 0 0 12.04 12 12 0 0 0 12.04 24 12 12 0 0 0 24 11.96 12 12 0 0 0 11.96 0zm-4.43 5.43h2.37v5.52l3.41-3.69h2.95l-4.14 4.47 4.29 6.84h-2.92l-2.9-4.81-2.98 3.22v1.59H7.53V5.43zm6.65 0h2.37v4.11l-2.37 2.56V5.43z"/></svg>
+          </span>
+          <span>MakerWorld</span>
+        </button>
+        <button type="button" class="platform-pill platform-pill-printables" data-platform="printables" aria-pressed="false">
+          <span class="platform-pill-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M3.678 4.8 12 9.6v9.6l8.322-4.8V4.8L12 0ZM12 19.2l-8.322-4.8V24Z"/></svg>
+          </span>
+          <span>Printables</span>
+        </button>
+        <button type="button" class="platform-pill platform-pill-thangs" data-platform="thangs" aria-pressed="false">
+          <span class="platform-pill-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M20.18 13.902a1.902 1.902 0 1 1 0-3.804 1.902 1.902 0 0 1 0 3.804m0-5.722A3.82 3.82 0 0 0 16.36 12v3.82h3.82a3.82 3.82 0 1 0 0-7.64m-8.656 5.722A1.907 1.907 0 0 1 9.611 12c0-1.05.857-1.902 1.913-1.902s1.913.852 1.913 1.902c0 1.05-.857 1.902-1.913 1.902m-7.683 0A1.907 1.907 0 0 1 1.928 12c0-1.05.857-1.902 1.913-1.902 1.057 0 1.913.852 1.913 1.902 0 1.05-.856 1.902-1.913 1.902m11.514-2.107-.002-.032a3.76 3.76 0 0 0-.04-.37l-.004-.019a3.693 3.693 0 0 0-.081-.373V11a3.836 3.836 0 0 0-3.704-2.82H3.84a3.833 3.833 0 0 0-3.794 3.254l-.001.008c-.018.118-.03.236-.036.357l-.002.02v.016C.006 11.89 0 11.945 0 12c0 .07.007.137.01.206l.002.032c.008.124.021.248.041.37l.003.018a3.833 3.833 0 0 0 3.786 3.194h11.523V12c0-.07-.006-.137-.01-.205"/></svg>
+          </span>
+          <span>Thangs</span>
+        </button>
+        <button type="button" class="platform-pill platform-pill-cults3d" data-platform="cults3d" aria-pressed="false">
+          <span class="platform-pill-icon" aria-hidden="true">
+            <svg viewBox="0 0 100 126"><path d="M27.09 47.56a41.67 41.67 0 0 0 41.69 72h0l-.07 0a41.67 41.67 0 0 0 41.74-72 41.72 41.72 0 0 0-83.33-.1zm9.52-4.8A32.91 32.91 0 1 1 91 73.96l-4.59-2.63-8.83 5.06L91.78 84.5a41.85 41.85 0 0 0 17.88-26.45 32.88 32.88 0 1 1-54.4 31.17L60 86.5V76.41L45.77 84.56A41.66 41.66 0 0 0 60 113.65h0A32.88 32.88 0 1 1 60 50.9l0 5.34 8.8 5V45a41.66 41.66 0 0 0-32.24-2.15z"/></svg>
+          </span>
+          <span>Cults3D</span>
+        </button>
+      </div>
+      <button type="button" class="platform-filter-clear" id="category-platform-filter-clear" style="display: none;" aria-label="Reset platform filters">
+        Reset Platforms
+      </button>
+    </div>
   {% endif %}
 
   <!-- Category Model Grid: 4-5 columns on desktop, 2-3 on mobile -->
@@ -102,7 +145,23 @@ layout: default
 
         {% capture search_index %}{{ model.title }} {{ model.extended_title }} {{ model.tagline }} {{ model.category }} {{ category_meta.title }} {{ tag_text }}{% if model.premium == true %} premium paid{% endif %}{% if model.makerworld_exclusive == true %} makerworld exclusive exclusive{% endif %}{% endcapture %}
 
-        <article class="model-thumb-card" data-search-text="{{ search_index | strip | downcase | escape }}">
+        {% assign model_platforms = "" %}
+        {% if model.downloads %}
+          {% if model.downloads.makerworld and model.downloads.makerworld != "" %}
+            {% assign model_platforms = model_platforms | append: "makerworld " %}
+          {% endif %}
+          {% if model.downloads.printables and model.downloads.printables != "" %}
+            {% assign model_platforms = model_platforms | append: "printables " %}
+          {% endif %}
+          {% if model.downloads.thangs and model.downloads.thangs != "" %}
+            {% assign model_platforms = model_platforms | append: "thangs " %}
+          {% endif %}
+          {% if model.downloads.cults3d and model.downloads.cults3d != "" %}
+            {% assign model_platforms = model_platforms | append: "cults3d " %}
+          {% endif %}
+        {% endif %}
+
+        <article class="model-thumb-card" data-search-text="{{ search_index | strip | downcase | escape }}" data-platforms="{{ model_platforms | strip | downcase }}">
           <a href="{{ model.url | relative_url }}" class="model-thumb-link" id="model-card-{{ model.slug }}">
             <div class="model-thumb-media">
               <img
@@ -144,6 +203,22 @@ layout: default
                   {% for t in model.tags limit: 3 %}
                     <span class="mini-tag">#{{ t }}</span>
                   {% endfor %}
+                </div>
+              {% endif %}
+              {% if model_platforms != "" %}
+                <div class="model-card-platforms" aria-label="Available download platforms">
+                  {% if model.downloads.makerworld and model.downloads.makerworld != "" %}
+                    <span class="platform-badge platform-badge-makerworld">MakerWorld</span>
+                  {% endif %}
+                  {% if model.downloads.printables and model.downloads.printables != "" %}
+                    <span class="platform-badge platform-badge-printables">Printables</span>
+                  {% endif %}
+                  {% if model.downloads.thangs and model.downloads.thangs != "" %}
+                    <span class="platform-badge platform-badge-thangs">Thangs</span>
+                  {% endif %}
+                  {% if model.downloads.cults3d and model.downloads.cults3d != "" %}
+                    <span class="platform-badge platform-badge-cults3d">Cults3D</span>
+                  {% endif %}
                 </div>
               {% endif %}
             </div>
@@ -304,28 +379,104 @@ layout: default
       cards = scoredCards.map(function (item) { return item.card; });
     }
 
-    if (!searchInput || !cards.length) return;
+    var platformPills = Array.prototype.slice.call(document.querySelectorAll('#category-platform-filter-bar .platform-pill'));
+    var platformClearBtn = document.getElementById('category-platform-filter-clear');
+    var selectedPlatforms = [];
+
+    try {
+      var savedPlatforms = localStorage.getItem('kcd-selected-platforms');
+      if (savedPlatforms) {
+        var parsed = JSON.parse(savedPlatforms);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          selectedPlatforms = parsed;
+        }
+      }
+    } catch (e) {}
+
+    function updatePlatformPillUI() {
+      platformPills.forEach(function (pill) {
+        var plat = pill.getAttribute('data-platform');
+        if (plat === 'all') {
+          var isAll = selectedPlatforms.length === 0;
+          pill.classList.toggle('is-active', isAll);
+          pill.setAttribute('aria-pressed', isAll ? 'true' : 'false');
+        } else {
+          var isSel = selectedPlatforms.indexOf(plat) !== -1;
+          pill.classList.toggle('is-active', isSel);
+          pill.setAttribute('aria-pressed', isSel ? 'true' : 'false');
+        }
+      });
+
+      if (platformClearBtn) {
+        platformClearBtn.style.display = selectedPlatforms.length > 0 ? '' : 'none';
+      }
+    }
+
+    function savePlatformPreferences() {
+      try {
+        localStorage.setItem('kcd-selected-platforms', JSON.stringify(selectedPlatforms));
+      } catch (e) {}
+    }
+
+    if (platformPills.length > 0) {
+      platformPills.forEach(function (pill) {
+        pill.addEventListener('click', function () {
+          var plat = pill.getAttribute('data-platform');
+          if (plat === 'all') {
+            selectedPlatforms = [];
+          } else {
+            var idx = selectedPlatforms.indexOf(plat);
+            if (idx === -1) {
+              selectedPlatforms.push(plat);
+            } else {
+              selectedPlatforms.splice(idx, 1);
+            }
+          }
+          savePlatformPreferences();
+          updatePlatformPillUI();
+          filterModels();
+        });
+      });
+    }
+
+    if (platformClearBtn) {
+      platformClearBtn.addEventListener('click', function () {
+        selectedPlatforms = [];
+        savePlatformPreferences();
+        updatePlatformPillUI();
+        filterModels();
+      });
+    }
+
+    updatePlatformPillUI();
 
     function filterModels() {
-      var query = (searchInput.value || '').trim().toLowerCase();
+      var query = (searchInput ? searchInput.value || '' : '').trim().toLowerCase();
       var visibleCount = 0;
+      var hasQuery = Boolean(query);
+      var hasPlatformFilter = selectedPlatforms.length > 0;
 
-      if (!query) {
-        cards.forEach(function (card) { card.style.display = ''; });
-        if (clearBtn) clearBtn.style.display = 'none';
-        if (emptyState) emptyState.style.display = 'none';
-        if (countEl) countEl.textContent = totalCards + ' models';
-        return;
-      }
+      if (clearBtn) clearBtn.style.display = hasQuery ? '' : 'none';
 
-      if (clearBtn) clearBtn.style.display = '';
-
-      var terms = query.split(/\s+/).filter(Boolean);
+      var terms = hasQuery ? query.split(/\s+/).filter(Boolean) : [];
 
       cards.forEach(function (card) {
-        var text = card.getAttribute('data-search-text') || '';
-        var matches = terms.every(function (t) { return text.indexOf(t) !== -1; });
-        if (matches) {
+        var matchesText = true;
+        if (hasQuery) {
+          var text = card.getAttribute('data-search-text') || '';
+          matchesText = terms.every(function (t) { return text.indexOf(t) !== -1; });
+        }
+
+        var matchesPlatform = true;
+        if (hasPlatformFilter) {
+          var cardPlatforms = (card.getAttribute('data-platforms') || '').split(/\s+/).filter(Boolean);
+          // Match if model is available on ANY of the user's selected platforms
+          matchesPlatform = selectedPlatforms.some(function (p) {
+            return cardPlatforms.indexOf(p) !== -1;
+          });
+        }
+
+        if (matchesText && matchesPlatform) {
           card.style.display = '';
           visibleCount++;
         } else {
@@ -334,20 +485,35 @@ layout: default
       });
 
       if (countEl) {
-        countEl.textContent = visibleCount + (visibleCount === 1 ? ' match' : ' matches');
+        var baseText = visibleCount + (visibleCount === 1 ? ' model' : ' models');
+        if (hasQuery || hasPlatformFilter) {
+          baseText = visibleCount + (visibleCount === 1 ? ' match' : ' matches');
+        }
+        countEl.textContent = baseText;
       }
 
       if (emptyState) {
         if (visibleCount === 0) {
           emptyState.style.display = '';
-          if (emptyTerm) emptyTerm.textContent = query;
+          if (emptyTerm) {
+            var msg = '';
+            if (hasQuery && hasPlatformFilter) {
+              msg = '"' + query + '" on ' + selectedPlatforms.map(function(p){ return p.charAt(0).toUpperCase() + p.slice(1); }).join(' / ');
+            } else if (hasQuery) {
+              msg = '"' + query + '"';
+            } else if (hasPlatformFilter) {
+              msg = 'selected platforms (' + selectedPlatforms.map(function(p){ return p.charAt(0).toUpperCase() + p.slice(1); }).join(', ') + ')';
+            }
+            emptyTerm.textContent = msg;
+          }
         } else {
           emptyState.style.display = 'none';
         }
       }
     }
 
-    searchInput.addEventListener('input', filterModels);
+    if (searchInput) searchInput.addEventListener('input', filterModels);
+    filterModels();
 
     function resetSearch() {
       searchInput.value = '';

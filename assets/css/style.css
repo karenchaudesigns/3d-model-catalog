@@ -945,6 +945,223 @@ a {
 }
 
 /* ==========================================================================
+   Platform Filter Bar
+   ========================================================================== */
+.platform-filter-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  margin-top: -0.75rem;
+  margin-bottom: 1.75rem;
+  padding: 0.65rem 0.85rem;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.platform-filter-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-right: 0.25rem;
+  user-select: none;
+}
+
+.platform-filter-label svg {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.platform-filter-pills {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.platform-pill {
+  appearance: none;
+  border: 1px solid var(--border-subtle);
+  background-color: var(--bg-primary);
+  color: var(--text-secondary);
+  padding: 0.32rem 0.7rem;
+  border-radius: 999px;
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  cursor: pointer;
+  transition: all 0.16s ease;
+  user-select: none;
+  line-height: 1.2;
+}
+
+.platform-pill:hover {
+  background-color: var(--bg-subtle);
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+.platform-pill-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.platform-pill-icon svg {
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+}
+
+.platform-pill-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--border-strong);
+  flex-shrink: 0;
+  transition: background-color 0.16s ease;
+}
+
+.platform-pill.is-active {
+  background-color: var(--accent-terracotta);
+  color: #fff;
+  border-color: var(--accent-terracotta);
+  box-shadow: 0 1px 4px rgba(199, 81, 43, 0.28);
+}
+
+.platform-pill.is-active .platform-pill-dot {
+  background-color: #fff;
+}
+
+.platform-pill.platform-pill-makerworld.is-active {
+  background-color: hsl(150, 95%, 28%);
+  border-color: hsl(150, 95%, 28%);
+  box-shadow: 0 1px 4px rgba(0, 143, 71, 0.28);
+}
+
+.platform-pill.platform-pill-printables.is-active {
+  background-color: hsl(16, 90%, 50%);
+  border-color: hsl(16, 90%, 50%);
+  box-shadow: 0 1px 4px rgba(235, 78, 25, 0.28);
+}
+
+.platform-pill.platform-pill-thangs.is-active {
+  background-color: hsl(215, 32%, 24%);
+  border-color: hsl(215, 32%, 24%);
+  box-shadow: 0 1px 4px rgba(32, 45, 62, 0.28);
+}
+
+.platform-pill.platform-pill-cults3d.is-active {
+  background-color: hsl(243, 70%, 54%);
+  border-color: hsl(243, 70%, 54%);
+  box-shadow: 0 1px 4px rgba(66, 61, 214, 0.28);
+}
+
+[data-theme="dark"] .platform-pill.is-active {
+  color: #fff;
+}
+
+.platform-filter-clear {
+  appearance: none;
+  background: none;
+  border: none;
+  color: var(--accent-terracotta);
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.25rem 0.4rem;
+  cursor: pointer;
+  margin-left: auto;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  border-radius: var(--radius-sm);
+  transition: opacity 0.16s ease, color 0.16s ease;
+}
+
+.platform-filter-clear:hover {
+  color: var(--accent-terracotta-hover);
+  opacity: 0.85;
+}
+
+/* Card Platform Badges */
+.model-card-platforms {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  margin-top: 0.45rem;
+}
+
+.platform-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.12rem 0.42rem;
+  border-radius: 4px;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  text-transform: capitalize;
+  text-decoration: none;
+}
+
+.platform-badge-makerworld {
+  color: hsl(150, 95%, 22%);
+  background-color: hsl(150, 75%, 92%);
+}
+
+[data-theme="dark"] .platform-badge-makerworld {
+  color: hsl(150, 85%, 85%);
+  background-color: hsl(150, 50%, 18%);
+}
+
+.platform-badge-printables {
+  color: hsl(16, 95%, 36%);
+  background-color: hsl(16, 90%, 93%);
+}
+
+[data-theme="dark"] .platform-badge-printables {
+  color: hsl(16, 95%, 85%);
+  background-color: hsl(16, 60%, 22%);
+}
+
+.platform-badge-thangs {
+  color: hsl(215, 45%, 30%);
+  background-color: hsl(215, 30%, 90%);
+}
+
+[data-theme="dark"] .platform-badge-thangs {
+  color: hsl(215, 45%, 85%);
+  background-color: hsl(215, 35%, 22%);
+}
+
+.platform-badge-cults3d {
+  color: hsl(243, 65%, 40%);
+  background-color: hsl(243, 75%, 93%);
+}
+
+[data-theme="dark"] .platform-badge-cults3d {
+  color: hsl(243, 75%, 88%);
+  background-color: hsl(243, 45%, 24%);
+}
+
+/* ==========================================================================
    Model Thumbnail Grid (4-5 Columns on Desktop, 2-3 on Mobile)
    ========================================================================== */
 .all-models-section {
