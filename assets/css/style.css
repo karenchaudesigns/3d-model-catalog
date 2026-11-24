@@ -246,6 +246,7 @@ a {
   font-weight: 600;
 }
 
+.nav-icon-btn,
 .theme-toggle {
   display: inline-flex;
   align-items: center;
@@ -261,21 +262,24 @@ a {
   transition: color 0.18s ease, background-color 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
 }
 
+.nav-icon-btn:hover,
 .theme-toggle:hover {
-  color: var(--text-primary);
-  background-color: var(--bg-subtle);
-  border-color: var(--border-strong);
+  color: var(--accent-terracotta);
+  background-color: var(--accent-soft);
+  border-color: var(--accent-terracotta);
   transform: scale(1.05);
 }
 
+.nav-icon-btn:focus-visible,
 .theme-toggle:focus-visible {
   outline: 2px solid var(--accent-terracotta);
   outline-offset: 2px;
 }
 
+.nav-icon-btn svg,
 .theme-toggle svg {
-  width: 1.15rem;
-  height: 1.15rem;
+  width: 1.1rem;
+  height: 1.1rem;
   fill: none;
   stroke: currentColor;
   stroke-width: 2;

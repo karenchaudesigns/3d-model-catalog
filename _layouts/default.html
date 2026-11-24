@@ -42,6 +42,21 @@
             {{ cat.title }}
           </a>
         {% endfor %}
+        <button type="button" class="nav-icon-btn" id="nav-search-btn" aria-label="Search 3D models" title="Search models">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </button>
+        <button type="button" class="nav-icon-btn" id="nav-random-model" aria-label="Go to a random 3D model" title="Random model">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <polyline points="16 3 21 3 21 8"></polyline>
+            <line x1="4" y1="20" x2="21" y2="3"></line>
+            <polyline points="21 16 21 21 16 21"></polyline>
+            <line x1="15" y1="15" x2="21" y2="21"></line>
+            <line x1="4" y1="4" x2="9" y2="9"></line>
+          </svg>
+        </button>
         <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode" title="Toggle theme">
           <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
@@ -97,6 +112,37 @@
           localStorage.setItem('kcd-theme', next);
         } catch (e) {}
       });
+    })();
+
+    (function() {
+      var searchBtn = document.getElementById('nav-search-btn');
+      if (searchBtn) {
+        searchBtn.addEventListener('click', function() {
+          var input = document.getElementById('catalog-search-input') || document.getElementById('category-search-input');
+          if (input) {
+            input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(function() { input.focus(); }, 250);
+          } else {
+            window.location.href = "{{ '/#catalog-search-input' | relative_url }}";
+          }
+        });
+      }
+
+      var randomBtn = document.getElementById('nav-random-model');
+      if (randomBtn) {
+        {% assign nav_visible_models = site.models | where_exp: "item", "item.hidden != true" %}
+        var modelUrls = [
+          {% for m in nav_visible_models %}{{ m.url | relative_url | jsonify }}{% unless forloop.last %},{% endunless %}{% endfor %}
+        ];
+        randomBtn.addEventListener('click', function() {
+          if (!modelUrls.length) return;
+          var currentPath = window.location.pathname;
+          var candidates = modelUrls.filter(function(u) { return u !== currentPath; });
+          var pool = candidates.length ? candidates : modelUrls;
+          var pick = pool[Math.floor(Math.random() * pool.length)];
+          window.location.href = pick;
+        });
+      }
     })();
   </script>
 </body>

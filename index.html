@@ -486,7 +486,13 @@ description: "Browse original 3D printable models by category—Useful Prints, G
       }
     }
 
-    if (searchInput) searchInput.addEventListener('input', filterModels);
+    if (searchInput) {
+      searchInput.addEventListener('input', filterModels);
+      if (window.location.hash === '#catalog-search-input') {
+        searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(function () { searchInput.focus(); }, 250);
+      }
+    }
     filterModels();
 
     function resetSearch() {
